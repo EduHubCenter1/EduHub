@@ -420,6 +420,124 @@ async function main() {
       }
     }
   }
+  console.log("💻 Creating Field 4: Ingénierie Logicielle...")
+
+const field4 = await prisma.field.upsert({
+  where: { slug: "ingenierie-logicielle" },
+  update: {},
+  create: {
+    name: "Ingénierie Logicielle",
+    slug: "ingenierie-logicielle",
+    description: "Concentre sur la conception, le développement et la maintenance de logiciels de qualité, en appliquant des méthodes rigoureuses pour créer des solutions fiables, évolutives et adaptées aux besoins des utilisateurs.",
+  },
+})
+
+// Create 6 semesters for Field 4
+const field4Semesters = []
+for (let i = 1; i <= 6; i++) {
+  const semester = await prisma.semester.upsert({
+    where: { fieldId_number: { fieldId: field4.id, number: i } },
+    update: {},
+    create: {
+      number: i,
+      fieldId: field4.id,
+    },
+  })
+  field4Semesters.push(semester)
+}
+
+// Field 4 Modules
+const field4ModulesData = [
+  // Semester 1
+  [
+    "Mathématiques Appliquées",
+    "Algorithmes et Programmation",
+    "POO en Java",
+    "Réseaux informatique",
+    "Architecture des ordinateurs et Systèmes d’exploitation",
+    "Langues Etrangères 1",
+    "Compétences numériques et informatique",
+  ],
+  // Semester 2
+  [
+    "Recherche Opérationnelle",
+    "Administration réseaux et systèmes",
+    "Structures de données avancée",
+    "Technologies Web",
+    "Systèmes d’Information et Bases de Données Relationnelles",
+    "Langues Etrangères 2",
+    "Compétences artistiques et culturelles",
+    "Stage",
+  ],
+  // Semester 3
+  [
+    "Programmation Python",
+    "Compilation et Informatique quantique",
+    "POO en C++ et Applications",
+    "Développement WEB JEE",
+    "Gestion de projet et Génie logiciel",
+    "Langues Etrangères 3",
+    "Technologies de l’intelligence artificielle",
+  ],
+  // Semester 4
+  [
+    "Systèmes décisionnels",
+    "Ingénierie logicielle, Qualité, Test et Intégration",
+    "Intelligence Artificielle",
+    "Développement mobile et Metaverse",
+    "IoT et Cloud computing",
+    "Langues Etrangères 4",
+    "Gestion de projets et d’entreprises",
+    "Stage",
+  ],
+  // Semester 5
+  [
+    "Enterprise Resource Planning ERP",
+    "Big Data et NoSQL",
+    "Blockchaine et Sécurité",
+    "Vision par ordinateur",
+    "Tendances et évolutions IT",
+    "Langues Etrangères 5",
+    "Compétences de vie et personnelles",
+  ],
+  // Semester 6
+  [
+    "Projet de fin d’études (PFE)",
+  ],
+]
+
+for (let semesterIndex = 0; semesterIndex < 6; semesterIndex++) {
+  const semester = field4Semesters[semesterIndex]
+  const modules = field4ModulesData[semesterIndex]
+
+  for (const moduleName of modules) {
+    const moduleSlug = createSlug(moduleName)
+    const module = await prisma.module.upsert({
+      where: { semesterId_slug: { semesterId: semester.id, slug: moduleSlug } },
+      update: {},
+      create: {
+        name: moduleName,
+        slug: moduleSlug,
+        semesterId: semester.id,
+      },
+    })
+
+    // Create submodules
+    const submoduleNames = ["Partie 1", "Partie 2", "Travaux Pratiques"]
+    for (const submoduleName of submoduleNames) {
+      const submoduleSlug = createSlug(submoduleName)
+      await prisma.submodule.upsert({
+        where: { moduleId_slug: { moduleId: module.id, slug: submoduleSlug } },
+        update: {},
+        create: {
+          name: submoduleName,
+          slug: submoduleSlug,
+          moduleId: module.id,
+        },
+      })
+    }
+  }
+}
 
   // Create admin scopes for class admins
   console.log("🔑 Creating admin scopes...")
