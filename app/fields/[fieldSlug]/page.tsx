@@ -27,7 +27,8 @@ async function getFieldWithSemesters(slug: string) {
 }
 
 export default async function FieldPage({ params }: PageProps) {
-  const field = await getFieldWithSemesters(params.fieldSlug)
+  const resolvedParams = await params;
+  const field = await getFieldWithSemesters(resolvedParams.fieldSlug);
 
   if (!field) {
     notFound()
