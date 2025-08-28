@@ -1,0 +1,136 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Field {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String     @unique
+  description String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  
+  semesters   Semester[]
+  adminScopes AdminScope[]
+
+  @@map("fields")
+}
+
+model Semester {
+  id        String   @id @default(cuid())
+  number    Int      // 1-6 enforced at application level
+  fieldId   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  field   Field    @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  modules Module[]
+  
+  @@unique([fieldId, number])
+  @@map("semesters")
+}
+
+model Module {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String
+  semesterId  String
+  description String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  
+  semester   Semester    @relation(fields: [semesterId], references: [id], onDelete: Cascade)
+  submodules Submodule[]
+  
+  @@unique([semesterId, slug])
+  @@map("modules")
+}
+
+model Submodule {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String
+  moduleId    String
+  description String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  
+  module    Module     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  resources Resource[]
+  
+  @@unique([moduleId, slug])
+  @@map("submodules")
+}
+
+enum ResourceType {
+  course
+  exam
+  tp_exercise
+  project
+  presentation
+  report
+  other
+}
+
+model Resource {
+  id               String       @id @default(cuid())
+  title            String
+  type             ResourceType
+  description      String?
+  fileUrl          String
+  fileExt          String
+  mimeType         String
+  sizeBytes        Int
+  sha256           String
+  submoduleId      String
+  uploadedByUserId String
+  createdAt        DateTime     @default(now())
+  updatedAt        DateTime     @updatedAt
+  
+  submodule    Submodule @relation(fields: [submoduleId], references: [id], onDelete: Cascade)
+  uploadedBy   User      @relation(fields: [uploadedByUserId], references: [id])
+  
+  @@index([title, type, createdAt])
+  @@map("resources")
+}
+
+enum UserRole {
+  superAdmin
+  classAdmin
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  role         UserRole
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  adminScopes     AdminScope[]
+  uploadedResources Resource[]
+  
+  @@map("users")
+}
+
+model AdminScope {
+  id             String @id @default(cuid())
+  userId         String
+  fieldId        String
+  semesterNumber Int    // 1-6
+  
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  field Field @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+  
+  @@unique([userId, fieldId, semesterNumber])
+  @@map("admin_scopes")
+}
