@@ -4,43 +4,13 @@ import Link from "next/link";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { GraduationCap, Settings, LogOut } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import { useEffect, useState } from "react";
+import { useAuth } from "@/hooks/useAuth"; // ✅ utilisation du hook
 
 export function PublicHeader() {
-  const router = useRouter();
-  const [user, setUser] = useState<any>(null);
-  const [loading, setLoading] = useState(true); // ✅ Ajouté
-  const supabase = createSupabaseBrowserClient();
+  const { user, loading, logout } = useAuth(); // ✅ hook
 
-  useEffect(() => {
-    // ✅ NOUVEAU - Récupérer la session actuelle au montage
-    const getSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      console.log('Session récupérée:', session?.user);
-      setUser(session?.user || null);
-      setLoading(false); // ✅ Ajouté
-    };
-
-    getSession(); // ✅ NOUVEAU - Appel crucial
-
-    // Écoute des changements de session
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      console.log('onAuthStateChange fired:', session?.user);
-      setUser(session?.user || null);
-      setLoading(false); // ✅ Ajouté
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [supabase]);
-
-  // Déconnexion
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/");
+    await logout();
   };
 
   return (
@@ -54,7 +24,7 @@ export function PublicHeader() {
         <div className="flex items-center space-x-4">
           <ThemeToggle />
 
-          {/* ✅ MODIFIÉ - Affichage conditionnel avec loading */}
+          {/* ✅ Utilisation du hook */}
           {loading ? (
             <Button variant="outline" size="sm" disabled>
               ...
