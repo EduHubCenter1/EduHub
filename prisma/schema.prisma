@@ -1,137 +1,132 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// ======================================
+//  SCHEMA PRISMA (basé sur ton Supabase)
+// ======================================
 
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["public", "auth"]
+}
+
+model User {
+  id        String   @id
+  firstName String?  @map("first_name")
+  lastName  String?  @map("last_name")
+  email     String   @unique
+  role      String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  // Relations
+  adminScopes       AdminScope[]
+  uploadedResources Resource[] @relation("UserResources")
+
+  @@map("users")
+  @@schema("public")
+}
+
+model AdminScope {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Text
+  userId         String   @map("user_id") @db.Uuid
+  fieldId        String   @map("field_id")
+  semesterNumber Int      @map("semester_number")
+
+  // Relations
+  user   User   @relation(fields: [userId], references: [id])
+  field  Field  @relation(fields: [fieldId], references: [id])
+
+  @@map("admin_scopes")
+  @@schema("public")
 }
 
 model Field {
-  id          String     @id @default(cuid())
+  id          String     @id @default(dbgenerated("gen_random_uuid()")) @db.Text
   name        String
   slug        String     @unique
   description String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @default(now()) @map("updated_at")
+
+  // Relations
   semesters   Semester[]
   adminScopes AdminScope[]
 
   @@map("fields")
+  @@schema("public")
 }
 
 model Semester {
-  id        String   @id @default(cuid())
-  number    Int      // 1-6 enforced at application level
-  fieldId   String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  
-  field   Field    @relation(fields: [fieldId], references: [id], onDelete: Cascade)
-  modules Module[]
-  
-  @@unique([fieldId, number])
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Text
+  number    Int
+  fieldId   String   @map("field_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @map("updated_at")
+
+  // Relations
+  field    Field    @relation(fields: [fieldId], references: [id])
+  modules  Module[]
+
   @@map("semesters")
+  @@schema("public")
 }
 
 model Module {
-  id          String     @id @default(cuid())
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Text
   name        String
   slug        String
-  semesterId  String
+  semesterId  String   @map("semester_id")
   description String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  
-  semester   Semester    @relation(fields: [semesterId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @map("updated_at")
+
+  // Relations
+  semester   Semester @relation(fields: [semesterId], references: [id])
   submodules Submodule[]
-  
-  @@unique([semesterId, slug])
+
   @@map("modules")
+  @@schema("public")
 }
 
 model Submodule {
-  id          String     @id @default(cuid())
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Text
   name        String
   slug        String
-  moduleId    String
+  moduleId    String   @map("module_id")
   description String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  
-  module    Module     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
-  resources Resource[]
-  
-  @@unique([moduleId, slug])
-  @@map("submodules")
-}
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @map("updated_at")
 
-enum ResourceType {
-  course
-  exam
-  tp_exercise
-  project
-  presentation
-  report
-  other
+  // Relations
+  module     Module     @relation(fields: [moduleId], references: [id])
+  resources  Resource[]
+
+  @@map("submodules")
+  @@schema("public")
 }
 
 model Resource {
-  id               String       @id @default(cuid())
-  title            String
-  type             ResourceType
-  description      String?
-  fileUrl          String
-  fileExt          String
-  mimeType         String
-  sizeBytes        Int
-  sha256           String
-  submoduleId      String
-  uploadedByUserId String
-  createdAt        DateTime     @default(now())
-  updatedAt        DateTime     @updatedAt
-  
-  submodule    Submodule @relation(fields: [submoduleId], references: [id], onDelete: Cascade)
-  uploadedBy   User      @relation(fields: [uploadedByUserId], references: [id])
-  
-  @@index([title, type, createdAt])
+  id              String   @id @default(dbgenerated("gen_random_uuid()")) @db.Text
+  title           String
+  type            String
+  description     String?
+  fileUrl         String   @map("file_url")
+  fileExt         String   @map("file_ext")
+  mimeType        String   @map("mime_type")
+  sizeBytes       Int      @map("size_bytes")
+  sha256          String
+  submoduleId     String   @map("submodule_id")
+  uploadedByUserId String   @map("uploaded_by_user_id") @db.Uuid
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @default(now()) @map("updated_at")
+
+  // Relations
+  submodule Submodule @relation(fields: [submoduleId], references: [id])
+  uploadedBy User     @relation("UserResources", fields: [uploadedByUserId], references: [id])
+
   @@map("resources")
-}
-
-enum UserRole {
-  superAdmin
-  classAdmin
-}
-
-model User {
-  id String @id @db.Uuid
-  name         String
-  email        String   @unique
-  role         UserRole
-  passwordHash String
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  
-  adminScopes     AdminScope[]
-  uploadedResources Resource[]
-  
-  @@map("users")
-}
-
-model AdminScope {
-  id             String @id @default(cuid())
-  userId         String
-  fieldId        String
-  semesterNumber Int    // 1-6
-  
-  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
-  field Field @relation(fields: [fieldId], references: [id], onDelete: Cascade)
-  
-  @@unique([userId, fieldId, semesterNumber])
-  @@map("admin_scopes")
+  @@schema("public")
 }

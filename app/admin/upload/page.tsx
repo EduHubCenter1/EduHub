@@ -1,6 +1,7 @@
-import { getCurrentUser } from "@/lib/auth-utils"
+
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
+import { createSupabaseServerClient } from "@/lib/supabase/server"
 import { AdminLayout } from "@/components/admin/admin-layout"
 import { UploadForm } from "@/components/admin/upload-form"
 
@@ -58,13 +59,16 @@ async function getUploadData(userId: string, userRole: string) {
 }
 
 export default async function UploadPage() {
-  const user = await getCurrentUser()
+  const supabase = createSupabaseServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
     redirect("/admin/login")
   }
 
-  const fields = await getUploadData(user.id, user.role)
+  const userRole = user.user_metadata.role || ""
+
+  const fields = await getUploadData(user.id, userRole)
 
   return (
     <AdminLayout>

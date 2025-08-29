@@ -3,8 +3,9 @@
 import type React from "react"
 
 import { useState } from "react"
-import { signIn, getSession } from "next-auth/react"
+
 import { useRouter } from "next/navigation"
+import { createSupabaseBrowserClient } from "@/lib/supabase/client"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -25,21 +26,14 @@ export default function LoginPage() {
     setError("")
 
     try {
-      const result = await signIn("credentials", {
-        email,
-        password,
-        redirect: false,
-      })
+      const supabase = createSupabaseBrowserClient()
+      const { error } = await supabase.auth.signInWithPassword({ email, password })
 
-      if (result?.error) {
-        setError("Invalid credentials")
+      if (error) {
+        setError(error.message)
       } else {
-        // Check if sign in was successful
-        const session = await getSession()
-        if (session) {
-          router.push("/admin")
-          router.refresh()
-        }
+        router.push("/admin")
+        router.refresh()
       }
     } catch (error) {
       setError("An error occurred during sign in")

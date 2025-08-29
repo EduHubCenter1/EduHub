@@ -1,11 +1,11 @@
 import { type NextRequest, NextResponse } from "next/server"
-import { getCurrentUser } from "@/lib/auth-utils"
-import { checkAdminScope } from "@/lib/auth-utils"
+
 import { prisma } from "@/lib/prisma"
 import { storageService } from "@/lib/storage"
 import { generateResourcePath } from "@/lib/utils"
 import { uploadResourceSchema } from "@/lib/validators"
 import crypto from "crypto"
+import { createSupabaseServerClient } from "@/lib/supabase/server"
 
 const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50MB
 const ALLOWED_MIME_TYPES = [
@@ -27,10 +27,14 @@ const ALLOWED_MIME_TYPES = [
 
 export async function POST(request: NextRequest) {
   try {
-    const user = await getCurrentUser()
+    const supabase = createSupabaseServerClient()
+    const { data: { user } } = await supabase.auth.getUser()
+
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
+
+    const userRole = user.user_metadata.role || ""
 
     const formData = await request.formData()
     const file = formData.get("file") as File
@@ -86,11 +90,19 @@ export async function POST(request: NextRequest) {
     }
 
     // Check admin scope
-    const hasAccess = await checkAdminScope(
-      user.id,
-      submodule.module.semester.field.id,
-      submodule.module.semester.number,
-    )
+    let hasAccess = false
+    if (userRole === "superAdmin") {
+      hasAccess = true
+    } else {
+      const adminScope = await prisma.adminScope.findFirst({
+        where: {
+          userId: user.id,
+          fieldId: submodule.module.semester.field.id,
+          semesterNumber: submodule.module.semester.number,
+        },
+      })
+      hasAccess = !!adminScope
+    }
 
     if (!hasAccess) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 })

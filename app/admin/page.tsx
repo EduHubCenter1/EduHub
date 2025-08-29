@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation"
-import { getCurrentUser } from "@/lib/auth-utils"
+
 import { prisma } from "@/lib/prisma"
+import { createSupabaseServerClient } from "@/lib/supabase/server"
 import { AdminLayout } from "@/components/admin/admin-layout"
 import { DashboardStats } from "@/components/admin/dashboard-stats"
 import { RecentUploads } from "@/components/admin/recent-uploads"
@@ -136,26 +137,30 @@ async function getDashboardData(userId: string, userRole: string) {
 }
 
 export default async function AdminDashboard() {
-  const user = await getCurrentUser()
+  const supabase = createSupabaseServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
 
   if (!user) {
     redirect("/admin/login")
   }
 
-  const data = await getDashboardData(user.id, user.role)
+  const userRole = user.user_metadata.role || ""
+  const userName = user.user_metadata.name || user.email || "User"
+
+  const data = await getDashboardData(user.id, userRole)
 
   return (
     <AdminLayout>
       <div className="space-y-8">
         <div>
           <h1 className="text-3xl font-bold font-heading">Dashboard</h1>
-          <p className="text-muted-foreground">Welcome back, {user.name}</p>
+          <p className="text-muted-foreground">Welcome back, {userName}</p>
         </div>
 
-        <DashboardStats stats={data.stats} userRole={user.role} />
+        <DashboardStats stats={data.stats} userRole={userRole} />
 
         <div className="grid gap-8 md:grid-cols-2">
-          <QuickActions userRole={user.role} />
+          <QuickActions userRole={userRole} />
           <RecentUploads uploads={data.recentUploads} />
         </div>
       </div>

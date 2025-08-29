@@ -1,5 +1,6 @@
-import { requireSuperAdmin } from "@/lib/auth-utils"
+
 import { prisma } from "@/lib/prisma"
+import { createSupabaseServerClient } from "@/lib/supabase/server"
 import { AdminLayout } from "@/components/admin/admin-layout"
 import { FieldsTable } from "@/components/admin/fields-table"
 import { Button } from "@/components/ui/button"
@@ -20,7 +21,14 @@ async function getFields() {
 }
 
 export default async function FieldsPage() {
-  await requireSuperAdmin()
+  const supabase = createSupabaseServerClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  if (!user || user.user_metadata.role !== "superAdmin") {
+    // You might want to redirect to a 403 page or login page
+    // For now, let's just throw an error or redirect to login
+    throw new Error("Unauthorized: Super Admin access required.")
+  }
   const fields = await getFields()
 
   return (
