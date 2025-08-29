@@ -5,7 +5,7 @@ export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // If the route concerns authentication or protected API routes, apply the auth middleware
-  if (pathname.startsWith('/admin') || pathname.startsWith('/api/admin') || pathname.startsWith('/api/upload')) {
+  if (pathname.startsWith('/login') ) {
       return handleAuth(request)
   }
 
@@ -14,6 +14,3 @@ export async function middleware(request: NextRequest) {
 }
 
 // The "matcher" defines on which routes the middleware should execute
-export const config = {
-  matcher: ['/admin/:path*', '/api/admin/:path*', '/api/upload/:path*'],
-};

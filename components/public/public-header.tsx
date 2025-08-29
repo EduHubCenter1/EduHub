@@ -15,7 +15,7 @@ export function PublicHeader() {
         <div className="flex items-center space-x-4">
           <ThemeToggle />
           <Button asChild variant="outline" size="sm">
-            <Link href="/admin/login">
+            <Link href="/login">
               <Settings className="w-4 h-4 mr-2" />
               Admin
             </Link>

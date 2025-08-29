@@ -2,6 +2,7 @@ import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function handleAuth(request: NextRequest) {
+  
   let response = NextResponse.next({
     request: {
       headers: request.headers,
@@ -37,7 +38,7 @@ export async function handleAuth(request: NextRequest) {
       },
     }
   )
-
+const { data: { user } } = await supabase.auth.getUser();
   const {
     data: { session },
   } = await supabase.auth.getSession()
@@ -45,12 +46,12 @@ export async function handleAuth(request: NextRequest) {
   const { pathname } = request.nextUrl
 
   // If user is logged in and tries to access login page, redirect to admin dashboard
-  if (session && pathname === '/admin/login') {
-    return NextResponse.redirect(new URL('/admin', request.url))
+  if (session && pathname === '/login') {
+    return NextResponse.redirect(new URL('/', request.url))
   }
 
   // If user is not logged in and tries to access a protected route (that isn't the login page), redirect to login page
-  if (!session && pathname.startsWith('/admin') && pathname !== '/admin/login') {
+  if (!session && pathname.startsWith('/admin') && pathname !== '/login') {
     return NextResponse.redirect(new URL('/admin/login', request.url))
   }
   
@@ -60,9 +61,10 @@ export async function handleAuth(request: NextRequest) {
   }
 
   // If user is logged in and tries to access an admin route, check their role
-  if (session && pathname.startsWith('/admin') && pathname !== '/admin/login') {
-    const { data: { user } } = await supabase.auth.getUser();
-    const userRole = user?.user_metadata?.role;
+  if (session && pathname.startsWith('/admin') ) {
+    
+
+        const userRole = user?.role;
 
     // Define allowed admin roles (e.g., "superAdmin", "classAdmin")
     const allowedAdminRoles = ['superAdmin', 'classAdmin'];
@@ -70,7 +72,7 @@ export async function handleAuth(request: NextRequest) {
     if (!userRole || !allowedAdminRoles.includes(userRole)) {
       // Redirect to a forbidden page or back to login with an error
       // For now, let's redirect to the login page with a message
-      const redirectUrl = new URL('/admin/login', request.url);
+      const redirectUrl = new URL('/login', request.url);
       redirectUrl.searchParams.set('error', 'unauthorized_role');
       return NextResponse.redirect(redirectUrl);
     }

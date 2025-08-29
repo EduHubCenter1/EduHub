@@ -1,9 +1,9 @@
+// D:\Univ\CycleIng\Software Engineering\EduHub\EduHub\app\api\auth\logout\route.ts
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { NextResponse } from 'next/server'
 
 export async function POST(request: Request) {
-  const { email, password } = await request.json()
   const cookieStore = await cookies()
 
   const supabase = createServerClient(
@@ -24,14 +24,12 @@ export async function POST(request: Request) {
     }
   )
 
-  const { data,error } = await supabase.auth.signInWithPassword({
-    email,
-    password,
-  })
+  // Déconnexion
+  const { error } = await supabase.auth.signOut()
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 401 })
+    return NextResponse.json({ error: error.message }, { status: 400 })
   }
 
-  return NextResponse.json({ message: 'Login successful' }, { status: 200 })
+  return NextResponse.json({ message: 'Logout successful' }, { status: 200 })
 }
