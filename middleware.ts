@@ -1,6 +1,6 @@
 import { type NextRequest } from 'next/server';
 import { handleAuth } from './lib/middlewares/authMiddleware'
-
+import { handleadminAuth } from './lib/middlewares/adminMiddleware'
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -8,9 +8,11 @@ export async function middleware(request: NextRequest) {
   if (pathname.startsWith('/login') ) {
       return handleAuth(request)
   }
+  if (pathname.startsWith('/admin') ) {
+      return handleadminAuth(request)
+  }
 
   // For all other routes, do nothing
   return;
 }
 
-// The "matcher" defines on which routes the middleware should execute
