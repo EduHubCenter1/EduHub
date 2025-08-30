@@ -5,6 +5,7 @@ import { fields as Field } from "@prisma/client"
 import { MoreHorizontal, PlusCircle } from "lucide-react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
+import { useGlobalData } from "@/context/GlobalDataContext"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -39,11 +40,12 @@ import {
 } from "@/components/ui/alert-dialog"
 
 interface FieldsTableShellProps {
-  data: Field[]
+  // data: Field[] // No longer needed as data comes from context
 }
 
-export function FieldsTableShell({ data }: FieldsTableShellProps) {
+export function FieldsTableShell({ /* data */ }: FieldsTableShellProps) {
   const router = useRouter()
+  const { fields, refetchFields } = useGlobalData()
   const [isCreateOpen, setIsCreateOpen] = React.useState(false)
   const [isEditOpen, setIsEditOpen] = React.useState(false)
   const [isDeleteOpen, setIsDeleteOpen] = React.useState(false)
@@ -75,7 +77,7 @@ export function FieldsTableShell({ data }: FieldsTableShellProps) {
         throw new Error(data.message || "Something went wrong")
       }
       toast.success(data.message || "Field deleted successfully")
-      router.refresh()
+      refetchFields()
     } catch (error: any) {
       toast.error(error.message)
     } finally {
@@ -114,6 +116,9 @@ export function FieldsTableShell({ data }: FieldsTableShellProps) {
               <DropdownMenuItem onClick={() => handleEdit(field)}>
                 Edit
               </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => router.push(`/admin/dashboard/fields/${field.id}/semesters`)}>
+                View Semesters
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => handleDelete(field)}
@@ -147,13 +152,13 @@ export function FieldsTableShell({ data }: FieldsTableShellProps) {
             </DialogHeader>
             <FieldForm onSubmitSuccess={() => {
               setIsCreateOpen(false);
-              router.refresh();
+              refetchFields();
             }} />
           </DialogContent>
         </Dialog>
       </div>
 
-      <FieldsDataTable columns={columns} data={data} />
+      <FieldsDataTable columns={columns} data={fields} />
 
       {/* Edit Dialog */}
       <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
@@ -168,7 +173,7 @@ export function FieldsTableShell({ data }: FieldsTableShellProps) {
             field={currentField}
             onSubmitSuccess={() => {
               setIsEditOpen(false);
-              router.refresh();
+              refetchFields();
             }}
           />
         </DialogContent>
