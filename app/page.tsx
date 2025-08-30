@@ -6,16 +6,21 @@ import { PublicHeader } from "@/components/public/public-header"
 import { SearchBar } from "@/components/public/search-bar"
 
 async function getFields() {
-  return await prisma.fields.findMany({
-    orderBy: { name: "asc" },
-    include: {
-      _count: {
-        select: {
-          semesters: true,
+  try {
+    return await prisma.fields.findMany({
+      orderBy: { name: "asc" },
+      include: {
+        _count: {
+          select: {
+            semesters: true,
+          },
         },
       },
-    },
-  })
+    })
+  } catch (error) {
+    console.error("Failed to fetch fields during build:", error);
+    return [];
+  }
 }
 
 export default async function HomePage() {

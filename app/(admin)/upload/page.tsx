@@ -1,4 +1,6 @@
 
+export const dynamic = 'force-dynamic'
+
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { createSupabaseServerClient } from "@/lib/supabase/server"
@@ -60,15 +62,19 @@ async function getUploadData(userId: string, userRole: string) {
 
 export default async function UploadPage() {
   const supabase = createSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data } = await supabase.auth.getUser();
+  const user = data?.user;
 
   if (!user) {
-    redirect("/admin/login")
+    redirect("/admin/login");
   }
 
-  const userRole = user.user_metadata.role || ""
+  const userRole = user.user_metadata.role || "";
 
-  const fields = await getUploadData(user.id, userRole)
+  let fields = [];
+  if (user) {
+    fields = await getUploadData(user.id, userRole);
+  }
 
   return (
     <div className="space-y-6">
