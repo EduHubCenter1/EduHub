@@ -276,8 +276,8 @@ export function useAuth() {
     password: string, 
     metadata?: AuthMetadata
   ): Promise<AuthResponse> => {
-    console.log("📝 Tentative d'inscription pour:", email);
-    
+    console.log("📝 Tentative d'inscription via l'API pour:", email);
+
     // Validation côté client
     if (!email || !password) {
       return { success: false, error: "Email et mot de passe requis" };
@@ -288,39 +288,29 @@ export function useAuth() {
     }
 
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email: email.trim().toLowerCase(),
-        password,
-        options: {
-          data: metadata || {} // Métadonnées utilisateur personnalisées
-        }
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, metadata }),
       });
-      
-      if (error) {
-        console.error("❌ Erreur d'inscription:", error.message);
-        
-        let userFriendlyError = error.message;
-        if (error.message.includes('User already registered')) {
-          userFriendlyError = "Un compte existe déjà avec cet email";
-        }
-        
-        return { success: false, error: userFriendlyError };
-      }
 
-      console.log("✅ Inscription réussie. Email de confirmation envoyé à:", email);
+      const result = await response.json();
+
+      if (!response.ok) {
+        return { success: false, error: result.error || "Une erreur s'est produite lors de l'inscription" };
+      }
       
+      console.log("✅ Inscription réussie pour:", email);
+      return { success: true, data: result.data, message: result.message };
+
+    } catch (networkError: any) {
+      console.error("💥 Erreur réseau lors de l'inscription:", networkError);
       return { 
-        success: true, 
-        data,
-        // Message informatif pour l'utilisateur
-        message: "Inscription réussie ! Vérifiez votre email pour confirmer votre compte."
+        success: false, 
+        error: "Problème de connexion. Vérifiez votre connexion internet." 
       };
-      
-    } catch (error: any) {
-      console.error("💥 Erreur inattendue lors de l'inscription:", error);
-      return { success: false, error: "Erreur lors de l'inscription" };
     }
-  }, [supabase]);
+  }, []);
 
   /**
    * 🔄 Action de réinitialisation de mot de passe

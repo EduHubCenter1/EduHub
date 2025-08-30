@@ -36,7 +36,7 @@ export function LoginForm({
         setError(response.error || 'An unexpected error occurred.')
       } else {
         // Role-based redirection
-        const role = response.data?.user?.role;
+        const role = response.data?.user?.user_metadata?.role;
         const allowedAdminRoles = ['superAdmin', 'classAdmin'];
 
         if (role && allowedAdminRoles.includes(role)) {

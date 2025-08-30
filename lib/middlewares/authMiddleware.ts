@@ -15,7 +15,7 @@ const {data:{ session }} = await supabase.auth.getSession()
 
 const { pathname } = request.nextUrl
 
-const userRole: string = user?.role || '';
+const userRole: string = user?.user_metadata?.role || '';
   
 const allowedAdminRoles = ['superAdmin', 'classAdmin'];
 
