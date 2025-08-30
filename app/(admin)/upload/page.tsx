@@ -2,7 +2,7 @@
 import { redirect } from "next/navigation"
 import { prisma } from "@/lib/prisma"
 import { createSupabaseServerClient } from "@/lib/supabase/server"
-import { AdminLayout } from "@/components/admin/admin-layout"
+
 import { UploadForm } from "@/components/admin/upload-form"
 
 async function getUploadData(userId: string, userRole: string) {
@@ -71,15 +71,13 @@ export default async function UploadPage() {
   const fields = await getUploadData(user.id, userRole)
 
   return (
-    <AdminLayout>
-      <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold font-heading">Upload Resources</h1>
-          <p className="text-muted-foreground">Add new files to the academic resource library</p>
-        </div>
-
-        <UploadForm fields={fields} userId={user.id} />
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold font-heading">Upload Resources</h1>
+        <p className="text-muted-foreground">Add new files to the academic resource library</p>
       </div>
-    </AdminLayout>
+
+      <UploadForm fields={fields} userId={user.id} />
+    </div>
   )
 }

@@ -1,6 +1,5 @@
-"use client"
-
-import Link from "next/link";
+import Link from "next/link"
+import { usePathname } from "next/navigation"
 import { PlusCircleIcon, type LucideIcon } from "lucide-react"
 
 import {
@@ -20,20 +19,32 @@ export function AdminNav({
     icon?: LucideIcon
   }[]
 }) {
+  const pathname = usePathname()
+
   return (
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
         <SidebarMenu>
           <SidebarMenuItem>
-            <Link href="/upload" className="w-full">
+            <Link href="/admin/upload" className="w-full">
+              <SidebarMenuButton
+                tooltip="Upload"
+                className="w-full"
+                isActive={pathname.startsWith("/admin/upload")}
+              >
+                <PlusCircleIcon />
+                <span>Upload</span>
+              </SidebarMenuButton>
             </Link>
           </SidebarMenuItem>
-        </SidebarMenu>
-        <SidebarMenu>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
               <Link href={item.url} className="w-full">
-                <SidebarMenuButton tooltip={item.title} className="w-full">
+                <SidebarMenuButton
+                  tooltip={item.title}
+                  className="w-full"
+                  isActive={ pathname.endsWith(item.url)}
+                >
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>
                 </SidebarMenuButton>

@@ -69,7 +69,6 @@ export default function AdminSidebar({ ...props }: React.ComponentProps<typeof S
                               <GraduationCap className="h-8 w-8 text-primary" />
                               <span className="text-2xl font-bold font-heading text-primary">EduHub</span>
                               </div>
-                              {/*<SidebarTrigger className="-ml-1" />*/}
 
                           </div>
                       </SidebarMenuButton>

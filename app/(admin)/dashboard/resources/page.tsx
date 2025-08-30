@@ -1,6 +1,6 @@
 export default function ResourcesPage() {
   return (
-    <div>
+    <div className={'px-6'}>
       <h1 className="text-2xl font-bold">Resources</h1>
       <p>Manage your resources here.</p>
     </div>
