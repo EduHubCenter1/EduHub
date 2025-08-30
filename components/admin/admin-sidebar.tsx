@@ -1,41 +1,87 @@
-import Link from "next/link"
-import { cn } from "@/lib/utils"
-import { LayoutDashboard, BookOpen, Upload, Users, Settings, FileText, Folder } from "lucide-react"
+'use client'
+import * as React from "react"
+import {
+    ArrowUpCircleIcon,
+    DatabaseIcon,
+    FileCodeIcon,
+    FileIcon,
+    FolderIcon, GraduationCap,
+    LayoutDashboardIcon,
+    ListIcon,
+} from "lucide-react"
 
-interface AdminSidebarProps {
-  userRole: string
-}
+import { AdminNav } from "@/components/admin/admin-nav"
+import {
+    Sidebar,
+    SidebarContent, SidebarFooter,
+    SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarTrigger,
+} from "@/components/ui/sidebar"
+import {NavMain} from "@/components/nav-main";
+import {SiteHeader} from "@/components/site-header";
 
-const navigation = [
-  { name: "Dashboard", href: "/admin", icon: LayoutDashboard, roles: ["superAdmin", "classAdmin"] },
-  { name: "Upload Resources", href: "/admin/upload", icon: Upload, roles: ["superAdmin", "classAdmin"] },
-  { name: "Manage Fields", href: "/admin/fields", icon: BookOpen, roles: ["superAdmin"] },
-  { name: "Manage Modules", href: "/admin/modules", icon: FileText, roles: ["superAdmin", "classAdmin"] },
-  { name: "Manage Submodules", href: "/admin/submodules", icon: Folder, roles: ["superAdmin", "classAdmin"] },
-  { name: "User Management", href: "/admin/users", icon: Users, roles: ["superAdmin"] },
-  { name: "Settings", href: "/admin/settings", icon: Settings, roles: ["superAdmin"] },
-]
+const navMain = [
+    {
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: LayoutDashboardIcon,
+    },
+    {
+      title: "Fields",
+      url: "/dashboard/fields",
+      icon: FolderIcon,
+    },
+    {
+      title: "Semesters",
+      url: "/dashboard/semesters",
+      icon: ListIcon,
+    },
+    {
+      title: "Modules",
+      url: "/dashboard/modules",
+      icon: FileCodeIcon,
+    },
+    {
+      title: "Submodules",
+      url: "/dashboard/submodules",
+      icon: FileIcon,
+    },
+    {
+      title: "Resources",
+      url: "/dashboard/resources",
+      icon: DatabaseIcon,
+    },
+  ]
 
-export function AdminSidebar({ userRole }: AdminSidebarProps) {
-  const filteredNavigation = navigation.filter((item) => item.roles.includes(userRole))
-
+export default function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <aside className="w-64 border-r bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50 h-[calc(100vh-4rem)] overflow-y-auto">
-      <nav className="p-4 space-y-2">
-        {filteredNavigation.map((item) => (
-          <Link
-            key={item.name}
-            href={item.href}
-            className={cn(
-              "flex items-center space-x-3 px-3 py-2 rounded-md text-sm font-medium transition-colors",
-              "hover:bg-accent hover:text-accent-foreground",
-            )}
-          >
-            <item.icon className="h-5 w-5" />
-            <span>{item.name}</span>
-          </Link>
-        ))}
-      </nav>
-    </aside>
+      <>
+      <Sidebar collapsible="offcanvas" {...props}>
+          <SidebarHeader>
+              <SidebarMenu>
+                  <SidebarMenuItem>
+                      <SidebarMenuButton
+                          asChild
+                          className="data-[slot=sidebar-menu-button]:!p-1.5"
+                      >
+                          <div className={'flex h-16 items-center justify-between'}>
+                              <div className={'flex items-center space-x-4'}>
+
+                              <GraduationCap className="h-8 w-8 text-primary" />
+                              <span className="text-2xl font-bold font-heading text-primary">EduHub</span>
+                              </div>
+
+                          </div>
+                      </SidebarMenuButton>
+                  </SidebarMenuItem>
+              </SidebarMenu>
+          </SidebarHeader>
+          <SidebarContent>
+              <AdminNav items={navMain} />
+          </SidebarContent>
+          <SidebarFooter>
+          </SidebarFooter>
+      </Sidebar>
+
+      </>
   )
 }

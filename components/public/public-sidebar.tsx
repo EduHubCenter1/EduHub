@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { SidebarNav } from "./sidebar-nav"
 
 async function getNavigationData() {
-  return await prisma.field.findMany({
+  return await prisma.fields.findMany({
     orderBy: { name: "asc" },
     include: {
       semesters: {

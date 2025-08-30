@@ -14,9 +14,10 @@ export const resourceTypeSchema = z.enum([
 
 export const userRoleSchema = z.enum(["superAdmin", "classAdmin"])
 
-export const createFieldSchema = z.object({
-  name: z.string().min(1).max(255),
-  slug: z.string().min(1).max(100),
+export const fieldFormSchema = z.object({
+  name: z.string().min(2, {
+    message: "Name must be at least 2 characters.",
+  }),
   description: z.string().optional(),
 })
 

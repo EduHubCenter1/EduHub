@@ -1,37 +1,10 @@
-import type React from "react"
+import AdminSidebar from "@/components/admin/admin-sidebar";
 
-import { redirect } from "next/navigation"
-import { AdminHeader } from "./admin-header"
-import { AdminSidebar } from "./admin-sidebar"
-import { createSupabaseServerClient } from "@/lib/supabase/server"
-
-interface AdminLayoutProps {
-  children: React.ReactNode
-}
-
-export async function AdminLayout({ children }: AdminLayoutProps) {
-  const supabase = createSupabaseServerClient()
-  const { data: { user } } = await supabase.auth.getUser()
-
-  if (!user) {
-    redirect("/admin/login")
-  }
-
-  const userWithRole = {
-    ...user,
-    role: user.user_metadata.role || "",
-    name: user.user_metadata.name || user.email || "User",
-  }
-
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-background">
-      <AdminHeader user={userWithRole} />
-      <div className="flex">
-        <AdminSidebar userRole={userWithRole.role} />
-        <main className="flex-1 p-6">
-          <div className="max-w-7xl mx-auto">{children}</div>
-        </main>
-      </div>
+    <div className="flex h-screen">
+      <AdminSidebar />
+      <main className="flex flex-col gap-4 py-2 md:gap-6 overflow-y-auto w-full">{children}</main>
     </div>
-  )
+  );
 }
