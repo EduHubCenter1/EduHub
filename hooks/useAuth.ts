@@ -194,41 +194,37 @@ export function useAuth() {
    * Comme 'supabase' ne change jamais, cette fonction est créée une seule fois
    */
   const login = useCallback(async (email: string, password: string): Promise<AuthResponse> => {
-    console.log("🔑 Tentative de connexion pour:", email);
+    console.log("🔑 Tentative de connexion via l'API pour:", email);
     
-    // Validation basique côté client (sécurité : validation côté serveur aussi !)
     if (!email || !password) {
-      const errorMsg = "Email et mot de passe requis";
-      console.error("❌", errorMsg);
-      return { success: false, error: errorMsg };
+      return { success: false, error: "Email et mot de passe requis" };
     }
 
     try {
-      // Appel à l'API d'authentification Supabase
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: email.trim().toLowerCase(), // Normalisation de l'email
-        password
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
       });
-      
-      if (error) {
-        console.error("❌ Erreur de connexion:", error.message);
-        
-        // Messages d'erreur plus conviviaux pour l'utilisateur
-        let userFriendlyError = error.message;
-        if (error.message.includes('Invalid login credentials')) {
-          userFriendlyError = "Email ou mot de passe incorrect";
-        } else if (error.message.includes('Email not confirmed')) {
-          userFriendlyError = "Veuillez confirmer votre email avant de vous connecter";
-        }
-        
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        const userFriendlyError = result.error === 'Invalid login credentials' 
+          ? "Email ou mot de passe incorrect" 
+          : result.error || "Une erreur s'est produite";
         return { success: false, error: userFriendlyError };
       }
+      
+      const user = result.data?.user;
+      if (user) {
+        setUser(user); // Mise à jour manuelle de l'état
+        console.log("✅ Connexion réussie pour:", user.email);
+        return { success: true, data: result.data };
+      } else {
+        return { success: false, error: "N'a pas pu récupérer les données utilisateur." };
+      }
 
-      console.log("✅ Connexion réussie pour:", data.user?.email);
-      
-      // Note : pas besoin de setUser() ici car onAuthStateChange va s'en charger
-      return { success: true, data };
-      
     } catch (networkError: any) {
       console.error("💥 Erreur réseau lors de la connexion:", networkError);
       return { 
@@ -236,30 +232,28 @@ export function useAuth() {
         error: "Problème de connexion. Vérifiez votre connexion internet." 
       };
     }
-  }, [supabase]);
+  }, []);
 
   /**
    * 👋 Action de déconnexion
    * 
-   * Cette fonction gère proprement la déconnexion :
-   * - Suppression des tokens côté serveur
-   * - Nettoyage du stockage local
-   * - Redirection automatique (via onAuthStateChange)
+   * Cette fonction gère proprement la déconnexion en appelant l'API.
    */
   const logout = useCallback(async (): Promise<AuthResponse> => {
-    console.log("👋 Tentative de déconnexion...");
+    console.log("👋 Tentative de déconnexion via l'API...");
     
     try {
-      const { error } = await supabase.auth.signOut();
-      
-      if (error) {
-        console.error("❌ Erreur lors de la déconnexion:", error.message);
-        return { success: false, error: error.message };
+      const response = await fetch('/api/auth/logout', { method: 'POST' });
+
+      if (!response.ok) {
+        const result = await response.json();
+        console.error("❌ Erreur lors de la déconnexion:", result.error);
+        return { success: false, error: result.error };
       }
 
+      setUser(null); // Mise à jour manuelle de l'état
       console.log("✅ Déconnexion réussie");
-      // Note : la redirection et setUser(null) sont gérés par onAuthStateChange
-      
+      router.push('/'); // Redirection explicite
       return { success: true };
       
     } catch (error: any) {
@@ -269,7 +263,7 @@ export function useAuth() {
         error: "Erreur lors de la déconnexion" 
       };
     }
-  }, [supabase]);
+  }, [router]);
 
   /**
    * 📝 Action d'inscription

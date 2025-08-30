@@ -33,5 +33,5 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: error.message }, { status: 401 })
   }
 
-  return NextResponse.json({ message: 'Login successful' }, { status: 200 })
+  return NextResponse.json({ data }, { status: 200 })
 }
