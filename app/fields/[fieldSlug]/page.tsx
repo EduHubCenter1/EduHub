@@ -9,7 +9,7 @@ interface PageProps {
 }
 
 async function getFieldWithSemesters(slug: string) {
-  return await prisma.field.findUnique({
+  return await prisma.fields.findUnique({
     where: { slug },
     include: {
       semesters: {

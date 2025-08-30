@@ -14,22 +14,15 @@ const { data: { user } } = await supabase.auth.getUser();
 const {data:{ session }} = await supabase.auth.getSession()
 
 const { pathname } = request.nextUrl
-
-
-  if (session && pathname.startsWith('/admin') ) {
-    
-
-     const userRole: string = user?.user_metadata?.role || '';
-    
-
-    // Define allowed admin roles (e.g., "superAdmin", "classAdmin")
+    const userRole: string = user?.user_metadata?.role || '';
     const allowedAdminRoles = ['superAdmin', 'classAdmin'];
 
-    if (!userRole || !allowedAdminRoles.includes(userRole)) {
+      if (pathname.startsWith('/admin')) {
+        if (!session || !allowedAdminRoles.includes(userRole)) {
       const redirectUrl = new URL('/login', request.url);
-      redirectUrl.searchParams.set('error', 'unauthorized_role');
+      redirectUrl.searchParams.set('error', 'unauthorized');
       return NextResponse.redirect(redirectUrl);
-    }
+      }
   }
     return response
 
