@@ -1,9 +1,10 @@
 "use client"
 
 import * as React from "react"
-import { Field } from "@prisma/client"
+import { fields as Field } from "@prisma/client"
 import { MoreHorizontal, PlusCircle } from "lucide-react"
 import { toast } from "sonner"
+import { useRouter } from "next/navigation"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -25,7 +26,7 @@ import {
 import { ColumnDef } from "@tanstack/react-table"
 import { FieldsDataTable } from "./fields-data-table"
 import { FieldForm } from "./field-form"
-import { deleteField } from "@/lib/actions/fields.actions"
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -42,6 +43,7 @@ interface FieldsTableShellProps {
 }
 
 export function FieldsTableShell({ data }: FieldsTableShellProps) {
+  const router = useRouter()
   const [isCreateOpen, setIsCreateOpen] = React.useState(false)
   const [isEditOpen, setIsEditOpen] = React.useState(false)
   const [isDeleteOpen, setIsDeleteOpen] = React.useState(false)
@@ -62,14 +64,24 @@ export function FieldsTableShell({ data }: FieldsTableShellProps) {
   const onDeleteConfirm = async () => {
     if (!currentField) return
 
-    const response = await deleteField(currentField.id)
-    if (response.message) {
-      toast.error(response.message)
-    } else {
-      toast.success("Field deleted successfully")
+    try {
+      const response = await fetch(`/api/fields/${currentField.id}`, {
+        method: "DELETE",
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || "Something went wrong")
+      }
+      toast.success(data.message || "Field deleted successfully")
+      router.refresh()
+    } catch (error: any) {
+      toast.error(error.message)
+    } finally {
+      setIsDeleteOpen(false)
+      setCurrentField(undefined)
     }
-    setIsDeleteOpen(false)
-    setCurrentField(undefined)
   }
 
   const columns: ColumnDef<Field>[] = [
@@ -83,14 +95,6 @@ export function FieldsTableShell({ data }: FieldsTableShellProps) {
         return (
           <div className="truncate max-w-xs">{description || "-"}</div>
         )
-      },
-    },
-    {
-      accessorKey: "createdAt",
-      header: "Created At",
-      cell: ({ row }) => {
-        const date = new Date(row.getValue("createdAt"))
-        return <div className="font-medium">{date.toLocaleDateString()}</div>
       },
     },
     {
@@ -141,7 +145,10 @@ export function FieldsTableShell({ data }: FieldsTableShellProps) {
                 Fill in the details below to create a new field.
               </DialogDescription>
             </DialogHeader>
-            <FieldForm onSubmitSuccess={() => setIsCreateOpen(false)} />
+            <FieldForm onSubmitSuccess={() => {
+              setIsCreateOpen(false);
+              router.refresh();
+            }} />
           </DialogContent>
         </Dialog>
       </div>
@@ -159,7 +166,10 @@ export function FieldsTableShell({ data }: FieldsTableShellProps) {
           </DialogHeader>
           <FieldForm
             field={currentField}
-            onSubmitSuccess={() => setIsEditOpen(false)}
+            onSubmitSuccess={() => {
+              setIsEditOpen(false);
+              router.refresh();
+            }}
           />
         </DialogContent>
       </Dialog>

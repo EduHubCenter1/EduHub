@@ -1,12 +1,12 @@
-"use client"
+'use client'
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import { z } from "zod"
-import { Field } from "@prisma/client"
-import { toast } from "sonner"
+import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
+import { fields as Field } from '@prisma/client' // Alias for compatibility
+import { toast } from 'sonner'
 
-import { Button } from "@/components/ui/button"
+import { Button } from '@/components/ui/button'
 import {
   Form,
   FormControl,
@@ -15,11 +15,10 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { fieldFormSchema } from "@/lib/validators"
-import { upsertField } from "@/lib/actions/fields.actions"
+} from '@/components/ui/form'
+import { Input } from '@/components/ui/input'
+import { Textarea } from '@/components/ui/textarea'
+import { fieldFormSchema } from '@/lib/validators'
 
 interface FieldFormProps {
   field?: Field
@@ -30,19 +29,34 @@ export function FieldForm({ field, onSubmitSuccess }: FieldFormProps) {
   const form = useForm<z.infer<typeof fieldFormSchema>>({
     resolver: zodResolver(fieldFormSchema),
     defaultValues: {
-      name: field?.name || "",
-      description: field?.description || "",
+      name: field?.name || '',
+      description: field?.description || '',
     },
   })
 
   const onSubmit = async (values: z.infer<typeof fieldFormSchema>) => {
-    const response = await upsertField({ ...values, id: field?.id })
+    const method = field ? 'PUT' : 'POST'
+    const url = field ? `/api/fields/${field.id}` : '/api/fields'
 
-    if (response.message) {
-      toast.error(response.message)
-    } else {
-      toast.success(`Field ${field ? "updated" : "created"} successfully`)
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(values),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.message || 'Something went wrong')
+      }
+
+      toast.success(data.message || `Field ${field ? 'updated' : 'created'} successfully`)
       onSubmitSuccess?.()
+    } catch (error: any) {
+      toast.error(error.message)
     }
   }
 
@@ -80,9 +94,10 @@ export function FieldForm({ field, onSubmitSuccess }: FieldFormProps) {
           )}
         />
         <Button type="submit" disabled={form.formState.isSubmitting}>
-          {form.formState.isSubmitting ? "Saving..." : "Save"}
+          {form.formState.isSubmitting ? 'Saving...' : 'Save'}
         </Button>
       </form>
     </Form>
   )
 }
+
