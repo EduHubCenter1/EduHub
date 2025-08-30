@@ -19,7 +19,7 @@ interface SearchPageProps {
 async function getSearchData(query: string, filters: any) {
   const [results, fields] = await Promise.all([
     searchService.search(query, filters),
-    prisma.field.findMany({
+    prisma.fields.findMany({
       orderBy: { name: "asc" },
       select: { id: true, name: true, slug: true },
     }),

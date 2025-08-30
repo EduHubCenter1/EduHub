@@ -7,7 +7,7 @@ import { UploadForm } from "@/components/admin/upload-form"
 
 async function getUploadData(userId: string, userRole: string) {
   if (userRole === "superAdmin") {
-    return await prisma.field.findMany({
+    return await prisma.fields.findMany({
       orderBy: { name: "asc" },
       include: {
         semesters: {
