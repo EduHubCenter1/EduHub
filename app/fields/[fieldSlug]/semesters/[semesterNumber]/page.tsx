@@ -25,7 +25,7 @@ export default async function SemesterPage({ params }: SemesterPageProps) {
     notFound();
   }
 
-  const field = await prisma.field.findUnique({
+  const field = await prisma.fields.findUnique({
     where: { slug: fieldSlug },
   });
 
