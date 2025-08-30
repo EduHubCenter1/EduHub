@@ -19,7 +19,8 @@ const { pathname } = request.nextUrl
   if (session && pathname.startsWith('/admin') ) {
     
 
-      const userRole = user?.role;
+     const userRole: string = user?.user_metadata?.role || '';
+    
 
     // Define allowed admin roles (e.g., "superAdmin", "classAdmin")
     const allowedAdminRoles = ['superAdmin', 'classAdmin'];

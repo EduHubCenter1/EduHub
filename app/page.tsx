@@ -6,7 +6,7 @@ import { PublicHeader } from "@/components/public/public-header"
 import { SearchBar } from "@/components/public/search-bar"
 
 async function getFields() {
-  return await prisma.field.findMany({
+  return await prisma.fields.findMany({
     orderBy: { name: "asc" },
     include: {
       _count: {
@@ -19,7 +19,7 @@ async function getFields() {
 }
 
 export default async function HomePage() {
-  const fields = await getFields()
+  // const fields = await getFields()
 
   return (
     <div className="min-h-screen bg-background">
