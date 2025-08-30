@@ -19,7 +19,7 @@ async function getFields() {
 }
 
 export default async function HomePage() {
-  // const fields = await getFields()
+  const fields = await getFields()
 
   return (
     <div className="min-h-screen bg-background">
