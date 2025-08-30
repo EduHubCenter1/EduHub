@@ -1,33 +1,49 @@
-import { NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createServerClient, type CookieOptions } from '@supabase/ssr';
+import { cookies } from 'next/headers';
+import { NextResponse } from 'next/server';
 
 export async function POST(request: Request) {
-  const supabase = createSupabaseServerClient();
+  const requestUrl = new URL(request.url);
+  const formData = await request.json();
+  const email = formData.email as string;
+  const password = formData.password as string;
 
-  const { email, password, metadata } = await request.json();
+  const cookieStore = cookies();
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value;
+        },
+        set(name: string, value: string, options: CookieOptions) {
+          cookieStore.set({ name, value, ...options });
+        },
+        remove(name: string, options: CookieOptions) {
+          cookieStore.set({ name, value: '', ...options });
+        },
+      },
+    }
+  );
 
   try {
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
-        data: metadata, // Store firstName, lastName, role in user_metadata
+        emailRedirectTo: `${requestUrl.origin}/auth/callback`,
       },
     });
 
     if (error) {
-      console.error("Supabase signup error:", error);
-      return NextResponse.json({ error: error.message }, { status: 400 });
+      console.error('Supabase registration error:', error);
+      return NextResponse.json({ message: error.message }, { status: 400 });
     }
 
-    // Optionally, you might want to send a verification email or handle other post-signup logic
-
-    return NextResponse.json({
-      message: "User registered successfully!",
-      data: data.user,
-    }, { status: 201 });
-  } catch (error: any) {
-    console.error("Unexpected error during registration:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ message: 'Registration successful', data }, { status: 200 });
+  } catch (error) {
+    console.error('Unexpected error during registration:', error);
+    return NextResponse.json({ message: 'Internal server error' }, { status: 500 });
   }
 }
