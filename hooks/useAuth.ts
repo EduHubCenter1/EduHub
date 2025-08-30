@@ -11,6 +11,7 @@ interface AuthResponse {
   success: boolean;
   error?: string;
   data?: any;
+  message?:string;
 }
 
 interface AuthMetadata {

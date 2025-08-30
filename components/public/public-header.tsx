@@ -4,10 +4,10 @@ import Link from "next/link";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { GraduationCap, Settings, LogOut } from "lucide-react";
-import { useAuth } from "@/hooks/useAuth"; // ✅ utilisation du hook
+import { useAuthContext } from "@/context/AuthContext"; // ✅ utilisation du contexte
 
 export function PublicHeader() {
-  const { user, loading, logout } = useAuth(); // ✅ hook
+  const { user, loading, logout } = useAuthContext(); // ✅ hook
 
   const handleLogout = async () => {
     await logout();

@@ -7,19 +7,19 @@ export async function handleadminAuth(request: NextRequest) {
       headers: request.headers,
     },
   })
-    const supabase = createSupabaseMiddlewareClient(request, response)
+const supabase = createSupabaseMiddlewareClient(request, response)
       
 const { data: { user } } = await supabase.auth.getUser();
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
 
-  const { pathname } = request.nextUrl
+const {data:{ session }} = await supabase.auth.getSession()
+
+const { pathname } = request.nextUrl
+
 
   if (session && pathname.startsWith('/admin') ) {
     
 
-        const userRole = user?.role;
+      const userRole = user?.role;
 
     // Define allowed admin roles (e.g., "superAdmin", "classAdmin")
     const allowedAdminRoles = ['superAdmin', 'classAdmin'];

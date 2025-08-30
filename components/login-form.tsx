@@ -4,6 +4,7 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
+import { useAuthContext } from '@/context/AuthContext'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
@@ -17,6 +18,7 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<'div'>) {
   const router = useRouter()
+  const { login } = useAuthContext()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
@@ -28,20 +30,20 @@ export function LoginForm({
     setError(null)
 
     try {
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password }),
-      })
+      const response = await login(email, password)
 
-      if (!response.ok) {
-        const data = await response.json()
-        setError(data.error || 'An unexpected error occurred.')
+      if (!response.success) {
+        setError(response.error || 'An unexpected error occurred.')
       } else {
-        router.push('/profile')
-        router.refresh()
+        // Role-based redirection
+        const role = response.data?.user?.role;
+        const allowedAdminRoles = ['superAdmin', 'classAdmin'];
+
+        if (role && allowedAdminRoles.includes(role)) {
+          router.push('/admin/dashboard');
+        } else {
+          router.push('/profile');
+        }
       }
     } catch (err) {
       setError('Failed to connect to the server.')
