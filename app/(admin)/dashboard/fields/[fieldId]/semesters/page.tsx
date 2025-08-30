@@ -10,7 +10,7 @@ interface SemestersPageProps {
 
 async function getSemestersByFieldId(fieldId: string): Promise<Semester[]> {
   // TODO: use a dynamic host
-  const res = await fetch(`http://localhost:3000/api/fields/${fieldId}/semesters`, { cache: "no-store" });
+  const res = await fetch(`/api/fields/${fieldId}/semesters`, { cache: "no-store" });
   if (!res.ok) {
     throw new Error("Failed to fetch semesters");
   }

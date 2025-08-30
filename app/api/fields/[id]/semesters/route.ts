@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import prisma from "@/lib/prisma";
+import {prisma} from "@/lib/prisma";
 
 export async function GET(request: Request, { params }: { params: { id: string } }) {
   try {
@@ -9,7 +9,7 @@ export async function GET(request: Request, { params }: { params: { id: string }
       return NextResponse.json({ message: "Field ID is required" }, { status: 400 });
     }
 
-    const semesters = await prisma.semesters.findMany({
+    const semesters = await prisma.semester.findMany({
       where: {
         fieldId: fieldId,
       },
