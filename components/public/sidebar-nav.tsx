@@ -86,7 +86,7 @@ export function SidebarNav({ fields }: SidebarNavProps) {
               )}
             >
               <BookOpen className="h-4 w-4" />
-              <span className="truncate">{field.name}</span>
+              <span className="whitespace-normal break-words">{field.name}</span>
             </Link>
           </div>
 
@@ -145,7 +145,7 @@ export function SidebarNav({ fields }: SidebarNavProps) {
                           )}
                         >
                           <FileText className="h-3 w-3" />
-                          <span className="truncate">{module.name}</span>
+                          <span className="whitespace-normal break-words">{module.name}</span>
                         </Link>
                       </div>
 
@@ -162,7 +162,7 @@ export function SidebarNav({ fields }: SidebarNavProps) {
                             )}
                           >
                             <Folder className="h-3 w-3" />
-                            <span className="truncate">{submodule.name}</span>
+                            <span className="whitespace-normal break-words">{submodule.name}</span>
                           </Link>
                         ))}
                       </CollapsibleContent>

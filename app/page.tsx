@@ -2,7 +2,6 @@ import { Suspense } from "react"
 import { prisma } from "@/lib/prisma"
 import { HeroSection } from "@/components/public/hero-section"
 import { FieldsGrid } from "@/components/public/fields-grid"
-import { PublicHeader } from "@/components/public/public-header"
 import { SearchBar } from "@/components/public/search-bar"
 
 async function getFields() {
