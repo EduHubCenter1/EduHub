@@ -320,7 +320,7 @@ model auth_users {
   mfa_factors                 mfa_factors[]
   one_time_tokens             one_time_tokens[]
   sessions                    sessions[]
-  users                       public_users?
+  users                       user?
 
   @@index([instance_id])
   @@index([is_anonymous])
@@ -329,16 +329,17 @@ model auth_users {
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model admin_scopes {
-  id              String       @id @default(dbgenerated("gen_random_uuid()"))
-  user_id         String       @db.Uuid
+model admin_scope {
+  id              String @id @default(dbgenerated("gen_random_uuid()"))
+  user_id         String @db.Uuid
   field_id        String
   semester_number Int
-  fields          fields       @relation(fields: [field_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  users           public_users @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  fields          fields @relation(fields: [field_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users           user   @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([user_id, field_id, semester_number])
   @@schema("public")
+  @@map("admin_scopes")
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -349,14 +350,14 @@ model fields {
   description  String?
   created_at   DateTime       @default(now()) @db.Timestamptz(6)
   updated_at   DateTime       @default(now()) @db.Timestamptz(6)
-  admin_scopes admin_scopes[]
-  semesters    semesters[]
+  admin_scopes admin_scope[]
+  semesters    semester[]
 
   @@schema("public")
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model modules {
+model module {
   id          String       @id @default(dbgenerated("gen_random_uuid()"))
   name        String
   slug        String
@@ -364,18 +365,19 @@ model modules {
   description String?
   created_at  DateTime     @default(now()) @db.Timestamptz(6)
   updated_at  DateTime     @default(now()) @db.Timestamptz(6)
-  semesters   semesters    @relation(fields: [semester_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  resources   resources[]
-  submodules  submodules[]
+  semesters   semester    @relation(fields: [semester_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  resources   resource[]
+  submodules  submodule[]
 
   @@unique([semester_id, slug])
   @@schema("public")
+  @@map("modules")
 }
 
 /// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model resources {
-  id                  String       @id @default(dbgenerated("gen_random_uuid()"))
+model resource {
+  id                  String     @id @default(dbgenerated("gen_random_uuid()"))
   title               String
   type                String
   description         String?
@@ -385,34 +387,36 @@ model resources {
   size_bytes          Int
   sha256              String
   submodule_id        String
-  uploaded_by_user_id String       @db.Uuid
-  created_at          DateTime     @default(now()) @db.Timestamptz(6)
-  updated_at          DateTime     @default(now()) @db.Timestamptz(6)
+  uploaded_by_user_id String     @db.Uuid
+  created_at          DateTime   @default(now()) @db.Timestamptz(6)
+  updated_at          DateTime   @default(now()) @db.Timestamptz(6)
   module_id           String
-  modules             modules      @relation(fields: [module_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  submodules          submodules   @relation(fields: [submodule_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  users               public_users @relation(fields: [uploaded_by_user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "resources_uploadedbyuser_id_fkey")
+  modules             module    @relation(fields: [module_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  submodules          submodule @relation(fields: [submodule_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  users               user       @relation(fields: [uploaded_by_user_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "resources_uploadedbyuser_id_fkey")
 
   @@index([title, type, created_at], map: "idx_resources_title_type_created_at")
   @@schema("public")
+  @@map("resources")
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model semesters {
+model semester {
   id         String    @id @default(dbgenerated("gen_random_uuid()"))
   number     Int
   field_id   String
   created_at DateTime  @default(now()) @db.Timestamptz(6)
   updated_at DateTime  @default(now()) @db.Timestamptz(6)
-  modules    modules[]
+  modules    module[]
   fields     fields    @relation(fields: [field_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([field_id, number])
   @@schema("public")
+  @@map("semester")
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model submodules {
+model submodule {
   id          String      @id @default(dbgenerated("gen_random_uuid()"))
   name        String
   slug        String
@@ -420,15 +424,16 @@ model submodules {
   description String?
   created_at  DateTime    @default(now()) @db.Timestamptz(6)
   updated_at  DateTime    @default(now()) @db.Timestamptz(6)
-  resources   resources[]
-  modules     modules     @relation(fields: [module_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  resources   resource[]
+  modules     module     @relation(fields: [module_id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@unique([module_id, slug])
   @@schema("public")
+  @@map("submodules")
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
-model public_users {
+model user {
   id           String         @id @db.Uuid
   first_name   String?
   last_name    String?
@@ -436,8 +441,8 @@ model public_users {
   role         String?
   created_at   DateTime       @default(now()) @db.Timestamptz(6)
   updated_at   DateTime       @default(now()) @db.Timestamptz(6)
-  admin_scopes admin_scopes[]
-  resources    resources[]
+  admin_scopes admin_scope[]
+  resources    resource[]
   users        auth_users     @relation(fields: [id], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@map("users")
