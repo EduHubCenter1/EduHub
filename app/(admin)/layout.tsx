@@ -24,13 +24,13 @@ interface SubmoduleWithModuleSemesterAndField extends Submodule {
 }
 
 interface ResourceWithSubmoduleModuleSemesterAndField extends Resource {
-  submodule: Pick<Submodule, "name"> & {
+  submodule: (Pick<Submodule, "name"> & {
     module: Pick<Module, "name"> & {
       semester: Pick<Semester, "number"> & {
         field: Pick<fields, "name">
       }
     }
-  }
+  }) | null
 }
 
 async function getFields(): Promise<fields[]> {

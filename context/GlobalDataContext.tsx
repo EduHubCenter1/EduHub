@@ -22,13 +22,8 @@ interface SubmoduleWithModuleSemesterAndField extends Submodule {
 }
 
 interface ResourceWithSubmoduleModuleSemesterAndField extends Resource {
-  submodule: Pick<Submodule, "name"> & {
-    module: Pick<Module, "name"> & {
-      semester: Pick<Semester, "number"> & {
-        field: Pick<Field, "name">
-      }
-    }
-  }
+  module: ModuleWithSemesterAndField;
+  submodule: SubmoduleWithModuleSemesterAndandField | null;
 }
 
 interface GlobalDataContextType {
