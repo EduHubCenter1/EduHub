@@ -25,25 +25,13 @@ export function AdminNav({
     <SidebarGroup>
       <SidebarGroupContent className="flex flex-col gap-2">
         <SidebarMenu>
-          <SidebarMenuItem>
-            <Link href="/admin/upload" className="w-full">
-              <SidebarMenuButton
-                tooltip="Upload"
-                className="w-full"
-                isActive={pathname.startsWith("/admin/upload")}
-              >
-                <PlusCircleIcon />
-                <span>Upload</span>
-              </SidebarMenuButton>
-            </Link>
-          </SidebarMenuItem>
           {items.map((item) => (
             <SidebarMenuItem key={item.title}>
               <Link href={item.url} className="w-full">
                 <SidebarMenuButton
                   tooltip={item.title}
                   className="w-full"
-                  isActive={ pathname.endsWith(item.url)}
+                  isActive={pathname === item.url}
                 >
                   {item.icon && <item.icon />}
                   <span>{item.title}</span>

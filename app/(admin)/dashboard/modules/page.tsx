@@ -81,7 +81,12 @@ export default function ModulesPage() {
     let filtered = modules;
 
     if (selectedFilterFieldId !== "all") {
-      filtered = filtered.filter(module => module.semester.field.id === selectedFilterFieldId);
+      const semesterIdsInField = new Set(
+        allSemesters
+          .filter(s => s.fieldId === selectedFilterFieldId)
+          .map(s => s.id)
+      );
+      filtered = filtered.filter(module => semesterIdsInField.has(module.semesterId));
     }
 
     if (selectedFilterSemesterId !== "all") {
@@ -89,7 +94,7 @@ export default function ModulesPage() {
     }
 
     return filtered;
-  }, [modules, selectedFilterSemesterId, selectedFilterFieldId]);
+  }, [modules, selectedFilterSemesterId, selectedFilterFieldId, allSemesters]);
 
   if (!modules) {
     return (
@@ -107,9 +112,10 @@ export default function ModulesPage() {
         <Button onClick={handleCreate}>Add Module</Button>
       </div>
       <p>Manage your modules here.</p>
-      <div className="flex items-center space-x-2 mb-4">
+      <div className="flex items-center space-x-2 mt-4">
         <Select onValueChange={(value) => {
           setSelectedFilterFieldId(value);
+          setSelectedFilterSemesterId("all");
         }} value={selectedFilterFieldId}>
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="Filter by Field" />
@@ -130,15 +136,17 @@ export default function ModulesPage() {
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="all">All Semesters</SelectItem>
-            {allSemesters.map((semester) => (
+            {allSemesters
+              .filter(semester => selectedFilterFieldId === "all" || semester.fieldId === selectedFilterFieldId)
+              .map((semester) => (
                 <SelectItem key={semester.id} value={semester.id}>
-                  Semester {semester.number}
+                  Semester {semester.number} ({semester.field.name})
                 </SelectItem>
               ))}
           </SelectContent>
         </Select>
       </div>
-      <div className="mt-4">
+      <div className="">
         <ModulesDataTable data={filteredModules} onEdit={handleEdit} onDelete={handleDelete} />
       </div>
 

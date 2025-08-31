@@ -81,22 +81,23 @@ export default function SubmodulesPage() {
   };
 
   const filteredSubmodules = useMemo(() => {
-    let filtered = submodules;
+    const moduleMap = new Map(allModules.map(m => [m.id, m]));
+    const semesterMap = new Map(allSemesters.map(s => [s.id, s]));
 
-    if (selectedFilterFieldId !== "all") {
-      filtered = filtered.filter(submodule => submodule.module.semester.field.id === selectedFilterFieldId);
-    }
+    return submodules.filter(submodule => {
+      const module = moduleMap.get(submodule.moduleId);
+      if (!module) return false;
 
-    if (selectedFilterSemesterId !== "all") {
-      filtered = filtered.filter(submodule => submodule.module.semesterId === selectedFilterSemesterId);
-    }
+      const semester = semesterMap.get(module.semesterId);
+      if (!semester) return false;
 
-    if (selectedFilterModuleId !== "all") {
-      filtered = filtered.filter(submodule => submodule.moduleId === selectedFilterModuleId);
-    }
+      const fieldMatch = selectedFilterFieldId === "all" || semester.fieldId === selectedFilterFieldId;
+      const semesterMatch = selectedFilterSemesterId === "all" || module.semesterId === selectedFilterSemesterId;
+      const moduleMatch = selectedFilterModuleId === "all" || submodule.moduleId === selectedFilterModuleId;
 
-    return filtered;
-  }, [submodules, selectedFilterFieldId, selectedFilterSemesterId, selectedFilterModuleId]);
+      return fieldMatch && semesterMatch && moduleMatch;
+    });
+  }, [submodules, selectedFilterFieldId, selectedFilterSemesterId, selectedFilterModuleId, allModules, allSemesters]);
 
   if (!submodules) {
     return (
@@ -114,7 +115,7 @@ export default function SubmodulesPage() {
         <Button onClick={handleCreate}>Add Submodule</Button>
       </div>
       <p>Manage your submodules here.</p>
-      <div className="flex items-center space-x-2 mb-4">
+      <div className="flex items-center space-x-2 mt-4">
         {/* Field Filter */}
         <Select onValueChange={(value) => {
           setSelectedFilterFieldId(value);
@@ -145,10 +146,10 @@ export default function SubmodulesPage() {
           <SelectContent>
             <SelectItem value="all">All Semesters</SelectItem>
             {allSemesters
-              .filter(semester => selectedFilterFieldId === "all" || semester.field.id === selectedFilterFieldId)
+              .filter(semester => selectedFilterFieldId === "all" || semester.fieldId === selectedFilterFieldId)
               .map((semester) => (
                 <SelectItem key={semester.id} value={semester.id}>
-                  Semester {semester.number}
+                  Semester {semester.number} ({semester.field.name})
                 </SelectItem>
               ))}
           </SelectContent>
@@ -162,10 +163,16 @@ export default function SubmodulesPage() {
           <SelectContent>
             <SelectItem value="all">All Modules</SelectItem>
             {allModules
-              .filter(module => 
-                (selectedFilterFieldId === "all" || module.semester.field.id === selectedFilterFieldId) &&
-                (selectedFilterSemesterId === "all" || module.semesterId === selectedFilterSemesterId)
-              )
+              .filter(module => {
+                  if (selectedFilterSemesterId !== "all") {
+                    return module.semesterId === selectedFilterSemesterId;
+                  }
+                  if (selectedFilterFieldId !== "all") {
+                    const semester = allSemesters.find(s => s.id === module.semesterId);
+                    return semester && semester.fieldId === selectedFilterFieldId;
+                  }
+                  return true;
+                })
               .map((module) => (
                 <SelectItem key={module.id} value={module.id}>
                   {module.name} (S{module.semester.number} - {module.semester.field.name})
@@ -174,7 +181,7 @@ export default function SubmodulesPage() {
           </SelectContent>
         </Select>
       </div>
-      <div className="mt-4">
+      <div className="">
         <SubmodulesDataTable data={filteredSubmodules} onEdit={handleEdit} onDelete={handleDelete} />
       </div>
 

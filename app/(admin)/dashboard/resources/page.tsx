@@ -84,26 +84,28 @@ export default function ResourcesPage() {
   };
 
   const filteredResources = useMemo(() => {
-    let filtered = resources;
+    const submoduleMap = new Map(allSubmodules.map(sm => [sm.id, sm]));
+    const moduleMap = new Map(allModules.map(m => [m.id, m]));
+    const semesterMap = new Map(allSemesters.map(s => [s.id, s]));
 
-    if (selectedFilterFieldId !== "all") {
-      filtered = filtered.filter(resource => resource.submodule.module.semester.field.id === selectedFilterFieldId);
-    }
+    return resources.filter(resource => {
+      const submodule = submoduleMap.get(resource.submoduleId);
+      if (!submodule) return false;
 
-    if (selectedFilterSemesterId !== "all") {
-      filtered = filtered.filter(resource => resource.submodule.module.semesterId === selectedFilterSemesterId);
-    }
+      const module = moduleMap.get(submodule.moduleId);
+      if (!module) return false;
 
-    if (selectedFilterModuleId !== "all") {
-      filtered = filtered.filter(resource => resource.submodule.moduleId === selectedFilterModuleId);
-    }
+      const semester = semesterMap.get(module.semesterId);
+      if (!semester) return false;
 
-    if (selectedFilterSubmoduleId !== "all") {
-      filtered = filtered.filter(resource => resource.submoduleId === selectedFilterSubmoduleId);
-    }
+      const fieldMatch = selectedFilterFieldId === "all" || semester.fieldId === selectedFilterFieldId;
+      const semesterMatch = selectedFilterSemesterId === "all" || module.semesterId === selectedFilterSemesterId;
+      const moduleMatch = selectedFilterModuleId === "all" || submodule.moduleId === selectedFilterModuleId;
+      const submoduleMatch = selectedFilterSubmoduleId === "all" || resource.submoduleId === selectedFilterSubmoduleId;
 
-    return filtered;
-  }, [resources, selectedFilterFieldId, selectedFilterSemesterId, selectedFilterModuleId, selectedFilterSubmoduleId]);
+      return fieldMatch && semesterMatch && moduleMatch && submoduleMatch;
+    });
+  }, [resources, selectedFilterFieldId, selectedFilterSemesterId, selectedFilterModuleId, selectedFilterSubmoduleId, allSubmodules, allModules, allSemesters]);
 
   if (!resources) {
     return (
@@ -121,7 +123,7 @@ export default function ResourcesPage() {
         <Button onClick={handleCreate}>Add Resource</Button>
       </div>
       <p>Manage your resources here.</p>
-      <div className="flex items-center space-x-2 mb-4">
+      <div className="flex items-center space-x-2 mt-4">
         {/* Field Filter */}
         <Select onValueChange={(value) => {
           setSelectedFilterFieldId(value);
@@ -154,10 +156,10 @@ export default function ResourcesPage() {
           <SelectContent>
             <SelectItem value="all">All Semesters</SelectItem>
             {allSemesters
-              .filter(semester => selectedFilterFieldId === "all" || semester.field.id === selectedFilterFieldId)
+              .filter(semester => selectedFilterFieldId === "all" || semester.fieldId === selectedFilterFieldId)
               .map((semester) => (
                 <SelectItem key={semester.id} value={semester.id}>
-                  Semester {semester.number}
+                  Semester {semester.number} ({semester.field.name})
                 </SelectItem>
               ))}
           </SelectContent>
@@ -174,10 +176,16 @@ export default function ResourcesPage() {
           <SelectContent>
             <SelectItem value="all">All Modules</SelectItem>
             {allModules
-              .filter(module => 
-                (selectedFilterFieldId === "all" || module.semester.field.id === selectedFilterFieldId) &&
-                (selectedFilterSemesterId === "all" || module.semesterId === selectedFilterSemesterId)
-              )
+              .filter(module => {
+                  if (selectedFilterSemesterId !== "all") {
+                    return module.semesterId === selectedFilterSemesterId;
+                  }
+                  if (selectedFilterFieldId !== "all") {
+                    const semester = allSemesters.find(s => s.id === module.semesterId);
+                    return semester && semester.fieldId === selectedFilterFieldId;
+                  }
+                  return true;
+                })
               .map((module) => (
                 <SelectItem key={module.id} value={module.id}>
                   {module.name} (S{module.semester.number} - {module.semester.field.name})
@@ -194,11 +202,22 @@ export default function ResourcesPage() {
           <SelectContent>
             <SelectItem value="all">All Submodules</SelectItem>
             {allSubmodules
-              .filter(submodule => 
-                (selectedFilterFieldId === "all" || submodule.module.semester.field.id === selectedFilterFieldId) &&
-                (selectedFilterSemesterId === "all" || submodule.module.semesterId === selectedFilterSemesterId) &&
-                (selectedFilterModuleId === "all" || submodule.moduleId === selectedFilterModuleId)
-              )
+              .filter(submodule => {
+                if (selectedFilterModuleId !== "all") {
+                  return submodule.moduleId === selectedFilterModuleId;
+                }
+                const module = allModules.find(m => m.id === submodule.moduleId);
+                if (!module) return false;
+
+                if (selectedFilterSemesterId !== "all") {
+                  return module.semesterId === selectedFilterSemesterId;
+                }
+                if (selectedFilterFieldId !== "all") {
+                  const semester = allSemesters.find(s => s.id === module.semesterId);
+                  return semester && semester.fieldId === selectedFilterFieldId;
+                }
+                return true;
+              })
               .map((submodule) => (
                 <SelectItem key={submodule.id} value={submodule.id}>
                   {submodule.name} (M: {submodule.module.name} | S: {submodule.module.semester.number} | F: {submodule.module.semester.field.name})
@@ -207,7 +226,7 @@ export default function ResourcesPage() {
           </SelectContent>
         </Select>
       </div>
-      <div className="mt-4">
+      <div className="">
         <ResourcesDataTable data={filteredResources} onEdit={handleEdit} onDelete={handleDelete} />
       </div>
 
