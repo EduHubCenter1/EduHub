@@ -1,30 +1,73 @@
-"use client"
+"use client";
 
 import React, { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react";
-import { fields as Field } from "@prisma/client";
+import { fields as Field, semester as Semester, module as Module, submodule as Submodule, resource as Resource } from "@prisma/client";
+
+interface SemesterWithField extends Semester {
+  field: Pick<Field, "name">
+}
+
+interface ModuleWithSemesterAndField extends Module {
+  semester: Pick<Semester, "number"> & {
+    field: Pick<Field, "name">
+  }
+}
+
+interface SubmoduleWithModuleSemesterAndField extends Submodule {
+  module: Pick<Module, "name"> & {
+    semester: Pick<Semester, "number"> & {
+      field: Pick<Field, "name">
+    }
+  }
+}
+
+interface ResourceWithSubmoduleModuleSemesterAndField extends Resource {
+  submodule: Pick<Submodule, "name"> & {
+    module: Pick<Module, "name"> & {
+      semester: Pick<Semester, "number"> & {
+        field: Pick<Field, "name">
+      }
+    }
+  }
+}
 
 interface GlobalDataContextType {
   fields: Field[];
   refetchFields: () => Promise<void>;
-  // Add more data types and their refetch functions here as needed
-  // semesters: Semester[];
-  // refetchSemesters: () => Promise<void>;
+  semesters: SemesterWithField[];
+  refetchSemesters: () => Promise<void>;
+  modules: ModuleWithSemesterAndField[];
+  refetchModules: () => Promise<void>;
+  submodules: SubmoduleWithModuleSemesterAndField[];
+  refetchSubmodules: () => Promise<void>;
+  resources: ResourceWithSubmoduleModuleSemesterAndField[];
+  refetchResources: () => Promise<void>;
 }
 
 const GlobalDataContext = createContext<GlobalDataContextType | undefined>(undefined);
 
 interface GlobalDataProviderProps {
   initialFields: Field[];
-  // Add more initial data props here as needed
+  initialSemesters: SemesterWithField[];
+  initialModules: ModuleWithSemesterAndField[];
+  initialSubmodules: SubmoduleWithModuleSemesterAndField[];
+  initialResources: ResourceWithSubmoduleModuleSemesterAndField[];
   children: ReactNode;
 }
 
 export const GlobalDataProvider: React.FC<GlobalDataProviderProps> = ({
   initialFields,
+  initialSemesters,
+  initialModules,
+  initialSubmodules,
+  initialResources,
   children,
 }) => {
   const [fields, setFields] = useState<Field[]>(initialFields);
-  // Add more state for other data types here
+  const [semesters, setSemesters] = useState<SemesterWithField[]>(initialSemesters);
+  const [modules, setModules] = useState<ModuleWithSemesterAndField[]>(initialModules);
+  const [submodules, setSubmodules] = useState<SubmoduleWithModuleSemesterAndField[]>(initialSubmodules);
+  const [resources, setResources] = useState<ResourceWithSubmoduleModuleSemesterAndField[]>(initialResources);
 
   const refetchFields = useCallback(async () => {
     try {
@@ -36,21 +79,93 @@ export const GlobalDataProvider: React.FC<GlobalDataProviderProps> = ({
       setFields(data);
     } catch (error) {
       console.error("Error refetching fields:", error);
-      // Optionally, show a toast or error message to the user
     }
   }, []);
 
-  // Add more refetch functions for other data types here
+  const refetchSemesters = useCallback(async () => {
+    try {
+      const res = await fetch("/api/semesters", { cache: "no-store" });
+      if (!res.ok) {
+        throw new Error("Failed to refetch semesters");
+      }
+      const data: SemesterWithField[] = await res.json();
+      setSemesters(data);
+    } catch (error) {
+      console.error("Error refetching semesters:", error);
+    }
+  }, []);
+
+  const refetchModules = useCallback(async () => {
+    try {
+      const res = await fetch("/api/modules", { cache: "no-store" });
+      if (!res.ok) {
+        throw new Error("Failed to refetch modules");
+      }
+      const data: ModuleWithSemesterAndField[] = await res.json();
+      setModules(data);
+    } catch (error) {
+      console.error("Error refetching modules:", error);
+    }
+  }, []);
+
+  const refetchSubmodules = useCallback(async () => {
+    try {
+      const res = await fetch("/api/submodules", { cache: "no-store" });
+      if (!res.ok) {
+        throw new Error("Failed to refetch submodules");
+      }
+      const data: SubmoduleWithModuleSemesterAndField[] = await res.json();
+      setSubmodules(data);
+    } catch (error) {
+      console.error("Error refetching submodules:", error);
+    }
+  }, []);
+
+  const refetchResources = useCallback(async () => {
+    try {
+      const res = await fetch("/api/resources", { cache: "no-store" });
+      if (!res.ok) {
+        throw new Error("Failed to refetch resources");
+      }
+      const data: ResourceWithSubmoduleModuleSemesterAndField[] = await res.json();
+      setResources(data);
+    } catch (error) {
+      console.error("Error refetching resources:", error);
+    }
+  }, []);
 
   useEffect(() => {
     setFields(initialFields);
   }, [initialFields]);
 
+  useEffect(() => {
+    setSemesters(initialSemesters);
+  }, [initialSemesters]);
+
+  useEffect(() => {
+    setModules(initialModules);
+  }, [initialModules]);
+
+  useEffect(() => {
+    setSubmodules(initialSubmodules);
+  }, [initialSubmodules]);
+
+  useEffect(() => {
+    setResources(initialResources);
+  }, [initialResources]);
+
   return (
     <GlobalDataContext.Provider value={{
       fields,
       refetchFields,
-      // Add more data and refetch functions here
+      semesters,
+      refetchSemesters,
+      modules,
+      refetchModules,
+      submodules,
+      refetchSubmodules,
+      resources,
+      refetchResources,
     }}>
       {children}
     </GlobalDataContext.Provider>
