@@ -79,17 +79,20 @@ export function UsersTableShell({ data }: UsersTableShellProps) {
       header: "Email",
     },
     {
-      accessorKey: "user_metadata.full_name",
+      accessorKey: "full_name", // Changed accessorKey as it's now derived
       header: "Full Name",
       cell: ({ row }) => {
-        return <span>{row.original.user_metadata.full_name || "-"}</span>
+        const firstName = row.original.user_metadata?.firstName || ""; // Corrected source
+        const lastName = row.original.user_metadata?.lastName || "";   // Corrected source
+        const fullName = `${firstName} ${lastName}`.trim();
+        return <span>{fullName || "-"}</span>;
       }
     },
     {
-        accessorKey: "role",
+        accessorKey: "user_metadata.role", // Corrected accessorKey
         header: "Role",
         cell: ({ row }) => {
-            const role = row.original.role
+            const role = row.original.user_metadata?.role || "user"; // Default to 'user' if not set
             return <Badge variant={role === 'admin' ? 'destructive' : 'default'}>{role}</Badge>
         }
     },

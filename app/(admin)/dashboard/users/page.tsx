@@ -4,8 +4,8 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { User } from "@supabase/supabase-js";
 import Link from "next/link";
-
 import { headers } from 'next/headers';
+import { prisma } from "@/lib/prisma"; // Import prisma client
 
 async function getUsers(): Promise<User[]> {
     const headersList = headers();
@@ -20,9 +20,41 @@ async function getUsers(): Promise<User[]> {
     return res.json();
 }
 
+// Define a type for AdminScope with included field name
+type AdminScopeWithField = {
+  userId: string;
+  semesterNumber: number;
+  field: {
+    name: string;
+  };
+};
+
+async function getAdminScopes(): Promise<AdminScopeWithField[]> {
+  try {
+    const adminScopes = await prisma.adminScope.findMany({
+      include: {
+        field: {
+          select: {
+            name: true,
+          },
+        },
+      },
+    });
+    return adminScopes.map(scope => ({
+      userId: scope.userId,
+      semesterNumber: scope.semesterNumber,
+      field: { name: scope.field.name },
+    }));
+  } catch (error) {
+    console.error("Failed to fetch admin scopes:", error);
+    return [];
+  }
+}
+
 
 export default async function UsersPage() {
   const users = await getUsers();
+  const adminScopes = await getAdminScopes(); // Fetch admin scopes
 
   return (
     <div className={'px-6'}>
@@ -33,7 +65,7 @@ export default async function UsersPage() {
         </div>
         <Link href="/admin/dashboard/create-user" className={cn(buttonVariants({variant: 'default'}))}>Create User</Link>
       </div>
-      <UsersTableShell data={users} />
+      <UsersTableShell data={users} adminScopes={adminScopes} /> {/* Pass adminScopes */}
     </div>
   );
 }
