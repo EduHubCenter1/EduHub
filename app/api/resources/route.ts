@@ -7,19 +7,12 @@ export async function GET() {
       orderBy: { title: "asc" },
       include: {
         submodule: {
-          select: {
-            name: true,
+          include: {
             module: {
-              select: {
-                name: true,
+              include: {
                 semester: {
-                  select: {
-                    number: true,
-                    field: {
-                      select: {
-                        name: true,
-                      },
-                    },
+                  include: {
+                    field: true,
                   },
                 },
               },
