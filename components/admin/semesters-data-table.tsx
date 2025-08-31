@@ -37,6 +37,7 @@ export function SemestersDataTable({ data, onEdit, onDelete }: SemestersDataTabl
     {
       accessorKey: "field.name",
       header: "Field Name",
+      id: "field.name",
     },
     {
       id: "actions",

@@ -58,7 +58,7 @@ export function FieldsDataTable<TData, TValue>({
     <div>
       <div className="flex items-center py-4">
         <Input
-          placeholder={`Filter by ${filterColumnId}...`}
+          placeholder={`Filter by field name...`}
           value={(table.getColumn(filterColumnId)?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
             table.getColumn(filterColumnId)?.setFilterValue(event.target.value)

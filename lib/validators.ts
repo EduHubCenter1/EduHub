@@ -51,21 +51,21 @@ export const searchSchema = z.object({
 
 export const semesterFormSchema = z.object({
   number: semesterNumberSchema,
-  fieldId: z.string().cuid({ message: "Field is required." }),
+  fieldId: z.string().min(1).max(100),
 })
 
 export const moduleFormSchema = z.object({
   name: z.string().min(2, {
     message: "Name must be at least 2 characters.",
   }),
-  semesterId: z.string().cuid({ message: "Semester is required." }),
+  semesterId: z.string().min(1).max(100)
 })
 
 export const submoduleFormSchema = z.object({
   name: z.string().min(2, {
     message: "Name must be at least 2 characters.",
   }),
-  moduleId: z.string().cuid({ message: "Module is required." }),
+  moduleId: z.string().min(1).max(100),
 })
 
 export const resourceFormSchema = z.object({
@@ -74,6 +74,6 @@ export const resourceFormSchema = z.object({
   }),
   type: resourceTypeSchema,
   description: z.string().optional(),
-  submoduleId: z.string().cuid({ message: "Submodule is required." }),
+  submoduleId: z.string().min(1).max(100),
   file: z.any().optional(), // For file upload, handled separately
 })

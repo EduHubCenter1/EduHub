@@ -307,7 +307,7 @@ export function UploadForm({ fields, userId }: UploadFormProps) {
                       <p className="text-xs text-muted-foreground">{formatFileSize(uploadFile.file.size)}</p>
                     </div>
                   </div>
-                  <div className="flex items-center space-x-2">
+                  <div className="flex items-center space-x-2 mt-4">
                     {uploadFile.error && (
                       <div className="flex items-center text-destructive">
                         <AlertCircle className="h-4 w-4 mr-1" />

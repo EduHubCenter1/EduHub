@@ -98,7 +98,15 @@ export function SemesterForm({ initialData, onSuccess }: SemesterFormProps) {
             <FormItem>
               <FormLabel>Semester Number</FormLabel>
               <FormControl>
-                <Input type="number" {...field} onChange={event => field.onChange(parseInt(event.target.value))} />
+                <Input
+                    type="number"
+                    min={1}
+                    {...field}
+                    onChange={event => {
+                      const value = event.target.value;
+                      field.onChange(value === "" ? "" : parseInt(value));
+                    }}
+                />
               </FormControl>
               <FormMessage />
             </FormItem>
