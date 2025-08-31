@@ -3,7 +3,7 @@
 import * as React from "react"
 import { User } from "@supabase/supabase-js"
 import { MoreHorizontal } from "lucide-react"
-import { toast } from "sonner" // Import toast
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -17,7 +17,7 @@ import {
 import { ColumnDef } from "@tanstack/react-table"
 import { UsersDataTable } from "./users-data-table"
 import { Badge } from "@/components/ui/badge"
-import { // Import AlertDialog components
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -27,18 +27,49 @@ import { // Import AlertDialog components
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog"
+import { // Import Dialog components
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
+import { EditUserForm } from "./edit-user-form" // Import EditUserForm
+
+// Define a type for AdminScope with included field name (must match the type from page.tsx)
+type AdminScopeWithField = {
+  userId: string;
+  semesterNumber: number;
+  field: {
+    name: string;
+  };
+};
 
 interface UsersTableShellProps {
-  data: User[]
+  data: User[];
+  adminScopes: AdminScopeWithField[]; // Add adminScopes prop
 }
 
-export function UsersTableShell({ data }: UsersTableShellProps) {
+export function UsersTableShell({ data, adminScopes }: UsersTableShellProps) {
   const [isDeleteOpen, setIsDeleteOpen] = React.useState(false)
   const [currentUserId, setCurrentUserId] = React.useState<string | undefined>(undefined)
+  const [isEditOpen, setIsEditOpen] = React.useState(false) // State for edit dialog
+  const [currentUser, setCurrentUser] = React.useState<User | undefined>(undefined) // State for current user being edited
 
   const handleDelete = (userId: string) => {
     setCurrentUserId(userId)
     setIsDeleteOpen(true)
+  }
+
+  const handleEdit = (user: User) => {
+    setCurrentUser(user)
+    setIsEditOpen(true)
+  }
+
+  const onEditSubmitSuccess = () => {
+    setIsEditOpen(false);
+    setCurrentUser(undefined);
+    window.location.reload(); // Refresh user list after edit
   }
 
   const onDeleteConfirm = async () => {
@@ -55,16 +86,7 @@ export function UsersTableShell({ data }: UsersTableShellProps) {
         throw new Error(result.message || "Something went wrong")
       }
       toast.success(result.message || "User deleted successfully")
-      // TODO: Refresh user list - currently, the page is a Server Component,
-      // so we need to revalidate the path or refetch data.
-      // For now, a full page refresh might be needed or pass a refetch function from parent.
-      // A simple way for now is to trigger a revalidation of the page.
-      // This would typically be done by revalidatePath in the API route,
-      // but since this is a client component, we can't directly call it.
-      // For a quick solution, we can reload the window, but it's not ideal.
-      // A better approach would be to pass a refetch function from the parent page.
-      // For now, let's assume the parent page will handle revalidation or we'll reload.
-      window.location.reload(); // Temporary solution for refreshing data
+      window.location.reload(); // Refresh user list after delete
     } catch (error: any) {
       toast.error(error.message)
     } finally {
@@ -79,22 +101,55 @@ export function UsersTableShell({ data }: UsersTableShellProps) {
       header: "Email",
     },
     {
-      accessorKey: "full_name", // Changed accessorKey as it's now derived
+      accessorKey: "full_name",
       header: "Full Name",
       cell: ({ row }) => {
-        const firstName = row.original.user_metadata?.firstName || ""; // Corrected source
-        const lastName = row.original.user_metadata?.lastName || "";   // Corrected source
+        const firstName = row.original.user_metadata?.firstName || "";
+        const lastName = row.original.user_metadata?.lastName || "";
         const fullName = `${firstName} ${lastName}`.trim();
         return <span>{fullName || "-"}</span>;
       }
     },
     {
-        accessorKey: "user_metadata.role", // Corrected accessorKey
+        accessorKey: "user_metadata.role",
         header: "Role",
         cell: ({ row }) => {
-            const role = row.original.user_metadata?.role || "user"; // Default to 'user' if not set
-            return <Badge variant={role === 'admin' ? 'destructive' : 'default'}>{role}</Badge>
+            const role = row.original.user_metadata?.role || "user";
+            let variant: "default" | "secondary" | "destructive" | "outline" = "default";
+            let className = "";
+
+            if (role === 'superAdmin') {
+                variant = 'destructive'; // Red for superAdmin
+            } else if (role === 'classAdmin') {
+                className = "bg-green-500 text-white hover:bg-green-600"; // Green for classAdmin
+            }
+
+            return <Badge variant={variant} className={className}>{role}</Badge>
         }
+    },
+    {
+      accessorKey: "admin_scopes", // New column for admin scopes
+      header: "Admin Scopes",
+      cell: ({ row }) => {
+        const userRole = row.original.user_metadata?.role;
+        if (userRole !== 'classAdmin') {
+          return <span>-</span>; // Only show for classAdmin
+        }
+
+        const userAdminScopes = adminScopes.filter(scope => scope.userId === row.original.id);
+
+        if (userAdminScopes.length === 0) {
+          return <span>No scopes assigned</span>;
+        }
+
+        const formattedScopes = userAdminScopes.map(scope =>
+          `${scope.field.name} (S${scope.semesterNumber})`
+        ).join(', ');
+
+        return (
+          <span>{formattedScopes}</span>
+        );
+      },
     },
     {
       accessorKey: "created_at",
@@ -117,12 +172,12 @@ export function UsersTableShell({ data }: UsersTableShellProps) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem>
-                Edit {/* Placeholder for future edit functionality */}
+              <DropdownMenuItem onClick={() => handleEdit(user)}> {/* Trigger edit */}
+                Edit
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                onClick={() => handleDelete(user.id)} // Trigger delete
+                onClick={() => handleDelete(user.id)}
                 className="text-red-500"
               >
                 Delete
@@ -138,6 +193,21 @@ export function UsersTableShell({ data }: UsersTableShellProps) {
     <div className="space-y-4">
       <UsersDataTable columns={columns} data={data} />
 
+      {/* Edit Dialog */}
+      <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit User</DialogTitle>
+            <DialogDescription>
+              Update the details for this user.
+            </DialogDescription>
+          </DialogHeader>
+          {currentUser && ( // Render form only if currentUser is set
+            <EditUserForm user={currentUser} onSubmitSuccess={onEditSubmitSuccess} />
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Delete Alert Dialog */}
       <AlertDialog open={isDeleteOpen} onOpenChange={setIsDeleteOpen}>
         <AlertDialogContent>
@@ -149,7 +219,7 @@ export function UsersTableShell({ data }: UsersTableShellProps) {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={onDeleteConfirm} className="bg-red-500 hover:bg-red-600">
+            <AlertDialogAction onClick={onDeleteConfirm} className="bg-red-500 hover:bg-600">
               Delete
             </AlertDialogAction>
           </AlertDialogFooter>
