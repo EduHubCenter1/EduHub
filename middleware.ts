@@ -8,11 +8,17 @@ export async function middleware(request: NextRequest) {
   if (pathname.startsWith('/login') ) {
       return handleAuth(request)
   }
-  if (pathname.startsWith('/admin') ) {
-      return handleadminAuth(request)
+  if (pathname.startsWith('/dashboard')) {
+    return handleadminAuth(request);
   }
 
-  // For all other routes, do nothing
   return;
+}
+
+  export const config = {
+  matcher: [
+    '/login',
+    '/dashboard/:path*', // ✅ toutes les pages admin
+  ],
 }
 

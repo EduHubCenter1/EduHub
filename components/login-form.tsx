@@ -40,7 +40,7 @@ export function LoginForm({
         const allowedAdminRoles = ['superAdmin', 'classAdmin'];
 
         if (role && allowedAdminRoles.includes(role)) {
-          router.push('/admin/dashboard');
+          router.push('/dashboard');
         } else {
           router.push('/profile');
         }

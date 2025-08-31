@@ -20,11 +20,8 @@ const userRole: string = user?.user_metadata?.role || '';
 const allowedAdminRoles = ['superAdmin', 'classAdmin'];
 
   // If user is logged in and tries to access login page, redirect to admin dashboard
-  if (session && pathname === '/login') {
+  if (session && pathname.startsWith('/login')) {
     return NextResponse.redirect(new URL('/', request.url))
   }
-
- 
-
   return response
 }
