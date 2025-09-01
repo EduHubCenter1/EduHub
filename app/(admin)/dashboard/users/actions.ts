@@ -6,7 +6,7 @@ import { supabaseAdmin } from '@/lib/data/users'; // Import the shared client
 // Type for a single admin scope
 type AdminScope = {
   fieldId: string;
-  semesterNumber: number;
+  semesterId: string; // Changed from semesterNumber
 };
 
 export async function getAdminScopesByUserId(userId: string) {
@@ -23,6 +23,12 @@ export async function getAdminScopesByUserId(userId: string) {
           select: {
             id: true,
             name: true,
+          },
+        },
+        semester: { // Include semester to get its number
+          select: {
+            id: true,
+            number: true,
           },
         },
       },
@@ -78,7 +84,7 @@ export async function updateUser(userId: string, userData: {
           data: {
             userId: userId,
             fieldId: adminScope.fieldId,
-            semesterNumber: adminScope.semesterNumber,
+            semesterId: adminScope.semesterId,
           },
         });
     }

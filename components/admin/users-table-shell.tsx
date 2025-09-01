@@ -40,7 +40,9 @@ import { deleteUser } from "@/app/(admin)/dashboard/users/actions" // Import the
 // Define a type for AdminScope with included field name (must match the type from page.tsx)
 type AdminScopeWithField = {
   userId: string;
-  semesterNumber: number;
+  semester: {
+    number: number;
+  };
   field: {
     name: string;
   };
@@ -141,7 +143,7 @@ export function UsersTableShell({ data, adminScopes }: UsersTableShellProps) {
         }
 
         const formattedScopes = userAdminScopes.map(scope =>
-          `${scope.field.name} (S${scope.semesterNumber})`
+          `${scope.field.name} (S${scope.semester.number})`
         ).join(', ');
 
         return (

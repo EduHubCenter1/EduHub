@@ -22,7 +22,7 @@ import { getAdminScopesByUserId, updateUser } from "@/app/(admin)/dashboard/user
 // Define types
 type AdminScope = {
   fieldId: string
-  semesterNumber: number
+  semesterId: string // Changed from semesterNumber
 }
 
 type Field = {
@@ -77,7 +77,7 @@ export function EditUserForm({ user, onSubmitSuccess }: EditUserFormProps) {
           // Per new logic, a user can only have one scope. We take the first.
           setAssignedScope({
             fieldId: scopesResult.data[0].fieldId,
-            semesterNumber: scopesResult.data[0].semesterNumber,
+            semesterId: scopesResult.data[0].semester.id, // Use semester.id
           })
         }
 
@@ -96,10 +96,10 @@ export function EditUserForm({ user, onSubmitSuccess }: EditUserFormProps) {
     fetchData()
   }, [user.id])
 
-  const handleScopeChange = (part: 'fieldId' | 'semesterNumber', value: string | number) => {
+  const handleScopeChange = (part: 'fieldId' | 'semesterId', value: string) => {
     setAssignedScope(prev => ({
-        fieldId: part === 'fieldId' ? String(value) : prev?.fieldId || '',
-        semesterNumber: part === 'semesterNumber' ? Number(value) : prev?.semesterNumber || 0,
+        fieldId: part === 'fieldId' ? value : prev?.fieldId || '',
+        semesterId: part === 'semesterId' ? value : prev?.semesterId || '',
     }));
   };
 
@@ -139,7 +139,7 @@ export function EditUserForm({ user, onSubmitSuccess }: EditUserFormProps) {
 
   // Find the full semester object from the assigned scope number and field
   const selectedSemesterObject = allSemesters.find(
-    s => s.fieldId === assignedScope?.fieldId && s.number === assignedScope?.semesterNumber
+    s => s.id === assignedScope?.semesterId // Find by semesterId
   );
 
   return (
@@ -196,8 +196,8 @@ export function EditUserForm({ user, onSubmitSuccess }: EditUserFormProps) {
             <div className="grid gap-2">
                 <Label>Assigned Semester</Label>
                 <Select 
-                    onValueChange={(semesterNumber) => handleScopeChange('semesterNumber', semesterNumber)}
-                    value={String(assignedScope?.semesterNumber || '')}
+                    onValueChange={(semesterId) => handleScopeChange('semesterId', semesterId)}
+                    value={assignedScope?.semesterId || ''}
                     disabled={isLoading || !assignedScope?.fieldId}
                 >
                     <SelectTrigger><SelectValue placeholder="Select Semester" /></SelectTrigger>
@@ -206,7 +206,7 @@ export function EditUserForm({ user, onSubmitSuccess }: EditUserFormProps) {
                             .filter((s) => s.fieldId === assignedScope?.fieldId)
                             .sort((a, b) => a.number - b.number)
                             .map((semester) => (
-                                <SelectItem key={semester.id} value={String(semester.number)}>
+                                <SelectItem key={semester.id} value={semester.id}>
                                     S{semester.number}
                                 </SelectItem>
                             ))}

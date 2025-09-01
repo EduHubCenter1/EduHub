@@ -10,7 +10,9 @@ import { User } from "@supabase/supabase-js";
 // Define a type for AdminScope with included field name
 type AdminScopeWithField = {
   userId: string;
-  semesterNumber: number;
+  semester: {
+    number: number;
+  };
   field: {
     name: string;
   };
@@ -25,11 +27,16 @@ async function getAdminScopes(): Promise<AdminScopeWithField[]> {
             name: true,
           },
         },
+        semester: { // Include semester to get its number
+          select: {
+            number: true,
+          },
+        },
       },
     });
     return adminScopes.map((scope) => ({
       userId: scope.userId,
-      semesterNumber: scope.semesterNumber,
+      semester: { number: scope.semester.number }, // Updated to semester object
       field: { name: scope.field.name },
     }));
   } catch (error) {
