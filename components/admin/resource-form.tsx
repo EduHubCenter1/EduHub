@@ -220,7 +220,7 @@ export function ResourceForm({ initialData, onSuccess, onModuleChange, submodule
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4 grid grid-cols-2 gap-6 ">
         <FormField
           control={form.control}
           name="title"
@@ -386,7 +386,7 @@ export function ResourceForm({ initialData, onSuccess, onModuleChange, submodule
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={isLoading}>
+        <Button type="submit" disabled={isLoading} className={'col-span-2 mt-4'}>
           {isLoading ? "Saving..." : initialData ? "Save Changes" : "Create Resource"}
         </Button>
       </form>

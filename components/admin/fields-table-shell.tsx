@@ -88,7 +88,7 @@ export function FieldsTableShell({ /* data */ }: FieldsTableShellProps) {
 
   const columns: ColumnDef<Field>[] = [
     { accessorKey: "name", header: "Name" },
-    { accessorKey: "slug", header: "Slug" },
+    // { accessorKey: "slug", header: "Slug" },
     {
       accessorKey: "description",
       header: "Description",

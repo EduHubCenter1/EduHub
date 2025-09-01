@@ -26,18 +26,18 @@ interface SemestersDataTableProps {
 
 export function SemestersDataTable({ data, onEdit, onDelete }: SemestersDataTableProps) {
   const columns: ColumnDef<SemesterWithField>[] = [
-    {
-      accessorKey: "id",
-      header: "ID",
-    },
-    {
-      accessorKey: "number",
-      header: "Semester Number",
-    },
+    // {
+    //   accessorKey: "id",
+    //   header: "ID",
+    // },
     {
       accessorKey: "field.name",
       header: "Field Name",
       id: "field.name",
+    },
+    {
+      accessorKey: "number",
+      header: "Semester Number",
     },
     {
       id: "actions",
