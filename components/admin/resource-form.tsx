@@ -161,9 +161,37 @@ export function ResourceForm({ initialData, onSuccess, onModuleChange, submodule
           throw new Error("File is required for new resources.")
         }
         formData.append("file", values.file)
-        response = await fetch("/api/upload", {
+
+        // First, upload the file
+        const uploadResponse = await fetch("/api/upload", {
           method: "POST",
           body: formData,
+        })
+
+        if (!uploadResponse.ok) {
+          const errorData = await uploadResponse.json()
+          throw new Error(errorData.error || "File upload failed.")
+        }
+        const uploadResult = await uploadResponse.json()
+
+        // Then, create the resource entry in the database with file metadata
+        const createPayload = {
+          title: submissionValues.title,
+          type: submissionValues.type,
+          description: submissionValues.description,
+          moduleId: submissionValues.moduleId,
+          submoduleId: submissionValues.submoduleId,
+          fileUrl: uploadResult.resource.fileUrl,
+          sizeBytes: uploadResult.resource.sizeBytes,
+          sha256: uploadResult.resource.sha256,
+          fileExt: uploadResult.resource.fileExt,
+          mimeType: uploadResult.resource.mimeType,
+        }
+
+        response = await fetch("/api/resources", { // POST to create new resource
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(createPayload),
         })
       }
 
@@ -180,7 +208,7 @@ export function ResourceForm({ initialData, onSuccess, onModuleChange, submodule
       })
       form.reset()
       onSuccess?.()
-      router.refresh() // Refresh the current route to re-fetch data
+      router.push('/dashboard/resources'); // Navigate to dashboard/resources
     } catch (error: any) {
       toast({
         title: "Error",

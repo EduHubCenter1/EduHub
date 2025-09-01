@@ -25,26 +25,28 @@ model User {
 }
 
 model AdminScope {
-  id             String @id @default(dbgenerated("gen_random_uuid()"))
-  userId         String @map("user_id") @db.Uuid
-  fieldId        String @map("field_id")
-  semesterNumber Int    @map("semester_number")
-  field          fields @relation(fields: [fieldId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  user           User   @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  id         String   @id @default(dbgenerated("gen_random_uuid()"))
+  userId     String   @unique @map("user_id") @db.Uuid
+  fieldId    String   @map("field_id")
+  semesterId String   @map("semester_id") @db.Uuid
 
-  @@unique([userId, fieldId, semesterNumber])
+  field    fields   @relation(fields: [fieldId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  user     User     @relation(fields: [userId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  semester Semester @relation(fields: [semesterId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
   @@map("admin_scopes")
   @@schema("public")
 }
 
 model Semester {
-  id        String   @id @default(dbgenerated("gen_random_uuid()"))
+  id        String       @id @default(dbgenerated("gen_random_uuid()"))
   number    Int
-  fieldId   String   @map("field_id")
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
+  fieldId   String       @map("field_id")
+  createdAt DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime     @default(now()) @map("updated_at") @db.Timestamptz(6)
   modules   Module[]
-  field     fields   @relation(fields: [fieldId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  field     fields       @relation(fields: [fieldId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  adminScopes AdminScope[]  // 👈 inverse relation
 
   @@unique([fieldId, number])
   @@map("semesters")
@@ -94,15 +96,15 @@ model Resource {
   mimeType         String   @map("mime_type")
   sizeBytes        Int      @map("size_bytes")
   sha256           String
-  moduleId         String    @map("module_id") @db.Uuid
-  submoduleId      String?   @map("submodule_id")          // <-- optionnel maintenant
-  uploadedByUserId String    @map("uploaded_by_user_id") @db.Uuid
-  createdAt        DateTime  @default(now()) @map("created_at") @db.Timestamptz(6)
-  updatedAt        DateTime  @default(now()) @map("updated_at") @db.Timestamptz(6)
+  moduleId         String   @map("module_id") @db.Uuid
+  submoduleId      String?  @map("submodule_id") // <-- optionnel maintenant
+  uploadedByUserId String   @map("uploaded_by_user_id") @db.Uuid
+  createdAt        DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime @default(now()) @map("updated_at") @db.Timestamptz(6)
 
-  module      Module     @relation(fields: [moduleId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  submodule   Submodule? @relation(fields: [submoduleId], references: [id], onDelete: Cascade, onUpdate: NoAction)
-  uploadedBy  User       @relation("UserResources", fields: [uploadedByUserId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  module     Module     @relation(fields: [moduleId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  submodule  Submodule? @relation(fields: [submoduleId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  uploadedBy User       @relation("UserResources", fields: [uploadedByUserId], references: [id], onDelete: Cascade, onUpdate: NoAction)
 
   @@index([title, type, createdAt], map: "idx_resources_title_type_created_at")
   @@map("resources")

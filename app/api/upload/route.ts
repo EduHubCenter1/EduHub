@@ -1,13 +1,15 @@
 import { type NextRequest, NextResponse } from "next/server"
+import { cookies } from "next/headers"
+// Removed: import { createRouteHandlerClient } from "@supabase/auth-helpers-nextjs"
+import { createServerClient } from "@supabase/ssr" // Added: createServerClient
 
 import { prisma } from "@/lib/prisma"
 import { storageService } from "@/lib/storage"
 import { generateResourcePath } from "@/lib/utils"
 import { uploadResourceSchema } from "@/lib/validators"
 import crypto from "crypto"
-import { createSupabaseServerClient } from "@/lib/supabase/server"
 
-const MAX_FILE_SIZE = 50 * 1024 * 1024 // 50MB
+const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5MB
 const ALLOWED_MIME_TYPES = [
   "application/pdf",
   "application/zip",
@@ -27,7 +29,29 @@ const ALLOWED_MIME_TYPES = [
 
 export async function POST(request: NextRequest) {
   try {
-    const supabase = createSupabaseServerClient()
+    // Manually get the auth token from cookies
+    const cookieStore = await cookies()
+    
+    // Initialize Supabase client with the token
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          get(name: string) {
+            return cookieStore.get(name)?.value
+          },
+          set(name: string, value: string, options: any) { // Use 'any' for options to avoid type issues
+            cookieStore.set({ name, value, ...options })
+          },
+          remove(name: string, options: any) {
+            cookieStore.set({ name, value: '', ...options })
+          },
+        },
+      }
+    )
+
+    // Now get the user
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
@@ -44,6 +68,7 @@ export async function POST(request: NextRequest) {
     const submoduleId = formData.get("submoduleId") as string
 
     if (!file) {
+      console.error("Upload Error: No file provided")
       return NextResponse.json({ error: "No file provided" }, { status: 400 })
     }
 
@@ -56,16 +81,19 @@ export async function POST(request: NextRequest) {
     })
 
     if (!validationResult.success) {
+      console.error("Upload Error: Invalid form data", validationResult.error) // Log validation details
       return NextResponse.json({ error: "Invalid form data" }, { status: 400 })
     }
 
     // Validate file size
     if (file.size > MAX_FILE_SIZE) {
+      console.error(`Upload Error: File too large. Size: ${file.size} bytes, Max: ${MAX_FILE_SIZE} bytes`)
       return NextResponse.json({ error: "File too large (max 50MB)" }, { status: 400 })
     }
 
     // Validate file type
     if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+      console.error(`Upload Error: File type not allowed. Type: ${file.type}`)
       return NextResponse.json({ error: "File type not allowed" }, { status: 400 })
     }
 
@@ -122,7 +150,8 @@ export async function POST(request: NextRequest) {
     // Calculate SHA256 hash
     const sha256 = crypto.createHash("sha256").update(buffer).digest("hex")
 
-    // Check for duplicate files
+    // Check for duplicate files - TEMPORARILY DISABLED FOR TESTING
+    /*
     const existingResource = await prisma.resource.findFirst({
       where: { sha256 },
     })
@@ -130,9 +159,21 @@ export async function POST(request: NextRequest) {
     if (existingResource) {
       return NextResponse.json({ error: "File already exists in the system" }, { status: 409 })
     }
+    */
 
     // Save file to storage
-    const fileUrl = await storageService.saveFile(buffer, file.name, resourcePath)
+    console.log("AZURE_STORAGE_ACCOUNT_NAME:", process.env.AZURE_STORAGE_ACCOUNT_NAME);
+    console.log("AZURE_STORAGE_CONTAINER_NAME:", process.env.AZURE_STORAGE_CONTAINER_NAME);
+
+    const azureStorageAccountName = process.env.AZURE_STORAGE_ACCOUNT_NAME;
+    const azureStorageContainerName = process.env.AZURE_STORAGE_CONTAINER_NAME;
+
+    if (!azureStorageAccountName || !azureStorageContainerName) {
+      return NextResponse.json({ error: "Azure Storage account name or container name not configured." }, { status: 500 });
+    }
+
+    const blobName = await storageService.saveFile(buffer, file.name, resourcePath);
+    const fileUrl = `https://${azureStorageAccountName}.blob.core.windows.net/${azureStorageContainerName}/${blobName}`;
 
     // Get file extension
     const fileExt = file.name.split(".").pop()?.toLowerCase() || ""
@@ -150,12 +191,13 @@ export async function POST(request: NextRequest) {
         sha256,
         submoduleId,
         uploadedByUserId: user.id,
+        moduleId: submodule.module.id,
       },
     })
 
     return NextResponse.json({ success: true, resource })
-  } catch (error) {
+  } catch (error: any) {
     console.error("Upload error:", error)
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 })
+    return NextResponse.json({ error: "Internal server error", details: error.message || String(error) }, { status: 500 })
   }
 }
