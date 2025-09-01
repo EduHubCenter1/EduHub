@@ -61,7 +61,7 @@ model Module {
   updatedAt   DateTime    @default(now()) @map("updated_at") @db.Timestamptz(6)
   semester    Semester    @relation(fields: [semesterId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   submodules  Submodule[]
-  resources   Resource[]   // <- corrigé
+  resources   Resource[] // <- corrigé
 
   @@unique([semesterId, slug])
   @@map("modules")
@@ -85,14 +85,14 @@ model Submodule {
 }
 
 model Resource {
-  id               String    @id @default(dbgenerated("gen_random_uuid()"))
+  id               String   @id @default(dbgenerated("gen_random_uuid()"))
   title            String
   type             String
   description      String?
-  fileUrl          String    @map("file_url")
-  fileExt          String    @map("file_ext")
-  mimeType         String    @map("mime_type")
-  sizeBytes        Int       @map("size_bytes")
+  fileUrl          String   @map("file_url")
+  fileExt          String   @map("file_ext")
+  mimeType         String   @map("mime_type")
+  sizeBytes        Int      @map("size_bytes")
   sha256           String
   moduleId         String    @map("module_id") @db.Uuid
   submoduleId      String?   @map("submodule_id")          // <-- optionnel maintenant
@@ -441,7 +441,6 @@ model fields {
   semesters   Semester[]
 
   @@schema("public")
-  
 }
 
 enum aal_level {

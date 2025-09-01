@@ -74,6 +74,7 @@ export const resourceFormSchema = z.object({
   }),
   type: resourceTypeSchema,
   description: z.string().optional(),
-  submoduleId: z.string().min(1).max(100),
+  moduleId: z.string().min(1, { message: "Module is required." }),
+  submoduleId: z.string().optional(),
   file: z.any().optional(), // For file upload, handled separately
 })

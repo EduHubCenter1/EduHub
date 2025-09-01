@@ -11,14 +11,20 @@ import { resource as Resource, submodule as Submodule, module as Module, semeste
 import { useToast } from "@/components/ui/use-toast";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-interface ResourceWithSubmoduleModuleSemesterAndField extends Resource {
-  submodule: Pick<Submodule, "name"> & {
-    module: Pick<Module, "name"> & {
-      semester: Pick<Semester, "number"> & {
-        field: Pick<Field, "name">
-      }
-    }
-  }
+// This interface should reflect the data structure from the API
+interface ResourceWithRelations extends Resource {
+  module: Module & {
+    semester: Semester & {
+      field: Field;
+    };
+  };
+  submodule: (Submodule & {
+    module: Module & {
+      semester: Semester & {
+        field: Field;
+      };
+    };
+  }) | null;
 }
 
 export default function ResourcesPage() {
@@ -27,19 +33,27 @@ export default function ResourcesPage() {
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
-  const [selectedResource, setSelectedResource] = useState<ResourceWithSubmoduleModuleSemesterAndField | null>(null);
+  const [selectedResource, setSelectedResource] = useState<ResourceWithRelations | null>(null);
   const [selectedFilterFieldId, setSelectedFilterFieldId] = useState<string | "all">("all");
   const [selectedFilterSemesterId, setSelectedFilterSemesterId] = useState<string | "all">("all");
   const [selectedFilterModuleId, setSelectedFilterModuleId] = useState<string | "all">("all");
   const [selectedFilterSubmoduleId, setSelectedFilterSubmoduleId] = useState<string | "all">("all");
+  const [formSelectedModuleId, setFormSelectedModuleId] = useState<string | null>(null);
+
+  const formSubmodules = useMemo(() => {
+    if (!formSelectedModuleId) return [];
+    return allSubmodules.filter(sm => sm.moduleId === formSelectedModuleId);
+  }, [formSelectedModuleId, allSubmodules]);
 
   const handleCreate = () => {
     setSelectedResource(null);
+    setFormSelectedModuleId(null);
     setIsFormOpen(true);
   };
 
-  const handleEdit = (resource: ResourceWithSubmoduleModuleSemesterAndField) => {
+  const handleEdit = (resource: ResourceWithRelations) => {
     setSelectedResource(resource);
+    setFormSelectedModuleId(resource.submodule?.moduleId ?? resource.moduleId);
     setIsFormOpen(true);
   };
 
@@ -84,28 +98,31 @@ export default function ResourcesPage() {
   };
 
   const filteredResources = useMemo(() => {
-    const submoduleMap = new Map(allSubmodules.map(sm => [sm.id, sm]));
-    const moduleMap = new Map(allModules.map(m => [m.id, m]));
-    const semesterMap = new Map(allSemesters.map(s => [s.id, s]));
-
+    if (!resources) return [];
     return resources.filter(resource => {
-      const submodule = submoduleMap.get(resource.submoduleId);
-      if (!submodule) return false;
+      const resourceModule = resource.submodule?.module ?? resource.module;
+      if (!resourceModule) return false;
+      
+      const resourceSemester = resourceModule.semester;
+      if(!resourceSemester) return false;
 
-      const module = moduleMap.get(submodule.moduleId);
-      if (!module) return false;
-
-      const semester = semesterMap.get(module.semesterId);
-      if (!semester) return false;
-
-      const fieldMatch = selectedFilterFieldId === "all" || semester.fieldId === selectedFilterFieldId;
-      const semesterMatch = selectedFilterSemesterId === "all" || module.semesterId === selectedFilterSemesterId;
-      const moduleMatch = selectedFilterModuleId === "all" || submodule.moduleId === selectedFilterModuleId;
-      const submoduleMatch = selectedFilterSubmoduleId === "all" || resource.submoduleId === selectedFilterSubmoduleId;
-
-      return fieldMatch && semesterMatch && moduleMatch && submoduleMatch;
+      if (selectedFilterFieldId !== "all" && resourceSemester.fieldId !== selectedFilterFieldId) {
+        return false;
+      }
+      if (selectedFilterSemesterId !== "all" && resourceSemester.id !== selectedFilterSemesterId) {
+        return false;
+      }
+      if (selectedFilterModuleId !== "all" && resourceModule.id !== selectedFilterModuleId) {
+        return false;
+      }
+      if (selectedFilterSubmoduleId !== "all") {
+        if (!resource.submodule || resource.submodule.id !== selectedFilterSubmoduleId) {
+          return false;
+        }
+      }
+      return true;
     });
-  }, [resources, selectedFilterFieldId, selectedFilterSemesterId, selectedFilterModuleId, selectedFilterSubmoduleId, allSubmodules, allModules, allSemesters]);
+  }, [resources, selectedFilterFieldId, selectedFilterSemesterId, selectedFilterModuleId, selectedFilterSubmoduleId]);
 
   if (!resources) {
     return (
@@ -236,7 +253,12 @@ export default function ResourcesPage() {
           <DialogHeader>
             <DialogTitle>{selectedResource ? "Edit Resource" : "Create Resource"}</DialogTitle>
           </DialogHeader>
-          <ResourceForm initialData={selectedResource || undefined} onSuccess={handleFormSuccess} />
+          <ResourceForm 
+            initialData={selectedResource || undefined} 
+            onSuccess={handleFormSuccess}
+            onModuleChange={setFormSelectedModuleId}
+            submodules={formSubmodules}
+          />
         </DialogContent>
       </Dialog>
 
