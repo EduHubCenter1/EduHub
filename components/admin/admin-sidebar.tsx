@@ -9,6 +9,7 @@ import {
     LayoutDashboardIcon,
     ListIcon,
     UserPlusIcon,
+    UsersIcon,
 } from "lucide-react"
 
 import { AdminNav } from "@/components/admin/admin-nav"
@@ -25,6 +26,11 @@ const navMain = [
       title: "Dashboard",
       url: "/dashboard",
       icon: LayoutDashboardIcon,
+    },
+    {
+      title: "Users",
+      url: "/dashboard/users",
+      icon: UsersIcon,
     },
     {
       title: "Create User",

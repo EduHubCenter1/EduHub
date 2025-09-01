@@ -1,6 +1,7 @@
 import { promises as fs } from "fs"
 import path from "path"
 import crypto from "crypto"
+import { BlobServiceClient } from "@azure/storage-blob"
 
 export interface StorageService {
   saveFile(buffer: Buffer, originalName: string, resourcePath: string): Promise<string>
@@ -8,45 +9,75 @@ export interface StorageService {
   getFileStream(filePath: string): Promise<ReadableStream>
 }
 
-export class LocalStorageService implements StorageService {
-  private uploadsDir: string
+export class AzureBlobStorageService implements StorageService {
+  private blobServiceClient: BlobServiceClient;
+  private containerName: string;
 
-  constructor(uploadsDir = "./uploads") {
-    this.uploadsDir = uploadsDir
+  constructor(connectionString: string, containerName: string) {
+    if (!connectionString) {
+      throw new Error("Azure Storage Connection String is not provided.");
+    }
+    if (!containerName) {
+      throw new Error("Azure Storage Container Name is not provided.");
+    }
+    this.blobServiceClient = BlobServiceClient.fromConnectionString(connectionString);
+    this.containerName = containerName;
+  }
+
+  private async getContainerClient() {
+    const containerClient = this.blobServiceClient.getContainerClient(this.containerName);
+    await containerClient.createIfNotExists();
+    return containerClient;
   }
 
   async saveFile(buffer: Buffer, originalName: string, resourcePath: string): Promise<string> {
-    // Create directory structure
-    const fullDir = path.join(this.uploadsDir, resourcePath)
-    await fs.mkdir(fullDir, { recursive: true })
+    const containerClient = await this.getContainerClient();
+    const ext = path.extname(originalName);
+    const hash = crypto.randomBytes(16).toString("hex");
+    const filename = `${hash}${ext}`;
+    const blobName = path.join(resourcePath, filename).replace(/\\/g, '/');
 
-    // Generate unique filename
-    const ext = path.extname(originalName)
-    const hash = crypto.randomBytes(16).toString("hex")
-    const filename = `${hash}${ext}`
-    const fullPath = path.join(fullDir, filename)
+    const blockBlobClient = containerClient.getBlockBlobClient(blobName);
+    await blockBlobClient.uploadData(buffer);
 
-    // Save file
-    await fs.writeFile(fullPath, buffer)
-
-    return path.join(resourcePath, filename)
+    return blobName;
   }
 
   async deleteFile(filePath: string): Promise<void> {
-    const fullPath = path.join(this.uploadsDir, filePath)
-    await fs.unlink(fullPath)
+    const containerClient = await this.getContainerClient();
+    const blockBlobClient = containerClient.getBlockBlobClient(filePath);
+    await blockBlobClient.deleteIfExists();
   }
 
   async getFileStream(filePath: string): Promise<ReadableStream> {
-    const fullPath = path.join(this.uploadsDir, filePath)
-    const file = await fs.readFile(fullPath)
+    const containerClient = await this.getContainerClient();
+    const blockBlobClient = containerClient.getBlockBlobClient(filePath);
+    const downloadResponse = await blockBlobClient.download();
+
+    if (!downloadResponse.readableStreamBody) {
+      throw new Error("Blob not found or empty.");
+    }
+
+    const nodeStream = downloadResponse.readableStreamBody;
+    const reader = nodeStream.getReader();
+
     return new ReadableStream({
-      start(controller) {
-        controller.enqueue(file)
-        controller.close()
+      async pull(controller) {
+        const { done, value } = await reader.read();
+        if (done) {
+          controller.close();
+        } else {
+          controller.enqueue(value);
+        }
       },
-    })
+      cancel() {
+        reader.cancel();
+      }
+    });
   }
 }
 
-export const storageService = new LocalStorageService(process.env.UPLOADS_DIR)
+export const storageService = new AzureBlobStorageService(
+  process.env.AZURE_STORAGE_CONNECTION_STRING!,
+  process.env.AZURE_STORAGE_CONTAINER_NAME!
+);

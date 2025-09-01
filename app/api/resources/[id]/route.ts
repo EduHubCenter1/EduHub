@@ -1,88 +1,46 @@
-import { NextResponse, NextRequest } from "next/server"
-import { prisma } from "@/lib/prisma"
-import { Prisma } from "@prisma/client"
-import { promises as fs } from "fs"
-import path from "path"
+import { NextResponse, NextRequest } from "next/server";
+import { prisma } from "@/lib/prisma";
+import { z } from "zod";
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  const body = await req.json()
-  const { title, type, description, submoduleId } = body
+// Define a schema for the update payload
+const resourceUpdateSchema = z.object({
+  title: z.string().min(1, "Title is required").optional(),
+  type: z.string().optional(), // Assuming type is validated elsewhere or is an enum
+  description: z.string().optional(),
+  moduleId: z.string().optional(),
+  submoduleId: z.string().nullable().optional(),
+  fileUrl: z.string().url("Invalid file URL").optional(),
+  sizeBytes: z.number().int().min(0).optional(),
+  sha256: z.string().optional(),
+  fileExt: z.string().optional(),
+  mimeType: z.string().optional(),
+});
 
-  if (!title || !type || !submoduleId) {
-    return NextResponse.json(
-      { message: "Title, type, and submodule ID are required." },
-      { status: 400 }
-    )
+export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
+  const resourceId = params.id;
+  if (!resourceId) {
+    return NextResponse.json({ message: "Resource ID is required." }, { status: 400 });
   }
 
   try {
+    const body = await request.json();
+    const validatedData = resourceUpdateSchema.parse(body);
+
     const updatedResource = await prisma.resource.update({
-      where: { id: params.id },
-      data: {
-        title,
-        type,
-        description,
-        submoduleId,
-      },
-    })
-    return NextResponse.json(updatedResource, { status: 200 })
+      where: { id: resourceId },
+      data: validatedData,
+    });
+
+    return NextResponse.json(updatedResource, { status: 200 });
   } catch (error) {
-    console.error(`Failed to update resource with id ${params.id}:`, error)
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
-      return NextResponse.json(
-        { message: "Resource not found." },
-        { status: 404 }
-      )
+    if (error instanceof z.ZodError) {
+      return NextResponse.json({ message: "Validation error", errors: error.errors }, { status: 400 });
     }
+    console.error(`Failed to update resource ${resourceId}:`, error);
+    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
     return NextResponse.json(
-      { message: "An error occurred while updating the resource." },
+      { message: "An error occurred while updating the resource.", error: errorMessage },
       { status: 500 }
-    )
-  }
-}
-
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  try {
-    // Find the resource to get its fileUrl
-    const resource = await prisma.resource.findUnique({
-      where: { id: params.id },
-      select: { fileUrl: true },
-    })
-
-    if (!resource) {
-      return NextResponse.json({ message: "Resource not found." }, { status: 404 })
-    }
-
-    // Delete the resource record from the database
-    await prisma.resource.delete({ where: { id: params.id } })
-
-    // Delete the associated file from the filesystem
-    const filePath = path.join(process.env.UPLOADS_DIR || "./uploads", resource.fileUrl)
-    try {
-      await fs.unlink(filePath)
-    } catch (fileError: any) {
-      console.warn(`Failed to delete file ${filePath}:`, fileError.message)
-      // Continue even if file deletion fails, as the DB record is gone
-    }
-
-    return NextResponse.json({ message: "Resource successfully deleted." }, { status: 200 })
-  } catch (error) {
-    console.error(`Failed to delete resource with id ${params.id}:`, error)
-    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2025") {
-      return NextResponse.json(
-        { message: "Resource not found." },
-        { status: 404 }
-      )
-    }
-    return NextResponse.json(
-      { message: "An error occurred while deleting the resource." },
-      { status: 500 }
-    )
+    );
   }
 }
