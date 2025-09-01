@@ -35,6 +35,7 @@ import { // Import Dialog components
   DialogTitle,
 } from "@/components/ui/dialog"
 import { EditUserForm } from "./edit-user-form" // Import EditUserForm
+import { deleteUser } from "@/app/(admin)/dashboard/users/actions" // Import the server action
 
 // Define a type for AdminScope with included field name (must match the type from page.tsx)
 type AdminScopeWithField = {
@@ -76,16 +77,13 @@ export function UsersTableShell({ data, adminScopes }: UsersTableShellProps) {
     if (!currentUserId) return
 
     try {
-      const response = await fetch(`/api/users/${currentUserId}`, {
-        method: "DELETE",
-      })
+      const result = await deleteUser(currentUserId);
 
-      const result = await response.json()
-
-      if (!response.ok) {
-        throw new Error(result.message || "Something went wrong")
+      if (result.error) {
+        throw new Error(result.error);
       }
-      toast.success(result.message || "User deleted successfully")
+
+      toast.success(result.success || "User deleted successfully");
       window.location.reload(); // Refresh user list after delete
     } catch (error: any) {
       toast.error(error.message)

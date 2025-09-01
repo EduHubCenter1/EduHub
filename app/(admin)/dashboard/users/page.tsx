@@ -2,23 +2,10 @@
 import { UsersTableShell } from "@/components/admin/users-table-shell";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { User } from "@supabase/supabase-js";
 import Link from "next/link";
-import { headers } from 'next/headers';
-import { prisma } from "@/lib/prisma"; // Import prisma client
-
-async function getUsers(): Promise<User[]> {
-    const headersList = headers();
-    const host = headersList.get('host');
-    const protocol = process.env.NODE_ENV === 'production' ? 'https' : 'http';
-    const baseUrl = `${protocol}://${host}`;
-
-    const res = await fetch(`${baseUrl}/api/users`, { cache: "no-store" });
-    if (!res.ok) {
-        throw new Error("Failed to fetch users");
-    }
-    return res.json();
-}
+import { prisma } from "@/lib/prisma";
+import { getUsers } from "@/lib/data/users"; // Import the new function
+import { User } from "@supabase/supabase-js";
 
 // Define a type for AdminScope with included field name
 type AdminScopeWithField = {
@@ -40,7 +27,7 @@ async function getAdminScopes(): Promise<AdminScopeWithField[]> {
         },
       },
     });
-    return adminScopes.map(scope => ({
+    return adminScopes.map((scope) => ({
       userId: scope.userId,
       semesterNumber: scope.semesterNumber,
       field: { name: scope.field.name },
@@ -51,21 +38,26 @@ async function getAdminScopes(): Promise<AdminScopeWithField[]> {
   }
 }
 
-
 export default async function UsersPage() {
-  const users = await getUsers();
-  const adminScopes = await getAdminScopes(); // Fetch admin scopes
+  // Direct data fetching, no more HTTP requests!
+  const users: User[] = await getUsers();
+  const adminScopes = await getAdminScopes();
 
   return (
-    <div className={'px-6'}>
+    <div className={"px-6"}>
       <div className="flex justify-between">
         <div>
-            <h1 className=" text-2xl font-bold">Users</h1>
-            <p>Manage your users here.</p>
+          <h1 className=" text-2xl font-bold">Users</h1>
+          <p>Manage your users here.</p>
         </div>
-        <Link href="/admin/dashboard/create-user" className={cn(buttonVariants({variant: 'default'}))}>Create User</Link>
+        <Link
+          href="/admin/dashboard/create-user"
+          className={cn(buttonVariants({ variant: "default" }))}
+        >
+          Create User
+        </Link>
       </div>
-      <UsersTableShell data={users} adminScopes={adminScopes} /> {/* Pass adminScopes */}
+      <UsersTableShell data={users} adminScopes={adminScopes} />
     </div>
   );
 }
