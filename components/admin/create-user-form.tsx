@@ -1,8 +1,9 @@
 "use client"
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuthContext } from '@/context/AuthContext'
+import { useGlobalData } from '@/context/GlobalDataContext'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
@@ -23,14 +24,31 @@ export function CreateUserForm({
 }: React.ComponentProps<'div'>) {
   const router = useRouter()
   const { register } = useAuthContext()
+  const { fields, semesters } = useGlobalData()
+
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
-  const [role, setRole] = useState('classAdmin')
+  const [role, setRole] = useState('')
+  
+  const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null)
+  const [selectedSemesterNumber, setSelectedSemesterNumber] = useState<number | null>(null)
+  const [filteredSemesters, setFilteredSemesters] = useState<typeof semesters>([])
+
   const [error, setError] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
   const [isLoading, setIsLoading] = useState(false)
+
+  useEffect(() => {
+    if (selectedFieldId) {
+      const fieldSemesters = semesters.filter(s => s.fieldId === selectedFieldId)
+      setFilteredSemesters(fieldSemesters)
+      setSelectedSemesterNumber(null) // Reset semester selection when field changes
+    } else {
+      setFilteredSemesters([])
+    }
+  }, [selectedFieldId, semesters])
 
   const handleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -38,16 +56,27 @@ export function CreateUserForm({
     setError(null)
     setMessage(null)
 
+    if (role === 'classAdmin' && (!selectedFieldId || !selectedSemesterNumber)) {
+      setError('Please select a field and semester for the Class Admin.')
+      setIsLoading(false)
+      return
+    }
+
     try {
-      const response = await register(email, password, { firstName, lastName, role })
+      const response = await register(email, password, {
+        firstName,
+        lastName,
+        role,
+        fieldId: selectedFieldId,
+        semesterNumber: selectedSemesterNumber,
+      })
 
       if (!response.success) {
         setError(response.error || 'An unexpected error occurred.')
       } else {
         setMessage(response.message || 'User created successfully!')
-        // Redirect to admin dashboard after a short delay
         setTimeout(() => {
-          router.push('/admin/dashboard')
+          router.push('/dashboard')
         }, 2000)
       }
     } catch (err) {
@@ -149,6 +178,50 @@ export function CreateUserForm({
                 </SelectContent>
               </Select>
             </div>
+
+            {role === 'classAdmin' && (
+              <>
+                <div className="grid gap-2">
+                  <Label htmlFor="field">Field</Label>
+                  <Select
+                    onValueChange={(fieldId) => setSelectedFieldId(fieldId)}
+                    disabled={isLoading || fields.length === 0}
+                  >
+                    <SelectTrigger id="field">
+                      <SelectValue placeholder="Select a field" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {fields.map((field) => (
+                        <SelectItem key={field.id} value={field.id}>
+                          {field.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {selectedFieldId && (
+                  <div className="grid gap-2">
+                    <Label htmlFor="semester">Semester</Label>
+                    <Select
+                      onValueChange={(value) => setSelectedSemesterNumber(Number(value))}
+                      disabled={isLoading || filteredSemesters.length === 0}
+                    >
+                      <SelectTrigger id="semester">
+                        <SelectValue placeholder="Select a semester" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {filteredSemesters.map((semester) => (
+                          <SelectItem key={semester.id} value={String(semester.number)}>
+                            Semester {semester.number}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
+              </>
+            )}
 
             <Button type="submit" className="w-full" disabled={isLoading}>
               {isLoading ? 'Creating User...' : 'Create User'}
