@@ -1,6 +1,5 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { createSupabaseMiddlewareClient } from '../supabase/middleware'
-import { prisma } from '@/lib/prisma' // Import Prisma client
 
 export async function handleadminAuth(request: NextRequest) {
   let response = NextResponse.next({
@@ -25,19 +24,7 @@ export async function handleadminAuth(request: NextRequest) {
       return NextResponse.redirect(redirectUrl)
     }
 
-    // If classAdmin, fetch their AdminScope and attach it to the response headers
-    if (userRole === 'classAdmin' && user?.id) {
-      const adminScopes = await prisma.adminScope.findMany({
-        where: { userId: user.id },
-        include: {
-          field: true,
-          semester: true,
-        },
-      })
-      // Attach adminScopes to a custom header.
-      // Note: Headers have size limits, for large data, consider other methods.
-      response.headers.set('X-Admin-Scopes', JSON.stringify(adminScopes));
-    }
+    // The logic for fetching admin scopes has been moved to an API route.
   }
 
   return response

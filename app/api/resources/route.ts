@@ -2,6 +2,7 @@ import { NextResponse, NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
+import { getAdminScopes } from "@/lib/data/admin-scopes";
 
 export async function GET(request: NextRequest) {
   try {
@@ -29,11 +30,12 @@ export async function GET(request: NextRequest) {
     let resources;
 
     if (userRole === 'classAdmin') {
-      const adminScopesHeader = request.headers.get('X-Admin-Scopes');
-      if (!adminScopesHeader) {
-        return NextResponse.json({ message: "Admin scopes not found for classAdmin" }, { status: 403 });
+      if (!user) return NextResponse.json({ message: "User not found" }, { status: 401 });
+      const adminScopes = await getAdminScopes(user.id);
+      if (!adminScopes || adminScopes.length === 0) {
+        // Return empty array if classAdmin has no scopes, as they can't see any resources.
+        return NextResponse.json([], { status: 200 });
       }
-      const adminScopes = JSON.parse(adminScopesHeader);
 
       const allowedFieldSemesterPairs = adminScopes.map((scope: any) => ({
         fieldId: scope.fieldId,
@@ -223,11 +225,10 @@ export async function POST(request: NextRequest) {
     const userRole: string = user?.user_metadata?.role || '';
 
     if (userRole === 'classAdmin') {
-      const adminScopesHeader = request.headers.get('X-Admin-Scopes');
-      if (!adminScopesHeader) {
-        return NextResponse.json({ message: "Admin scopes not found for classAdmin" }, { status: 403 });
+      const adminScopes = await getAdminScopes(user.id);
+      if (!adminScopes || adminScopes.length === 0) {
+        return NextResponse.json({ message: "Admin scopes not found for classAdmin or user has no scopes" }, { status: 403 });
       }
-      const adminScopes = JSON.parse(adminScopesHeader);
 
       const targetModule = await prisma.module.findUnique({
         where: { id: validatedData.moduleId },
