@@ -4,6 +4,8 @@ import {SiteHeader} from "@/components/site-header";
 import * as React from "react";
 import { GlobalDataProvider } from "../../context/GlobalDataContext";
 import { fields, semester, module as Module, submodule as Submodule, resource as Resource } from "@prisma/client";
+import { createServerClient } from "@supabase/ssr"; // New import
+import { cookies } from "next/headers"; // New import
 
 interface SemesterWithField extends semester {
   field: Pick<fields, "name">
@@ -65,8 +67,13 @@ async function getSubmodules(): Promise<SubmoduleWithModuleSemesterAndField[]> {
   return res.json();
 }
 
-async function getResources(): Promise<ResourceWithSubmoduleModuleSemesterAndField[]> {
-  const res = await fetch("http://localhost:3000/api/resources", { cache: "no-store" });
+async function getResources(accessToken?: string): Promise<ResourceWithSubmoduleModuleSemesterAndField[]> {
+  const res = await fetch("http://localhost:3000/api/resources", {
+    cache: "no-store",
+    headers: {
+      ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+    },
+  });
   if (!res.ok) {
     throw new Error("Failed to fetch resources");
   }
@@ -74,11 +81,29 @@ async function getResources(): Promise<ResourceWithSubmoduleModuleSemesterAndFie
 }
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
+  // Create Supabase client and get session
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get: (name: string) => cookies().get(name)?.value,
+        set: (name: string, value: string, options: any) => cookies().set(name, value, options),
+        remove: (name: string, value: string, options: any) => cookies().set(name, '', options),
+      },
+    }
+  );
+
+  const { data: { session } } = await supabase.auth.getSession();
+  console.log("Session in layout.tsx:", session);
+  const accessToken = session?.access_token;
+  console.log("Access Token in layout.tsx:", accessToken);
+
   const initialFields = await getFields();
   const initialSemesters = await getSemesters();
   const initialModules = await getModules();
   const initialSubmodules = await getSubmodules();
-  const initialResources = await getResources();
+  const initialResources = await getResources(accessToken);
 
   return (
     <SidebarProvider>

@@ -1,52 +1,105 @@
 import { NextResponse, NextRequest } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { z } from "zod";
-import { cookies } from "next/headers"
-import { createServerClient } from "@supabase/ssr"
+import { createClient } from "@supabase/supabase-js";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const resources = await prisma.resource.findMany({
-      orderBy: { title: "asc" },
-      include: {
-        module: {
-          select: {
-            id: true,
-            name: true,
+    const authHeader = request.headers.get('Authorization');
+    const token = authHeader?.split(' ')[1]; // Extract JWT from "Bearer <token>"
+
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        auth: {
+          persistSession: false, // Do not persist session in API routes
+        },
+        global: {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      }
+    );
+
+    const { data: { user } } = await supabase.auth.getUser();
+    const userRole: string = user?.user_metadata?.role || '';
+
+    let resources;
+
+    if (userRole === 'classAdmin') {
+      const adminScopesHeader = request.headers.get('X-Admin-Scopes');
+      if (!adminScopesHeader) {
+        return NextResponse.json({ message: "Admin scopes not found for classAdmin" }, { status: 403 });
+      }
+      const adminScopes = JSON.parse(adminScopesHeader);
+
+      const allowedFieldSemesterPairs = adminScopes.map((scope: any) => ({
+        fieldId: scope.fieldId,
+        semesterId: scope.semesterId,
+      }));
+
+      // Find all modules that belong to the allowed field/semester pairs
+      const allowedModules = await prisma.module.findMany({
+        where: {
+          OR: allowedFieldSemesterPairs.map((pair: any) => ({
             semester: {
-              select: {
-                id: true,
-                number: true,
-                fieldId: true,
-                field: {
-                  select: {
-                    id: true,
-                    name: true,
+              fieldId: pair.fieldId,
+              id: pair.semesterId,
+            },
+          })),
+        },
+        select: { id: true },
+      });
+
+      const allowedModuleIds = allowedModules.map(module => module.id);
+
+      resources = await prisma.resource.findMany({
+        where: {
+          moduleId: { in: allowedModuleIds },
+        },
+        orderBy: { title: "asc" },
+        include: {
+          module: {
+            select: {
+              id: true,
+              name: true,
+              semester: {
+                select: {
+                  id: true,
+                  number: true,
+                  fieldId: true,
+                  field: {
+                    select: {
+                      id: true,
+                      name: true,
+                    },
                   },
                 },
               },
             },
           },
-        },
-        submodule: {
-          select: {
-            id: true,
-            name: true,
-            moduleId: true,
-            module: {
-              select: {
-                id: true,
-                name: true,
-                semesterId: true,
-                semester: {
-                  select: {
-                    id: true,
-                    number: true,
-                    fieldId: true,
-                    field: {
-                      select: {
-                        id: true,
-                        name: true,
+          submodule: {
+            select: {
+              id: true,
+              name: true,
+              moduleId: true,
+              module: {
+                select: {
+                  id: true,
+                  name: true,
+                  semesterId: true,
+                  semester: {
+                    select: {
+                      id: true,
+                      number: true,
+                      fieldId: true,
+                      field: {
+                        select: {
+                          id: true,
+                          name: true,
+                        },
                       },
                     },
                   },
@@ -55,16 +108,71 @@ export async function GET() {
             },
           },
         },
-      },
-    })
-    return NextResponse.json(resources)
+      });
+    } else if (userRole === 'superAdmin') {
+      resources = await prisma.resource.findMany({
+        orderBy: { title: "asc" },
+        include: {
+          module: {
+            select: {
+              id: true,
+              name: true,
+              semester: {
+                select: {
+                  id: true,
+                  number: true,
+                  fieldId: true,
+                  field: {
+                    select: {
+                      id: true,
+                      name: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+          submodule: {
+            select: {
+              id: true,
+              name: true,
+              moduleId: true,
+              module: {
+                select: {
+                  id: true,
+                  name: true,
+                  semesterId: true,
+                  semester: {
+                    select: {
+                      id: true,
+                      number: true,
+                      fieldId: true,
+                      field: {
+                        select: {
+                          id: true,
+                          name: true,
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      });
+    } else {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+
+    return NextResponse.json(resources);
   } catch (error) {
-    console.error("Failed to fetch resources:", error)
+    console.error("Failed to fetch resources:", error);
     const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
     return NextResponse.json(
       { message: "An error occurred while fetching resources.", error: errorMessage },
       { status: 500 }
-    )
+    );
   }
 }
 
@@ -88,29 +196,60 @@ export async function POST(request: NextRequest) {
     console.log("Incoming request body for /api/resources POST:", body);
     const validatedData = resourceCreateSchema.parse(body);
 
-    const cookieStore = await cookies()
-    const supabase = createServerClient(
+    const authHeader = request.headers.get('Authorization');
+    const token = authHeader?.split(' ')[1]; // Extract JWT from "Bearer <token>"
+
+    const supabase = createClient(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
-        cookies: {
-          get(name: string) {
-            return cookieStore.get(name)?.value
-          },
-          set(name: string, value: string, options: any) {
-            cookieStore.set({ name, value, ...options })
-          },
-          remove(name: string, options: any) {
-            cookieStore.set({ name, value: '', ...options })
+        auth: {
+          persistSession: false, // Do not persist session in API routes
+        },
+        global: {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
         },
       }
-    )
+    );
 
     const { data: { user } } = await supabase.auth.getUser()
 
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    }
+
+    const userRole: string = user?.user_metadata?.role || '';
+
+    if (userRole === 'classAdmin') {
+      const adminScopesHeader = request.headers.get('X-Admin-Scopes');
+      if (!adminScopesHeader) {
+        return NextResponse.json({ message: "Admin scopes not found for classAdmin" }, { status: 403 });
+      }
+      const adminScopes = JSON.parse(adminScopesHeader);
+
+      const targetModule = await prisma.module.findUnique({
+        where: { id: validatedData.moduleId },
+        include: {
+          semester: true,
+        },
+      });
+
+      if (!targetModule) {
+        return NextResponse.json({ message: "Module not found" }, { status: 404 });
+      }
+
+      const isAuthorized = adminScopes.some((scope: any) =>
+        scope.fieldId === targetModule.semester.fieldId &&
+        scope.semesterId === targetModule.semester.id
+      );
+
+      if (!isAuthorized) {
+        return NextResponse.json({ message: "Forbidden: Not authorized to create resources in this module's scope" }, { status: 403 });
+      }
+    } else if (userRole !== 'superAdmin') {
+      return NextResponse.json({ message: "Forbidden: Only superAdmin and classAdmin can create resources" }, { status: 403 });
     }
 
     const uploadedByUserId = user.id; // Use actual user ID
