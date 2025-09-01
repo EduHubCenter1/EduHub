@@ -3,6 +3,12 @@
 import { prisma } from '@/lib/prisma';
 import { supabaseAdmin } from '@/lib/data/users'; // Import the shared client
 
+// Type for a single admin scope
+type AdminScope = {
+  fieldId: string;
+  semesterNumber: number;
+};
+
 export async function getAdminScopesByUserId(userId: string) {
   if (!userId) {
     console.error('getAdminScopesByUserId: userId is required');
@@ -28,13 +34,19 @@ export async function getAdminScopesByUserId(userId: string) {
   }
 }
 
-export async function updateUser(userId: string, userData: { email: string, firstName: string, lastName: string, role: string, adminScopes: any[] }) {
+export async function updateUser(userId: string, userData: { 
+  email: string, 
+  firstName: string, 
+  lastName: string, 
+  role: string, 
+  adminScope: AdminScope | null 
+}) {
   if (!userId) {
     return { error: "User ID is required." };
   }
 
   try {
-    const { email, firstName, lastName, role, adminScopes } = userData;
+    const { email, firstName, lastName, role, adminScope } = userData;
 
     // --- Update Supabase Auth User ---
     const user_metadata: { [key: string]: any } = {};
@@ -55,23 +67,20 @@ export async function updateUser(userId: string, userData: { email: string, firs
       return { error: `Failed to update user: ${userUpdateError.message}` };
     }
 
-    // --- Update Admin Scopes (if provided) ---
-    if (adminScopes && Array.isArray(adminScopes)) {
-      // 1. Delete all existing scopes for the user
-      await prisma.adminScope.deleteMany({
-        where: { userId: userId },
-      });
+    // --- Always delete all existing scopes for the user first ---
+    await prisma.adminScope.deleteMany({
+      where: { userId: userId },
+    });
 
-      // 2. Create new scopes if there are any to add
-      if (adminScopes.length > 0) {
-        await prisma.adminScope.createMany({
-          data: adminScopes.map((scope: any) => ({
+    // --- If the role is classAdmin and a scope is provided, create the new single scope ---
+    if (role === 'classAdmin' && adminScope) {
+        await prisma.adminScope.create({
+          data: {
             userId: userId,
-            fieldId: scope.fieldId,
-            semesterNumber: scope.semesterNumber,
-          })),
+            fieldId: adminScope.fieldId,
+            semesterNumber: adminScope.semesterNumber,
+          },
         });
-      }
     }
 
     return { success: "User successfully updated." };
