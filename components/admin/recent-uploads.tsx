@@ -4,6 +4,7 @@ import { formatFileSize } from "@/lib/utils"
 import { formatDistanceToNow } from "date-fns"
 import { FileText } from "lucide-react"
 
+// This interface needs to match the data fetched in the dashboard page query
 interface RecentUpload {
   id: string
   title: string
@@ -13,18 +14,18 @@ interface RecentUpload {
   uploadedBy: {
     name: string
   }
-  submodule: {
+  module: {
     name: string
-    module: {
-      name: string
-      semester: {
-        number: number
-        field: {
-          name: string
-        }
+    semester: {
+      number: number
+      field: {
+        name: string
       }
     }
   }
+  submodule: {
+    name: string
+  } | null
 }
 
 interface RecentUploadsProps {
@@ -32,6 +33,15 @@ interface RecentUploadsProps {
 }
 
 export function RecentUploads({ uploads }: RecentUploadsProps) {
+  const getPath = (upload: RecentUpload) => {
+    const field = upload.module.semester.field.name;
+    const semester = `S${upload.module.semester.number}`;
+    const module = upload.module.name;
+    const submodule = upload.submodule?.name;
+
+    return [field, semester, module, submodule].filter(Boolean).join(' • ');
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -54,8 +64,7 @@ export function RecentUploads({ uploads }: RecentUploadsProps) {
                     </Badge>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    {upload.submodule.module.semester.field.name} • S{upload.submodule.module.semester.number} •{" "}
-                    {upload.submodule.module.name}
+                    {getPath(upload)}
                   </p>
                   <div className="flex items-center justify-between mt-1">
                     <p className="text-xs text-muted-foreground">

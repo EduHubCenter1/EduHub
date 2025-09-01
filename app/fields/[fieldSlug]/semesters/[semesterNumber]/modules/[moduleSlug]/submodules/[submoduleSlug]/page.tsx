@@ -1,118 +1,90 @@
-import { notFound } from "next/navigation"
-import { prisma } from "@/lib/prisma"
-import { PublicLayout } from "@/components/public/public-layout"
-import { ResourcesGrid } from "@/components/public/resources-grid"
-import { Breadcrumbs } from "@/components/public/breadcrumbs"
+import { prisma } from "@/lib/prisma";
+import { notFound } from "next/navigation";
+import { Breadcrumbs } from "@/components/public/breadcrumbs";
+import { ResourcesGrid } from "@/components/public/resources-grid";
 
-interface PageProps {
-  params: {
-    fieldSlug: string
-    semesterNumber: string
-    moduleSlug: string
-    submoduleSlug: string
-  }
-}
-
-async function getSubmoduleWithResources(
-  fieldSlug: string,
-  semesterNumber: number,
-  moduleSlug: string,
-  submoduleSlug: string,
-) {
-  return await prisma.submodule.findFirst({
-    where: {
-      slug: submoduleSlug,
-      module: {
-        slug: moduleSlug,
-        semester: {
-          number: semesterNumber,
-          field: {
-            slug: fieldSlug,
-          },
-        },
-      },
-    },
-    include: {
-      module: {
-        include: {
-          semester: {
-            include: {
-              field: true,
+async function getSubmoduleData(fieldSlug: string, semesterNumber: number, moduleSlug: string, submoduleSlug: string) {
+    const submodule = await prisma.submodule.findFirst({
+        where: {
+            slug: submoduleSlug,
+            module: {
+                slug: moduleSlug,
+                semester: {
+                    number: semesterNumber,
+                    field: {
+                        slug: fieldSlug,
+                    },
+                },
             },
-          },
         },
-      },
-      resources: {
-        orderBy: { createdAt: "desc" },
         include: {
-          uploadedBy: {
-            select: { name: true },
-          },
+            module: {
+                include: {
+                    semester: {
+                        include: {
+                            field: true,
+                        },
+                    },
+                },
+            },
+            resources: {
+                orderBy: { createdAt: "desc" },
+                include: {
+                    uploadedBy: {
+                        select: { firstName: true, lastName: true },
+                    },
+                },
+            },
         },
-      },
-    },
-  })
+    });
+
+    if (!submodule) {
+        notFound();
+    }
+    
+    const formattedResources = submodule.resources.map(r => ({
+        ...r,
+        uploadedBy: {
+            name: `${r.uploadedBy?.firstName || ''} ${r.uploadedBy?.lastName || ''}`.trim(),
+        },
+    }));
+
+    return { ...submodule, resources: formattedResources };
 }
 
-export default async function SubmodulePage({ params }: PageProps) {
-  const semesterNumber = Number.parseInt(params.semesterNumber, 10)
+interface SubmodulePageProps {
+    params: {
+        fieldSlug: string;
+        semesterNumber: string;
+        moduleSlug: string;
+        submoduleSlug: string;
+    };
+}
 
-  if (isNaN(semesterNumber) || semesterNumber < 1 || semesterNumber > 6) {
-    notFound()
-  }
+export default async function SubmodulePage({ params }: SubmodulePageProps) {
+    const semesterNumber = parseInt(params.semesterNumber, 10);
+    const submodule = await getSubmoduleData(params.fieldSlug, semesterNumber, params.moduleSlug, params.submoduleSlug);
+    const { module } = submodule;
+    const { semester } = module;
+    const { field } = semester;
 
-  const submodule = await getSubmoduleWithResources(
-    params.fieldSlug,
-    semesterNumber,
-    params.moduleSlug,
-    params.submoduleSlug,
-  )
+    return (
+        <div>
+            <Breadcrumbs
+                items={[
+                    { label: "Fields", href: "/" },
+                    { label: field.name, href: `/fields/${field.slug}` },
+                    { label: `Semester ${semester.number}`, href: `/fields/${field.slug}/semesters/${semester.number}` },
+                    { label: module.name, href: `/fields/${field.slug}/semesters/${semester.number}/modules/${module.slug}` },
+                    { label: submodule.name, href: `/fields/${field.slug}/semesters/${semester.number}/modules/${module.slug}/submodules/${submodule.slug}` },
+                ]}
+            />
+            <div className="text-center my-8">
+                <h1 className="text-3xl font-bold font-heading">{submodule.name}</h1>
+                {submodule.description && <p className="text-muted-foreground mt-2">{submodule.description}</p>}
+            </div>
 
-  if (!submodule) {
-    notFound()
-  }
-
-  const breadcrumbs = [
-    { label: "Home", href: "/" },
-    { label: submodule.module.semester.field.name, href: `/fields/${params.fieldSlug}` },
-    {
-      label: `Semester ${semesterNumber}`,
-      href: `/fields/${params.fieldSlug}/semesters/${semesterNumber}`,
-    },
-    {
-      label: submodule.module.name,
-      href: `/fields/${params.fieldSlug}/semesters/${semesterNumber}/modules/${params.moduleSlug}`,
-    },
-    {
-      label: submodule.name,
-      href: `/fields/${params.fieldSlug}/semesters/${semesterNumber}/modules/${params.moduleSlug}/submodules/${params.submoduleSlug}`,
-    },
-  ]
-
-  return (
-    <PublicLayout>
-      <div className="space-y-6">
-        <Breadcrumbs items={breadcrumbs} />
-
-        <div className="text-center space-y-4">
-          <h1 className="text-4xl font-bold font-heading text-primary">{submodule.name}</h1>
-          {submodule.description && (
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">{submodule.description}</p>
-          )}
-          <div className="text-sm text-muted-foreground">
-            <p>
-              {submodule.module.semester.field.name} • Semester {submodule.module.semester.number} •{" "}
-              {submodule.module.name}
-            </p>
-          </div>
+            <ResourcesGrid resources={submodule.resources} />
         </div>
-
-        <ResourcesGrid
-          resources={submodule.resources}
-          title="Resources"
-          description="Download files and materials for this submodule"
-        />
-      </div>
-    </PublicLayout>
-  )
+    );
 }
