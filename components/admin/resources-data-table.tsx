@@ -32,10 +32,10 @@ interface ResourcesDataTableProps {
 
 export function ResourcesDataTable({ data, onEdit, onDelete }: ResourcesDataTableProps) {
   const columns: ColumnDef<ResourceWithSubmoduleModuleSemesterAndField>[] = [
-    {
-      accessorKey: "id",
-      header: "ID",
-    },
+    // {
+    //   accessorKey: "id",
+    //   header: "ID",
+    // },
     {
       accessorKey: "title",
       header: "Title",

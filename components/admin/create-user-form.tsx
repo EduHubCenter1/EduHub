@@ -75,9 +75,9 @@ export function CreateUserForm({
         setError(response.error || 'An unexpected error occurred.')
       } else {
         setMessage(response.message || 'User created successfully!')
-        setTimeout(() => {
-          router.push('/dashboard')
-        }, 2000)
+        // setTimeout(() => {
+        //   router.push('/dashboard')
+        // }, 2000)
       }
     } catch (err) {
       setError('Failed to connect to the server.')
@@ -87,12 +87,8 @@ export function CreateUserForm({
   }
 
   return (
-    <div className={cn('flex justify-center items-center min-h-screen bg-muted', className)} {...props}>
-      <Card className="w-full max-w-lg">
-        <CardHeader>
-          <CardTitle>Create New User</CardTitle>
-          <CardDescription>Fill in the details to create a new admin user.</CardDescription>
-        </CardHeader>
+    <div className={cn(className)} {...props}>
+      <Card className="w-full bg-background max-w-lg border-0 shadow-none p-0">
         <CardContent>
           <form onSubmit={handleRegister} className="flex flex-col gap-6">
             {error && (

@@ -2,10 +2,17 @@
 import { UsersTableShell } from "@/components/admin/users-table-shell";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getUsers } from "@/lib/data/users"; // Import the new function
 import { User } from "@supabase/supabase-js";
+import {
+  Dialog,
+  DialogContent, DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { CreateUserForm } from "@/components/admin/create-user-form";
 
 // Define a type for AdminScope with included field name
 type AdminScopeWithField = {
@@ -27,7 +34,8 @@ async function getAdminScopes(): Promise<AdminScopeWithField[]> {
             name: true,
           },
         },
-        semester: { // Include semester to get its number
+        semester: {
+          // Include semester to get its number
           select: {
             number: true,
           },
@@ -57,12 +65,23 @@ export default async function UsersPage() {
           <h1 className=" text-2xl font-bold">Users</h1>
           <p>Manage your users here.</p>
         </div>
-        <Link
-          href="/admin/dashboard/create-user"
-          className={cn(buttonVariants({ variant: "default" }))}
-        >
-          Create User
-        </Link>
+
+        <Dialog>
+          <DialogTrigger
+            className={cn(buttonVariants({ variant: "default" }))}
+          >
+            Create User
+          </DialogTrigger>
+          <DialogContent>
+            <DialogHeader>
+              <DialogTitle>Create a new user</DialogTitle>
+
+                <DialogDescription>Fill in the details to create a new admin user.</DialogDescription>
+
+            </DialogHeader>
+            <CreateUserForm />
+          </DialogContent>
+        </Dialog>
       </div>
       <UsersTableShell data={users} adminScopes={adminScopes} />
     </div>

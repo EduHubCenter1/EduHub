@@ -32,11 +32,11 @@ const navMain = [
       url: "/dashboard/users",
       icon: UsersIcon,
     },
-    {
-      title: "Create User",
-      url: "/dashboard/create-user",
-      icon: UserPlusIcon,
-    },
+    // {
+    //   title: "Create User",
+    //   url: "/dashboard/create-user",
+    //   icon: UserPlusIcon,
+    // },
     {
       title: "Fields",
       url: "/dashboard/fields",

@@ -28,10 +28,10 @@ interface ModulesDataTableProps {
 
 export function ModulesDataTable({ data, onEdit, onDelete }: ModulesDataTableProps) {
   const columns: ColumnDef<ModuleWithSemesterAndField>[] = [
-    {
-      accessorKey: "id",
-      header: "ID",
-    },
+    // {
+    //   accessorKey: "id",
+    //   header: "ID",
+    // },
     {
       accessorKey: "name",
       header: "Module Name",

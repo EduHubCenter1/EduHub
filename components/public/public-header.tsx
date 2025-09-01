@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Settings, LogOut } from "lucide-react";
+import { GraduationCap, Settings, LogOut, LayoutDashboard } from "lucide-react";
 import { useAuthContext } from "@/context/AuthContext"; // ✅ utilisation du contexte
 
 export function PublicHeader() {
@@ -30,10 +30,18 @@ export function PublicHeader() {
               ...
             </Button>
           ) : user ? (
-            <Button variant="outline" size="sm" onClick={handleLogout}>
-              <LogOut className="w-4 h-4 mr-2" />
-              Déconnexion
-            </Button>
+            <>
+              <Button asChild variant="outline" size="sm">
+                <Link href="/dashboard">
+                  <LayoutDashboard className="w-4 h-4 mr-2" />
+                  <p className={'hidden md:flex'}>Dashboard</p>
+                </Link>
+              </Button>
+              <Button variant="outline" size="sm" onClick={handleLogout}>
+                <LogOut className="w-4 h-4 mr-2" />
+                <p className={'hidden md:flex'}>Déconnexion</p>
+              </Button>
+            </>
           ) : (
             <Button asChild variant="outline" size="sm">
               <Link href="/login">

@@ -30,10 +30,10 @@ interface SubmodulesDataTableProps {
 
 export function SubmodulesDataTable({ data, onEdit, onDelete }: SubmodulesDataTableProps) {
   const columns: ColumnDef<SubmoduleWithModuleSemesterAndField>[] = [
-    {
-      accessorKey: "id",
-      header: "ID",
-    },
+    // {
+    //   accessorKey: "id",
+    //   header: "ID",
+    // },
     {
       accessorKey: "name",
       header: "Submodule Name",
