@@ -1,0 +1,60 @@
+{
+  "sciences-des-donnees-big-data-ia": {
+    "0": {
+      "Analyse numérique matricielle et Statistique": ["Analyse numérique matricielle"],
+      "Architecture des ordinateurs et Systèmes d'exploitation": ["Architecture des ordinateurs", "Systèmes d'exploitation"],
+      "Langues Etrangères 1": ["Langue Anglaise", "Langue Française"]
+    },
+    "1": {
+      "Compilation et Informatique quantique": ["Compilation", "Informatique quantique"],
+      "Langues Etrangères 2": ["Anglais", "TEC"]
+    },
+    "3": {
+      "IA en milieu industriel": ["Vision par ordinateur en milieu industriel", "Machine Learning en milieu industriel"],
+      "Langues et TEC": ["Anglais", "TEC"],
+      "Management IV": ["Droits de la propriété intellectuelle IT", "Transformation Digitale"]
+    }
+  },
+  "securite-it-et-confiance-numerique": {
+    "0": {
+      "Architecture des ordinateurs et Systèmes d'exploitation": ["Architecture des ordinateurs", "Systèmes d'exploitation"],
+      "Structures de données et Python": ["Structures de données"],
+      "Langues Etrangères 1": ["Langue Anglaise", "Langue Française"]
+    },
+    "1": {
+      "Technologies WEB et Bases de données": ["Technologies Web", "Base de données"],
+      "Langues Etrangères 2": ["Anglais", "TEC"],
+      "Systemes embarqués et Cloud computing": ["Systemes embarqués", "Cloud computing"],
+      "Cryptographie appliquée et Informatique": ["Cryptographie appliquée", "Informatique quantique"]
+    },
+    "3": {
+      "Développement Web et mobile": ["Développement mobile et embarqué", "Plateformes de développement web"],
+      "Virtualisation et DEVOPS": ["Virtualisation et conteneurisation", "Devops/DevSecOps"],
+      "Sécurité des systèmes": ["Protocoles de sécurité", "Systèmes d'auto défense (IRS/IPS)"],
+      "Sécurité et développement": ["Sécurité mobile et embarqué", "Sécurité Web"],
+      "Langues et TEC": ["Anglais", "TEC"],
+      "Management IV": ["Development durable", "Transformation Digitale"]
+    }
+  },
+  "management-et-gouvernance-des-systemes-dinformation": {
+    "0": {
+      "Mathématiques Appliquées": ["Mathématiques pour l'Ingénieur"],
+      "Architecture des ordinateurs et Systèmes d'exploitation": ["Architecture des ordinateurs", "Systèmes d'exploitation"],
+      "Stratégie d'entreprise & SI": ["Systèmes d'exploitation", "Stratégie d'entreprise & SI"],
+      "Langues Etrangères 1": ["Langue Anglaise", "Langue Française"]
+    },
+    "1": {
+      "Langues Etrangères 2": ["Anglais", "TEC"]
+    }
+  },
+  "ingenierie-logicielle": {
+    "0": {
+      "Mathématiques Appliquées": ["Mathématiques pour l'Ingénieur", "Probabilités et applications"],
+      "Architecture des ordinateurs et Systèmes d'exploitation": ["Architecture des ordinateurs", "Systèmes d'exploitation"],
+      "Langues Etrangères 1": ["Langue Anglaise", "Langue Française"]
+    },
+    "1": {
+      "Langues Etrangères 2": ["Anglais", "TEC"]
+    }
+  }
+}

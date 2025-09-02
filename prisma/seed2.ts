@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client"
 import { createSlug } from "../lib/utils"
+import submodulesData from "./submodules.json";
 
 const prisma = new PrismaClient()
 
@@ -262,11 +263,11 @@ async function main() {
 
     // Modules & Submodules
     for (let semesterIndex = 0; semesterIndex < 6; semesterIndex++) {
-      const semester = semesters[semesterIndex]
-      const modules = fieldData.modules[semesterIndex]
+      const semester = semesters[semesterIndex];
+      const modules = fieldData.modules[semesterIndex] || [];
 
       for (const moduleName of modules) {
-        const moduleSlug = createSlug(moduleName)
+        const moduleSlug = createSlug(moduleName);
         const module = await prisma.module.upsert({
           where: { semesterId_slug: { semesterId: semester.id, slug: moduleSlug } },
           update: {},
@@ -275,26 +276,32 @@ async function main() {
             slug: moduleSlug,
             semesterId: semester.id,
           },
-        })
+        });
 
-        // Create submodules (3 par défaut)
-        const submoduleNames = ["Course", "Td", "TP"]
-        for (const submoduleName of submoduleNames) {
-          const submoduleSlug = createSlug(submoduleName)
-          await prisma.submodule.upsert({
-            where: { moduleId_slug: { moduleId: module.id, slug: submoduleSlug } },
-            update: {},
-            create: {
-              name: submoduleName,
-              slug: submoduleSlug,
-              moduleId: module.id,
-            },
-          })
+// ✅ Gestion des submodules
+// Force TypeScript à accepter les index dynamiques
+const fieldSubmodules = (submodulesData as Record<string, any>)[fieldData.slug];
+        const semesterKey = semesterIndex.toString();
+
+        if (
+          fieldSubmodules &&
+          fieldSubmodules[semesterKey] &&
+          fieldSubmodules[semesterKey][moduleName]
+        ) {
+          const submodules = fieldSubmodules[semesterKey][moduleName];
+          const dataToInsert = submodules.map((subName: string) => ({
+            name: subName,
+            slug: createSlug(subName),
+            moduleId: module.id,
+          }));
+
+          if (dataToInsert.length > 0) {
+            await prisma.submodule.createMany({ data: dataToInsert });
+          }
         }
       }
     }
   }
-
   console.log("✅ Database seeded successfully!")
 }
 
@@ -305,3 +312,4 @@ main()
     await prisma.$disconnect()
     process.exit(1)
   })
+    

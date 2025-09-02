@@ -7,7 +7,7 @@
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start",
-    "seed": "ts-node --project tsconfig.scripts.json prisma/seed.ts"
+    "seed": "ts-node --project tsconfig.scripts.json prisma/seed2.ts"
   },
   "dependencies": {
     "@auth/core": "latest",
