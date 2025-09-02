@@ -4,6 +4,10 @@ import { Prisma } from "@prisma/client"
 import slugify from "slugify"
 
 // Function to generate a unique slug
+import { createClient } from "@supabase/supabase-js"
+import { getAdminScopes } from "@/lib/data/admin-scopes"
+
+// Function to generate a unique slug
 async function generateUniqueSlug(name: string): Promise<string> {
   let slug = slugify(name, { lower: true, strict: true })
   let uniqueSlug = slug
@@ -22,23 +26,87 @@ async function generateUniqueSlug(name: string): Promise<string> {
   return uniqueSlug
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const authHeader = request.headers.get('Authorization');
+  const token = authHeader?.split(' ')[1];
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    }
+  );
+
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+  }
+
+  const userRole: string = user?.user_metadata?.role || ''
+
   try {
-    const modules = await prisma.module.findMany({
-      orderBy: { name: "asc" },
-      include: {
-        semester: {
-          select: {
-            number: true,
-            field: {
-              select: {
-                name: true,
+    let modules;
+
+    if (userRole === 'classAdmin') {
+      const adminScopes = await getAdminScopes(user.id);
+      if (!adminScopes || adminScopes.length === 0) {
+        return NextResponse.json([], { status: 200 });
+      }
+
+      const allowedFieldSemesterPairs = adminScopes.map((scope: any) => ({
+        fieldId: scope.fieldId,
+        semesterId: scope.semesterId,
+      }));
+
+      modules = await prisma.module.findMany({
+        where: {
+          OR: allowedFieldSemesterPairs.map((pair: any) => ({
+            semester: {
+              fieldId: pair.fieldId,
+              id: pair.semesterId,
+            },
+          })),
+        },
+        orderBy: { name: "asc" },
+        include: {
+          semester: {
+            select: {
+              number: true,
+              field: {
+                select: {
+                  name: true,
+                },
               },
             },
           },
         },
-      },
-    })
+      });
+    } else if (userRole === 'superAdmin') {
+      modules = await prisma.module.findMany({
+        orderBy: { name: "asc" },
+        include: {
+          semester: {
+            select: {
+              number: true,
+              field: {
+                select: {
+                  name: true,
+                },
+              },
+            },
+          },
+        },
+      });
+    } else {
+      return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+    }
+
     return NextResponse.json(modules)
   } catch (error) {
     console.error("Failed to fetch modules:", error)

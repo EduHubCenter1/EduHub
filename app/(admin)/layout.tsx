@@ -35,32 +35,52 @@ interface ResourceWithSubmoduleModuleSemesterAndField extends Resource {
   }) | null
 }
 
-async function getFields(): Promise<fields[]> {
-  const res = await fetch("http://localhost:3000/api/fields", { cache: "no-store" });
+async function getFields(accessToken?: string): Promise<fields[]> {
+  const res = await fetch("http://localhost:3000/api/fields", { 
+    cache: "no-store",
+    headers: {
+      ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+    },
+  });
   if (!res.ok) {
     throw new Error("Failed to fetch fields");
   }
   return res.json();
 }
 
-async function getSemesters(): Promise<SemesterWithField[]> {
-  const res = await fetch("http://localhost:3000/api/semesters", { cache: "no-store" });
+async function getSemesters(accessToken?: string): Promise<SemesterWithField[]> {
+  const res = await fetch("http://localhost:3000/api/semesters", { 
+    cache: "no-store",
+    headers: {
+      ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+    },
+  });
   if (!res.ok) {
     throw new Error("Failed to fetch semesters");
   }
   return res.json();
 }
 
-async function getModules(): Promise<ModuleWithSemesterAndField[]> {
-  const res = await fetch("http://localhost:3000/api/modules", { cache: "no-store" });
+async function getModules(accessToken?: string): Promise<ModuleWithSemesterAndField[]> {
+  const res = await fetch("http://localhost:3000/api/modules", { 
+    cache: "no-store",
+    headers: {
+      ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+    },
+  });
   if (!res.ok) {
     throw new Error("Failed to fetch modules");
   }
   return res.json();
 }
 
-async function getSubmodules(): Promise<SubmoduleWithModuleSemesterAndField[]> {
-  const res = await fetch("http://localhost:3000/api/submodules", { cache: "no-store" });
+async function getSubmodules(accessToken?: string): Promise<SubmoduleWithModuleSemesterAndField[]> {
+  const res = await fetch("http://localhost:3000/api/submodules", { 
+    cache: "no-store",
+    headers: {
+      ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+    },
+  });
   if (!res.ok) {
     throw new Error("Failed to fetch submodules");
   }
@@ -95,14 +115,12 @@ export default async function Layout({ children }: { children: React.ReactNode }
   );
 
   const { data: { session } } = await supabase.auth.getSession();
-  console.log("Session in layout.tsx:", session);
   const accessToken = session?.access_token;
-  console.log("Access Token in layout.tsx:", accessToken);
 
-  const initialFields = await getFields();
-  const initialSemesters = await getSemesters();
-  const initialModules = await getModules();
-  const initialSubmodules = await getSubmodules();
+  const initialFields = await getFields(accessToken);
+  const initialSemesters = await getSemesters(accessToken);
+  const initialModules = await getModules(accessToken);
+  const initialSubmodules = await getSubmodules(accessToken);
   const initialResources = await getResources(accessToken);
 
   return (

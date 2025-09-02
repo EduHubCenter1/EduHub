@@ -17,9 +17,12 @@ interface ModuleWithSemesterAndField extends Module {
   }
 }
 
+import { useAuth } from "@/hooks/useAuth";
+
 export default function ModulesPage() {
   const { modules, refetchModules, semesters: allSemesters, fields: allFields } = useGlobalData();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
@@ -112,40 +115,42 @@ export default function ModulesPage() {
         <Button onClick={handleCreate}>Add Module</Button>
       </div>
       <p>Manage your modules here.</p>
-      <div className="flex items-center space-x-2 mt-4">
-        <Select onValueChange={(value) => {
-          setSelectedFilterFieldId(value);
-          setSelectedFilterSemesterId("all");
-        }} value={selectedFilterFieldId}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter by Field" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Fields</SelectItem>
-            {allFields.map((field) => (
-              <SelectItem key={field.id} value={field.id}>
-                {field.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-
-        <Select onValueChange={(value) => setSelectedFilterSemesterId(value)} value={selectedFilterSemesterId}>
-          <SelectTrigger className="w-[250px]">
-            <SelectValue placeholder="Filter by Semester" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Semesters</SelectItem>
-            {allSemesters
-              .filter(semester => selectedFilterFieldId === "all" || semester.fieldId === selectedFilterFieldId)
-              .map((semester) => (
-                <SelectItem key={semester.id} value={semester.id}>
-                  Semester {semester.number} ({semester.field.name})
+      {user?.user_metadata?.role === 'superAdmin' && (
+        <div className="flex items-center space-x-2 mt-4">
+          <Select onValueChange={(value) => {
+            setSelectedFilterFieldId(value);
+            setSelectedFilterSemesterId("all");
+          }} value={selectedFilterFieldId}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by Field" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Fields</SelectItem>
+              {allFields.map((field) => (
+                <SelectItem key={field.id} value={field.id}>
+                  {field.name}
                 </SelectItem>
               ))}
-          </SelectContent>
-        </Select>
-      </div>
+            </SelectContent>
+          </Select>
+
+          <Select onValueChange={(value) => setSelectedFilterSemesterId(value)} value={selectedFilterSemesterId}>
+            <SelectTrigger className="w-[250px]">
+              <SelectValue placeholder="Filter by Semester" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Semesters</SelectItem>
+              {allSemesters
+                .filter(semester => selectedFilterFieldId === "all" || semester.fieldId === selectedFilterFieldId)
+                .map((semester) => (
+                  <SelectItem key={semester.id} value={semester.id}>
+                    Semester {semester.number} ({semester.field.name})
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
       <div className="">
         <ModulesDataTable data={filteredModules} onEdit={handleEdit} onDelete={handleDelete} />
       </div>

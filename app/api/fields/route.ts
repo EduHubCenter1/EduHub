@@ -6,6 +6,10 @@ import slugify from "slugify"
 import { prisma } from "@/lib/prisma"
 import { fieldFormSchema } from "@/lib/validators"
 
+import { createClient } from "@supabase/supabase-js"
+
+import { getAdminScopes } from "@/lib/data/admin-scopes"
+
 // Function to generate a unique slug
 async function generateUniqueSlug(name: string): Promise<string> {
   let slug = slugify(name, { lower: true, strict: true })
@@ -25,11 +29,51 @@ async function generateUniqueSlug(name: string): Promise<string> {
   return uniqueSlug
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
+  const authHeader = request.headers.get('Authorization');
+  const token = authHeader?.split(' ')[1];
+
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      global: {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    }
+  );
+
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
+  }
+
+  const userRole: string = user?.user_metadata?.role || ''
+
   try {
-    const fields = await prisma.fields.findMany({
-      orderBy: { name: "asc" },
-    })
+    let fields;
+    if (userRole === 'superAdmin') {
+      fields = await prisma.fields.findMany({
+        orderBy: { name: "asc" },
+      })
+    } else if (userRole === 'classAdmin') {
+      const adminScopes = await getAdminScopes(user.id);
+      if (!adminScopes || adminScopes.length === 0) {
+        return NextResponse.json([], { status: 200 });
+      }
+      const fieldIds = [...new Set(adminScopes.map(scope => scope.fieldId))];
+      fields = await prisma.fields.findMany({
+        where: {
+          id: { in: fieldIds },
+        },
+        orderBy: { name: "asc" },
+      });
+    } else {
+      return NextResponse.json({ message: "Forbidden" }, { status: 403 });
+    }
     return NextResponse.json(fields)
   } catch (error) {
     console.error("Failed to fetch fields:", error)

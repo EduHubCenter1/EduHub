@@ -26,6 +26,8 @@ interface ResourceWithSubmoduleModuleSemesterAndField extends Resource {
   submodule: SubmoduleWithModuleSemesterAndandField | null;
 }
 
+import { useAuth } from "@/hooks/useAuth";
+
 interface GlobalDataContextType {
   fields: Field[];
   refetchFields: () => Promise<void>;
@@ -63,10 +65,19 @@ export const GlobalDataProvider: React.FC<GlobalDataProviderProps> = ({
   const [modules, setModules] = useState<ModuleWithSemesterAndField[]>(initialModules);
   const [submodules, setSubmodules] = useState<SubmoduleWithModuleSemesterAndField[]>(initialSubmodules);
   const [resources, setResources] = useState<ResourceWithSubmoduleModuleSemesterAndField[]>(initialResources);
+  const { supabase } = useAuth();
+
+  const getAuthHeaders = async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.access_token;
+    if (!token) return {};
+    return { Authorization: `Bearer ${token}` };
+  };
 
   const refetchFields = useCallback(async () => {
     try {
-      const res = await fetch("/api/fields", { cache: "no-store" });
+      const headers = await getAuthHeaders();
+      const res = await fetch("/api/fields", { cache: "no-store", headers });
       if (!res.ok) {
         throw new Error("Failed to refetch fields");
       }
@@ -75,11 +86,12 @@ export const GlobalDataProvider: React.FC<GlobalDataProviderProps> = ({
     } catch (error) {
       console.error("Error refetching fields:", error);
     }
-  }, []);
+  }, [supabase]);
 
   const refetchSemesters = useCallback(async () => {
     try {
-      const res = await fetch("/api/semesters", { cache: "no-store" });
+      const headers = await getAuthHeaders();
+      const res = await fetch("/api/semesters", { cache: "no-store", headers });
       if (!res.ok) {
         throw new Error("Failed to refetch semesters");
       }
@@ -88,11 +100,12 @@ export const GlobalDataProvider: React.FC<GlobalDataProviderProps> = ({
     } catch (error) {
       console.error("Error refetching semesters:", error);
     }
-  }, []);
+  }, [supabase]);
 
   const refetchModules = useCallback(async () => {
     try {
-      const res = await fetch("/api/modules", { cache: "no-store" });
+      const headers = await getAuthHeaders();
+      const res = await fetch("/api/modules", { cache: "no-store", headers });
       if (!res.ok) {
         throw new Error("Failed to refetch modules");
       }
@@ -101,11 +114,12 @@ export const GlobalDataProvider: React.FC<GlobalDataProviderProps> = ({
     } catch (error) {
       console.error("Error refetching modules:", error);
     }
-  }, []);
+  }, [supabase]);
 
   const refetchSubmodules = useCallback(async () => {
     try {
-      const res = await fetch("/api/submodules", { cache: "no-store" });
+      const headers = await getAuthHeaders();
+      const res = await fetch("/api/submodules", { cache: "no-store", headers });
       if (!res.ok) {
         throw new Error("Failed to refetch submodules");
       }
@@ -114,11 +128,12 @@ export const GlobalDataProvider: React.FC<GlobalDataProviderProps> = ({
     } catch (error) {
       console.error("Error refetching submodules:", error);
     }
-  }, []);
+  }, [supabase]);
 
   const refetchResources = useCallback(async () => {
     try {
-      const res = await fetch("/api/resources", { cache: "no-store" });
+      const headers = await getAuthHeaders();
+      const res = await fetch("/api/resources", { cache: "no-store", headers });
       if (!res.ok) {
         throw new Error("Failed to refetch resources");
       }
@@ -127,7 +142,7 @@ export const GlobalDataProvider: React.FC<GlobalDataProviderProps> = ({
     } catch (error) {
       console.error("Error refetching resources:", error);
     }
-  }, []);
+  }, [supabase]);
 
   useEffect(() => {
     setFields(initialFields);

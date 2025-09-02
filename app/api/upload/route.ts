@@ -126,7 +126,7 @@ export async function POST(request: NextRequest) {
         where: {
           userId: user.id,
           fieldId: submodule.module.semester.field.id,
-          semesterNumber: submodule.module.semester.number,
+          semesterId: submodule.module.semester.id,
         },
       })
       hasAccess = !!adminScope

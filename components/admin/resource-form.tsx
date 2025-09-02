@@ -31,6 +31,8 @@ type SubmoduleWithRelations = Submodule & {
   }
 }
 
+import { useAuth } from "@/hooks/useAuth";
+
 interface ResourceFormProps {
   initialData?: Resource
   onSuccess?: () => void
@@ -46,10 +48,13 @@ export function ResourceForm({ initialData, onSuccess, onModuleChange, submodule
     modules, 
     submodules: allSubmodules 
   } = useGlobalData()
+  const { user, supabase } = useAuth();
   const router = useRouter()
 
   const [selectedFieldId, setSelectedFieldId] = useState<string | null>(null);
   const [selectedSemesterId, setSelectedSemesterId] = useState<string | null>(null);
+
+  const isClassAdmin = user?.user_metadata?.role === 'classAdmin';
 
   const form = useForm<z.infer<typeof resourceFormSchema>>({
     resolver: zodResolver(resourceFormSchema),
@@ -96,6 +101,15 @@ export function ResourceForm({ initialData, onSuccess, onModuleChange, submodule
 
   async function onSubmit(values: z.infer<typeof resourceFormSchema>) {
     try {
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
+      if (!token) {
+        throw new Error("Not authenticated");
+      }
+
+      const authHeader = { Authorization: `Bearer ${token}` };
+
       const submissionValues = { ...values };
       const moduleHasSubmodules = submodules.length > 0;
 
@@ -136,7 +150,7 @@ export function ResourceForm({ initialData, onSuccess, onModuleChange, submodule
 
         if (values.file) {
           formData.append("file", values.file)
-          response = await fetch("/api/upload", { method: "POST", body: formData })
+          response = await fetch("/api/upload", { method: "POST", body: formData, headers: authHeader })
           if (!response.ok) {
             const errorData = await response.json()
             throw new Error(errorData.error || "File upload failed.")
@@ -151,7 +165,7 @@ export function ResourceForm({ initialData, onSuccess, onModuleChange, submodule
 
         response = await fetch(`/api/resources/${initialData.id}`, {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", ...authHeader },
           body: JSON.stringify(updatePayload),
         })
 
@@ -166,6 +180,7 @@ export function ResourceForm({ initialData, onSuccess, onModuleChange, submodule
         const uploadResponse = await fetch("/api/upload", {
           method: "POST",
           body: formData,
+          headers: authHeader,
         })
 
         if (!uploadResponse.ok) {
@@ -190,7 +205,7 @@ export function ResourceForm({ initialData, onSuccess, onModuleChange, submodule
 
         response = await fetch("/api/resources", { // POST to create new resource
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", ...authHeader },
           body: JSON.stringify(createPayload),
         })
       }

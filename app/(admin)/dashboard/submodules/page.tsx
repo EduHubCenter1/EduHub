@@ -19,9 +19,12 @@ interface SubmoduleWithModuleSemesterAndField extends Submodule {
   }
 }
 
+import { useAuth } from "@/hooks/useAuth";
+
 export default function SubmodulesPage() {
   const { submodules, refetchSubmodules, modules: allModules, semesters: allSemesters, fields: allFields } = useGlobalData();
   const { toast } = useToast();
+  const { user } = useAuth();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
@@ -116,44 +119,48 @@ export default function SubmodulesPage() {
       </div>
       <p>Manage your submodules here.</p>
       <div className="flex items-center space-x-2 mt-4">
-        {/* Field Filter */}
-        <Select onValueChange={(value) => {
-          setSelectedFilterFieldId(value);
-          setSelectedFilterSemesterId("all");
-          setSelectedFilterModuleId("all");
-        }} value={selectedFilterFieldId}>
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Filter by Field" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Fields</SelectItem>
-            {allFields.map((field) => (
-              <SelectItem key={field.id} value={field.id}>
-                {field.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        {user?.user_metadata?.role === 'superAdmin' && (
+          <>
+            {/* Field Filter */}
+            <Select onValueChange={(value) => {
+              setSelectedFilterFieldId(value);
+              setSelectedFilterSemesterId("all");
+              setSelectedFilterModuleId("all");
+            }} value={selectedFilterFieldId}>
+              <SelectTrigger className="w-[180px]">
+                <SelectValue placeholder="Filter by Field" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Fields</SelectItem>
+                {allFields.map((field) => (
+                  <SelectItem key={field.id} value={field.id}>
+                    {field.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
 
-        {/* Semester Filter */}
-        <Select onValueChange={(value) => {
-          setSelectedFilterSemesterId(value);
-          setSelectedFilterModuleId("all");
-        }} value={selectedFilterSemesterId}>
-          <SelectTrigger className="w-[250px]">
-            <SelectValue placeholder="Filter by Semester" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Semesters</SelectItem>
-            {allSemesters
-              .filter(semester => selectedFilterFieldId === "all" || semester.fieldId === selectedFilterFieldId)
-              .map((semester) => (
-                <SelectItem key={semester.id} value={semester.id}>
-                  Semester {semester.number} ({semester.field.name})
-                </SelectItem>
-              ))}
-          </SelectContent>
-        </Select>
+            {/* Semester Filter */}
+            <Select onValueChange={(value) => {
+              setSelectedFilterSemesterId(value);
+              setSelectedFilterModuleId("all");
+            }} value={selectedFilterSemesterId}>
+              <SelectTrigger className="w-[250px]">
+                <SelectValue placeholder="Filter by Semester" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Semesters</SelectItem>
+                {allSemesters
+                  .filter(semester => selectedFilterFieldId === "all" || semester.fieldId === selectedFilterFieldId)
+                  .map((semester) => (
+                    <SelectItem key={semester.id} value={semester.id}>
+                      Semester {semester.number} ({semester.field.name})
+                    </SelectItem>
+                  ))}
+              </SelectContent>
+            </Select>
+          </>
+        )}
 
         {/* Module Filter */}
         <Select onValueChange={(value) => setSelectedFilterModuleId(value)} value={selectedFilterModuleId}>
@@ -164,12 +171,14 @@ export default function SubmodulesPage() {
             <SelectItem value="all">All Modules</SelectItem>
             {allModules
               .filter(module => {
-                  if (selectedFilterSemesterId !== "all") {
-                    return module.semesterId === selectedFilterSemesterId;
-                  }
-                  if (selectedFilterFieldId !== "all") {
-                    const semester = allSemesters.find(s => s.id === module.semesterId);
-                    return semester && semester.fieldId === selectedFilterFieldId;
+                  if (user?.user_metadata?.role === 'superAdmin') {
+                    if (selectedFilterSemesterId !== "all") {
+                      return module.semesterId === selectedFilterSemesterId;
+                    }
+                    if (selectedFilterFieldId !== "all") {
+                      const semester = allSemesters.find(s => s.id === module.semesterId);
+                      return semester && semester.fieldId === selectedFilterFieldId;
+                    }
                   }
                   return true;
                 })

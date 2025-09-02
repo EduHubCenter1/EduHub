@@ -19,6 +19,8 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { Terminal } from "lucide-react"
 import { getAdminScopesByUserId, updateUser } from "@/app/(admin)/dashboard/users/actions"
 
+import { useGlobalData } from "@/context/GlobalDataContext"
+
 // Define types
 type AdminScope = {
   fieldId: string
@@ -48,52 +50,40 @@ const availableRoles = [
 
 export function EditUserForm({ user, onSubmitSuccess }: EditUserFormProps) {
   const router = useRouter()
+  const { fields: allFields, semesters: allSemesters } = useGlobalData()
   const [email, setEmail] = React.useState(user.email || "")
   const [firstName, setFirstName] = React.useState(user.user_metadata?.firstName || "")
   const [lastName, setLastName] = React.useState(user.user_metadata?.lastName || "")
   const [role, setRole] = React.useState(user.user_metadata?.role || "user")
   const [error, setError] = React.useState<string | null>(null)
-  const [isLoading, setIsLoading] = React.useState(true) // Start with loading true
+  const [isLoading, setIsLoading] = React.useState(true)
 
   // State for the single Admin Scope
   const [assignedScope, setAssignedScope] = React.useState<AdminScope | null>(null)
-  const [allFields, setAllFields] = React.useState<Field[]>([])
-  const [allSemesters, setAllSemesters] = React.useState<Semester[]>([])
 
   React.useEffect(() => {
-    const fetchData = async () => {
+    const fetchScopes = async () => {
       setIsLoading(true)
       try {
-        const [scopesResult, fieldsRes, semestersRes] = await Promise.all([
-          getAdminScopesByUserId(user.id),
-          fetch("/api/fields"),
-          fetch("/api/semesters"),
-        ])
+        const scopesResult = await getAdminScopesByUserId(user.id)
 
-        // Process server action result for scopes
         if (scopesResult.error) {
           toast.error(scopesResult.error)
         } else if (scopesResult.data && scopesResult.data.length > 0) {
-          // Per new logic, a user can only have one scope. We take the first.
           setAssignedScope({
             fieldId: scopesResult.data[0].fieldId,
-            semesterId: scopesResult.data[0].semester.id, // Use semester.id
+            semesterId: scopesResult.data[0].semester.id,
           })
         }
-
-        // Process fields and semesters
-        if (fieldsRes.ok) setAllFields(await fieldsRes.json())
-        if (semestersRes.ok) setAllSemesters(await semestersRes.json())
-
       } catch (err: any) {
-        console.error("Error fetching data for edit form:", err)
-        setError(err.message || "Failed to load initial form data.")
+        console.error("Error fetching scopes:", err)
+        setError(err.message || "Failed to load scope data.")
       } finally {
         setIsLoading(false)
       }
     }
 
-    fetchData()
+    fetchScopes()
   }, [user.id])
 
   const handleScopeChange = (part: 'fieldId' | 'semesterId', value: string) => {

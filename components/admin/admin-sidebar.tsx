@@ -1,27 +1,25 @@
 'use client'
 import * as React from "react"
 import {
-    ArrowUpCircleIcon,
     DatabaseIcon,
     FileCodeIcon,
     FileIcon,
     FolderIcon, GraduationCap,
     LayoutDashboardIcon,
     ListIcon,
-    UserPlusIcon,
     UsersIcon,
 } from "lucide-react"
 
+import { useAuth } from "@/hooks/useAuth"
 import { AdminNav } from "@/components/admin/admin-nav"
 import {
     Sidebar,
     SidebarContent, SidebarFooter,
-    SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarTrigger,
+    SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem,
 } from "@/components/ui/sidebar"
-import {NavMain} from "@/components/nav-main";
-import {SiteHeader} from "@/components/site-header";
+import { NavUser } from "@/components/nav-user"
 
-const navMain = [
+const allNavItems = [
     {
       title: "Dashboard",
       url: "/dashboard",
@@ -32,11 +30,6 @@ const navMain = [
       url: "/dashboard/users",
       icon: UsersIcon,
     },
-    // {
-    //   title: "Create User",
-    //   url: "/dashboard/create-user",
-    //   icon: UserPlusIcon,
-    // },
     {
       title: "Fields",
       url: "/dashboard/fields",
@@ -64,7 +57,51 @@ const navMain = [
     },
   ]
 
+const classAdminNavItems = [
+    {
+        title: "Modules",
+        url: "/dashboard/modules",
+        icon: FileCodeIcon,
+    },
+    {
+        title: "Submodules",
+        url: "/dashboard/submodules",
+        icon: FileIcon,
+    },
+    {
+        title: "Resources",
+        url: "/dashboard/resources",
+        icon: DatabaseIcon,
+    },
+]
+
 export default function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { user, loading } = useAuth()
+  const userRole = user?.user_metadata?.role
+
+  const getNavItems = () => {
+    if (loading) {
+      return [] // Or a loading skeleton
+    }
+
+    switch (userRole) {
+      case "superAdmin":
+        return allNavItems
+      case "classAdmin":
+        return classAdminNavItems
+      default:
+        return []
+    }
+  }
+
+  const navItems = getNavItems()
+
+  const userProfile = user ? {
+      name: `${user.user_metadata.firstName || ''} ${user.user_metadata.lastName || ''}`.trim() || user.email,
+      email: user.email || "",
+      avatar: user.user_metadata.avatar || "/placeholder-user.jpg",
+  } : null
+
   return (
       <>
       <Sidebar collapsible="offcanvas" {...props}>
@@ -88,9 +125,10 @@ export default function AdminSidebar({ ...props }: React.ComponentProps<typeof S
               </SidebarMenu>
           </SidebarHeader>
           <SidebarContent>
-              <AdminNav items={navMain} />
+              <AdminNav items={navItems} />
           </SidebarContent>
           <SidebarFooter>
+              {userProfile && <NavUser user={userProfile} />}
           </SidebarFooter>
       </Sidebar>
 
