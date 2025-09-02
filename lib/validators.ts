@@ -39,7 +39,8 @@ export const uploadResourceSchema = z.object({
   title: z.string().min(1).max(255),
   type: resourceTypeSchema,
   description: z.string().optional(),
-  submoduleId: z.string().uuid(),
+  moduleId: z.string().uuid(),
+  submoduleId: z.string().uuid().optional(),
 })
 
 export const searchSchema = z.object({

@@ -196,6 +196,9 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     console.log("Incoming request body for /api/resources POST:", body);
+    if (body.submoduleId === '') {
+      body.submoduleId = null;
+    }
     const validatedData = resourceCreateSchema.parse(body);
 
     const authHeader = request.headers.get('Authorization');

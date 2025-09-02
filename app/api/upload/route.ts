@@ -65,7 +65,8 @@ export async function POST(request: NextRequest) {
     const title = formData.get("title") as string
     const type = formData.get("type") as string
     const description = formData.get("description") as string
-    const submoduleId = formData.get("submoduleId") as string
+    const moduleId = formData.get("moduleId") as string
+    const submoduleId = formData.get("submoduleId") as string | undefined
 
     if (!file) {
       console.error("Upload Error: No file provided")
@@ -77,7 +78,8 @@ export async function POST(request: NextRequest) {
       title,
       type,
       description: description || undefined,
-      submoduleId,
+      moduleId,
+      submoduleId: submoduleId || undefined,
     })
 
     if (!validationResult.success) {
@@ -97,25 +99,65 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "File type not allowed" }, { status: 400 })
     }
 
-    // Get submodule with hierarchy for path generation and access control
-    const submodule = await prisma.submodule.findUnique({
-      where: { id: submoduleId },
-      include: {
-        module: {
-          include: {
-            semester: {
-              include: {
-                field: true,
+    let resourcePath;
+    let fieldId;
+    let semesterId;
+    let moduleSlug;
+
+    if (submoduleId) {
+      // Get submodule with hierarchy for path generation and access control
+      const submodule = await prisma.submodule.findUnique({
+        where: { id: submoduleId },
+        include: {
+          module: {
+            include: {
+              semester: {
+                include: {
+                  field: true,
+                },
               },
             },
           },
         },
-      },
-    })
+      })
 
-    if (!submodule) {
-      return NextResponse.json({ error: "Submodule not found" }, { status: 404 })
+      if (!submodule) {
+        return NextResponse.json({ error: "Submodule not found" }, { status: 404 })
+      }
+      resourcePath = generateResourcePath(
+        submodule.module.semester.field.slug,
+        submodule.module.semester.number,
+        submodule.module.slug,
+        submodule.slug,
+      )
+      fieldId = submodule.module.semester.field.id;
+      semesterId = submodule.module.semester.id;
+      moduleSlug = submodule.module.slug;
+    } else {
+      const module = await prisma.module.findUnique({
+        where: { id: moduleId },
+        include: {
+          semester: {
+            include: {
+              field: true,
+            },
+          },
+        },
+      });
+
+      if (!module) {
+        return NextResponse.json({ error: "Module not found" }, { status: 404 });
+      }
+      resourcePath = generateResourcePath(
+        module.semester.field.slug,
+        module.semester.number,
+        module.slug
+      );
+      fieldId = module.semester.field.id;
+      semesterId = module.semester.id;
+      moduleSlug = module.slug;
     }
+
 
     // Check admin scope
     let hasAccess = false
@@ -125,8 +167,8 @@ export async function POST(request: NextRequest) {
       const adminScope = await prisma.adminScope.findFirst({
         where: {
           userId: user.id,
-          fieldId: submodule.module.semester.field.id,
-          semesterId: submodule.module.semester.id,
+          fieldId: fieldId,
+          semesterId: semesterId,
         },
       })
       hasAccess = !!adminScope
@@ -135,14 +177,6 @@ export async function POST(request: NextRequest) {
     if (!hasAccess) {
       return NextResponse.json({ error: "Access denied" }, { status: 403 })
     }
-
-    // Generate file path
-    const resourcePath = generateResourcePath(
-      submodule.module.semester.field.slug,
-      submodule.module.semester.number,
-      submodule.module.slug,
-      submodule.slug,
-    )
 
     // Convert file to buffer
     const buffer = Buffer.from(await file.arrayBuffer())
@@ -189,9 +223,9 @@ export async function POST(request: NextRequest) {
         mimeType: file.type,
         sizeBytes: file.size,
         sha256,
-        submoduleId,
+        submoduleId: submoduleId || null,
         uploadedByUserId: user.id,
-        moduleId: submodule.module.id,
+        moduleId: moduleId,
       },
     })
 

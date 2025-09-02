@@ -111,20 +111,6 @@ export function ResourceForm({ initialData, onSuccess, onModuleChange, submodule
       const authHeader = { Authorization: `Bearer ${token}` };
 
       const submissionValues = { ...values };
-      const moduleHasSubmodules = submodules.length > 0;
-
-      if (moduleHasSubmodules && !submissionValues.submoduleId) {
-        toast({
-          title: "Error",
-          description: "Submodule is required for the selected module.",
-          variant: "destructive",
-        });
-        return; // Stop submission
-      }
-
-      if (!moduleHasSubmodules) {
-        submissionValues.submoduleId = '1'; // Use placeholder ID
-      }
 
       let response
       const formData = new FormData()
@@ -359,11 +345,11 @@ export function ResourceForm({ initialData, onSuccess, onModuleChange, submodule
           name="submoduleId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Submodule {submodules.length > 0 && <span className="text-red-500">*</span>}</FormLabel>
+              <FormLabel>Submodule</FormLabel>
               <Select 
                 onValueChange={field.onChange} 
                 value={field.value ?? ''} 
-                disabled={!form.getValues("moduleId") || submodules.length === 0}
+                disabled={!form.getValues("moduleId")}
               >
                 <FormControl>
                   <SelectTrigger>

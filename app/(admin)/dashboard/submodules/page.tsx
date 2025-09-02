@@ -182,6 +182,7 @@ export default function SubmodulesPage() {
                   }
                   return true;
                 })
+              .filter(module => submodules.some(submodule => submodule.moduleId === module.id))
               .map((module) => (
                 <SelectItem key={module.id} value={module.id}>
                   {module.name} (S{module.semester.number} - {module.semester.field.name})

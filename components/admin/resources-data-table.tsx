@@ -14,24 +14,29 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { MoreHorizontal } from "lucide-react"
 
-interface ResourceWithSubmoduleModuleSemesterAndField extends Resource {
-  submodule: Pick<Submodule, "name"> & {
-    module: Pick<Module, "name"> & {
-      semester: Pick<Semester, "number"> & {
-        field: Pick<Field, "name">
-      }
-    }
-  }
+interface ResourceWithRelations extends Resource {
+  module: Module & {
+    semester: Semester & {
+      field: Field;
+    };
+  };
+  submodule: (Submodule & {
+    module: Module & {
+      semester: Semester & {
+        field: Field;
+      };
+    };
+  }) | null;
 }
 
 interface ResourcesDataTableProps {
-  data: ResourceWithSubmoduleModuleSemesterAndField[]
-  onEdit: (resource: ResourceWithSubmoduleModuleSemesterAndField) => void
+  data: ResourceWithRelations[]
+  onEdit: (resource: ResourceWithRelations) => void
   onDelete: (resourceId: string) => void
 }
 
 export function ResourcesDataTable({ data, onEdit, onDelete }: ResourcesDataTableProps) {
-  const columns: ColumnDef<ResourceWithSubmoduleModuleSemesterAndField>[] = [
+  const columns: ColumnDef<ResourceWithRelations>[] = [
     // {
     //   accessorKey: "id",
     //   header: "ID",
@@ -47,18 +52,22 @@ export function ResourcesDataTable({ data, onEdit, onDelete }: ResourcesDataTabl
     {
       accessorKey: "submodule.name",
       header: "Submodule Name",
+      cell: ({ row }) => row.original.submodule?.name || "--",
     },
     {
-      accessorKey: "submodule.module.name",
+      accessorKey: "module.name",
       header: "Module Name",
+      cell: ({ row }) => row.original.module.name,
     },
     {
-      accessorKey: "submodule.module.semester.number",
+      accessorKey: "module.semester.number",
       header: "Semester Number",
+      cell: ({ row }) => row.original.module.semester.number,
     },
     {
-      accessorKey: "submodule.module.semester.field.name",
+      accessorKey: "module.semester.field.name",
       header: "Field Name",
+      cell: ({ row }) => row.original.module.semester.field.name,
     },
     {
       id: "actions",
