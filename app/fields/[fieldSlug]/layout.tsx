@@ -41,8 +41,9 @@ interface FieldLayoutProps {
     };
 }
 
-export default async function FieldLayout({ children, params }: FieldLayoutProps) {
-    const field = await getFieldData(params.fieldSlug);
+export default async function FieldLayout({ children, params: awaitedParams }: FieldLayoutProps) {
+    const { fieldSlug } = await awaitedParams;
+    const field = await getFieldData(fieldSlug);
 
     return (
         <div className="min-h-screen bg-background">

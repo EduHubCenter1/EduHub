@@ -61,7 +61,8 @@ interface SubmodulePageProps {
     };
 }
 
-export default async function SubmodulePage({ params }: SubmodulePageProps) {
+export default async function SubmodulePage({ params: awaitedParams }: SubmodulePageProps) {
+    const params = await awaitedParams;
     const semesterNumber = parseInt(params.semesterNumber, 10);
     const submodule = await getSubmoduleData(params.fieldSlug, semesterNumber, params.moduleSlug, params.submoduleSlug);
     const { module } = submodule;
