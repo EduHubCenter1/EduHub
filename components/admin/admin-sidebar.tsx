@@ -113,11 +113,11 @@ export default function AdminSidebar({ ...props }: React.ComponentProps<typeof S
                           asChild
                           className="data-[slot=sidebar-menu-button]:!p-1.5"
                       >
-                          <div className={'flex h-16 items-center justify-between'}>
+                          <div className={'flex items-center justify-between'}>
                               <div className={'flex items-center space-x-4'}>
 
 
-                              <Image src="/newlogo.png" alt="EduHub Logo" width={200} height={200} />
+                              <Image src="/newlogo.png" alt="EduHub Logo" width={100} height={100} />
                               </div>
 
                           </div>

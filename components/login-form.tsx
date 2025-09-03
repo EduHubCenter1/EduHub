@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
 import { Terminal } from 'lucide-react'
+import Image from "next/image";
 
 export function LoginForm({
   className,
@@ -101,12 +102,8 @@ export function LoginForm({
               </Button>
             </div>
           </form>
-          <div className="relative hidden bg-muted md:block">
-            <img
-              src="/newlogo.png"
-              alt="Image"
-              className="absolute inset-0 h-full w-full object-cover"
-            />
+          <div className="relative hidden bg-background md:flex justify-center items-center ">
+            <Image src="/newlogo.png" className={'md:flex justify-center items-center inset-0 object-cover'} alt="EduHub Logo" width={200} height={200} />
           </div>
         </CardContent>
       </Card>
