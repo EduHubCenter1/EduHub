@@ -119,9 +119,9 @@ export function UsersTableShell({ data, adminScopes }: UsersTableShellProps) {
             let className = "";
 
             if (role === 'superAdmin') {
-                variant = 'destructive'; // Red for superAdmin
+                className = "bg-blue-800 text-white hover:bg-blue-900";
             } else if (role === 'classAdmin') {
-                className = "bg-green-500 text-white hover:bg-green-600"; // Green for classAdmin
+                className = "bg-blue-500 text-white hover:bg-blue-600"; // Green for classAdmin
             }
 
             return <Badge variant={variant} className={className}>{role}</Badge>

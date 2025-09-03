@@ -4,8 +4,15 @@ import Link from "next/link";
 import Image from "next/image";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Button } from "@/components/ui/button";
-import { GraduationCap, Settings, LogOut, LayoutDashboard } from "lucide-react";
+import { GraduationCap, Settings, LogOut, LayoutDashboard, ChevronDown, CircleUser, Mail } from "lucide-react";
 import { useAuthContext } from "@/context/AuthContext"; // ✅ utilisation du contexte
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
 
 export function PublicHeader() {
   const { user, loading, logout } = useAuthContext(); // ✅ hook
@@ -22,7 +29,14 @@ export function PublicHeader() {
         </Link>
 
         <div className="flex items-center space-x-4">
+          <Button asChild variant="ghost" size="sm">
+            <Link href="/contact">
+              <Mail className="w-4 h-4 mr-2" />
+              Contact Us
+            </Link>
+          </Button>
           <ThemeToggle />
+          
 
           {/* ✅ Utilisation du hook */}
           {loading ? (
@@ -30,18 +44,30 @@ export function PublicHeader() {
               ...
             </Button>
           ) : user ? (
-            <>
-              <Button asChild variant="outline" size="sm">
-                <Link href="/dashboard">
-                  <LayoutDashboard className="w-4 h-4 mr-2" />
-                  <p className={'hidden md:flex'}>Dashboard</p>
-                </Link>
-              </Button>
-              <Button variant="outline" size="sm" onClick={handleLogout}>
-                <LogOut className="w-4 h-4 mr-2" />
-                <p className={'hidden md:flex'}>Déconnexion</p>
-              </Button>
-            </>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm">
+                  <CircleUser className="w-4 h-4 mr-2" />
+                  {user.user_metadata?.firstName && user.user_metadata?.lastName
+                    ? `${user.user_metadata.firstName} ${user.user_metadata.lastName}`
+                    : user.email}
+                  <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem asChild>
+                  <Link href="/dashboard">
+                    <LayoutDashboard className="w-4 h-4 mr-2" />
+                    Dashboard
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Déconnexion
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
             <Button asChild variant="outline" size="sm">
               <Link href="/login">
