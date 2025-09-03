@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import {
   ArrowUpCircleIcon,
   BarChartIcon,
@@ -161,8 +162,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               className="data-[slot=sidebar-menu-button]:!p-1.5"
             >
               <a href="/">
-                <ArrowUpCircleIcon className="h-5 w-5" />
-                <span className="text-2xl font-bold font-heading text-primary">EduHub</span>
+
+                <Image src="/newlogo.png" alt="EduHub Logo" width={200} height={200} />
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>

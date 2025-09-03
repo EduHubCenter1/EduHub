@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { GraduationCap, Settings, LogOut, LayoutDashboard } from "lucide-react";
@@ -17,8 +18,7 @@ export function PublicHeader() {
     <header className="border-b bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50">
       <div className="mx-auto px-4 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center space-x-2">
-          <GraduationCap className="h-8 w-8 text-primary" />
-          <span className="text-2xl font-bold font-heading text-primary">EduHub</span>
+          <Image src="/newlogo.png" alt="EduHub Logo" width={200} height={200} />
         </Link>
 
         <div className="flex items-center space-x-4">

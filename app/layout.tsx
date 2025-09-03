@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/providers/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { PublicHeader } from "@/components/public/public-header"
 import { AuthProvider } from "@/context/AuthContext";
+import { cn } from "@/lib/utils"
 
 
 const inter = Inter({
@@ -34,20 +35,19 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.variable} ${poppins.variable} font-sans antialiased`}>
-        
-        <AuthProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="light"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <PublicHeader />
-            {children}
-            <Toaster />
-          </ThemeProvider>
-        </AuthProvider>
+      <body className={cn("font-sans antialiased", inter.variable, poppins.variable)}>
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <AuthProvider>
+              <PublicHeader />
+              {children}
+              <Toaster />
+          </AuthProvider>
+        </ThemeProvider>
       </body>
     </html>
   )
