@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma"
 import { HeroSection } from "@/components/public/hero-section"
 import { FieldsGrid } from "@/components/public/fields-grid"
 import { SearchBar } from "@/components/public/search-bar"
+import { AboutSection } from "@/components/public/about-section"
 import { GiSpellBook } from "react-icons/gi";
 
 
@@ -32,6 +33,7 @@ export default async function HomePage() {
       
       <main>
         <HeroSection />
+        <AboutSection />
         <div className="container mx-auto px-4 py-8">
           <div className="mb-8">
             <Suspense fallback={<div>Loading search...</div>}>

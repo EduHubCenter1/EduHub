@@ -129,7 +129,6 @@ export default function AdminSidebar({ ...props }: React.ComponentProps<typeof S
               <AdminNav items={navItems} />
           </SidebarContent>
           <SidebarFooter>
-              {userProfile && <NavUser user={userProfile} />}
           </SidebarFooter>
       </Sidebar>
 
