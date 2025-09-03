@@ -73,7 +73,7 @@ export function ContactSection() {
     };
 
     return (
-        <section id="contact" className="py-24 relative px-5">
+        <section id="contact" className="py-10 relative px-5">
             <div className="absolute inset-0 -z-10 overflow-hidden">
                 <div className="absolute top-1/4 right-1/3 w-96 h-96 bg-primary/5 rounded-full blur-3xl" />
                 <div className="absolute bottom-1/3 left-1/3 w-96 h-96 bg-purple-500/5 rounded-full blur-3xl" />
