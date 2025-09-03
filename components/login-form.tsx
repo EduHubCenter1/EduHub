@@ -11,7 +11,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Terminal } from 'lucide-react'
+import {EyeIcon, EyeOffIcon, Terminal} from 'lucide-react'
 import Image from "next/image";
 
 export function LoginForm({
