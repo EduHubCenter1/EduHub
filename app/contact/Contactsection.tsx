@@ -61,7 +61,6 @@ export function ContactSection() {
                     duration: 5000
                 });
                 reset();
-                router.push('/');
             }
         } catch (error) {
             console.error("Error sending message:", error);
@@ -83,7 +82,7 @@ export function ContactSection() {
                 <div
                     className="max-w-xl mx-auto text-center mb-16"
                 >
-                    <Badge className="mb-4" variant="secondary">Get In Touch</Badge>
+                    <Badge className="mb-4" variant="default">Get In Touch</Badge>
                     <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">Contact Us</h2>
                     <p className="text-xl text-muted-foreground">
                         Have a question, feedback, or need support? We'd love to hear from you.

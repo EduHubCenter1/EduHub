@@ -1,6 +1,7 @@
 'use client'
 import * as React from "react"
 import Image from "next/image"
+import Link from "next/link"
 import {
     DatabaseIcon,
     FileCodeIcon,
@@ -117,7 +118,9 @@ export default function AdminSidebar({ ...props }: React.ComponentProps<typeof S
                               <div className={'flex items-center space-x-4'}>
 
 
-                              <Image src="/newlogo.png" alt="EduHub Logo" width={100} height={100} />
+                                                            <Link href="/">
+                                <Image src="/sidebar.png" alt="EduHub Logo" width={100} height={100} />
+                              </Link>
                               </div>
 
                           </div>

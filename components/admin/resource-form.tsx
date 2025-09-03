@@ -16,7 +16,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { useToast } from "@/components/ui/use-toast"
+import { toast } from "sonner"
 import { resourceFormSchema, resourceTypeSchema } from "@/lib/validators"
 import { useGlobalData } from "@/context/GlobalDataContext"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -41,7 +41,6 @@ interface ResourceFormProps {
 }
 
 export function ResourceForm({ initialData, onSuccess, onModuleChange, submodules = [] }: ResourceFormProps) {
-  const { toast } = useToast()
   const { 
     fields, 
     semesters, 
@@ -201,8 +200,7 @@ export function ResourceForm({ initialData, onSuccess, onModuleChange, submodule
         throw new Error(errorData.error || "Something went wrong.")
       }
 
-      toast({
-        title: initialData ? "Resource updated." : "Resource created.",
+      toast.success(initialData ? "Resource updated." : "Resource created.", {
         description: initialData
           ? "Your resource has been updated." 
           : "Your new resource has been created.",
@@ -211,10 +209,8 @@ export function ResourceForm({ initialData, onSuccess, onModuleChange, submodule
       onSuccess?.()
       router.push('/dashboard/resources'); // Navigate to dashboard/resources
     } catch (error: any) {
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: error.message || "An unexpected error occurred.",
-        variant: "destructive",
       })
     }
   }

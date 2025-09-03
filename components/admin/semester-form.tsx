@@ -15,7 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { useToast } from "@/components/ui/use-toast"
+import { toast } from "sonner"
 import { semesterFormSchema } from "@/lib/validators"
 import { useGlobalData } from "@/context/GlobalDataContext"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -27,7 +27,6 @@ interface SemesterFormProps {
 }
 
 export function SemesterForm({ initialData, onSuccess }: SemesterFormProps) {
-  const { toast } = useToast()
   const { fields, refetchFields } = useGlobalData()
   const router = useRouter()
 
@@ -70,8 +69,7 @@ export function SemesterForm({ initialData, onSuccess }: SemesterFormProps) {
         throw new Error(errorData.message || "Something went wrong.")
       }
 
-      toast({
-        title: initialData ? "Semester updated." : "Semester created.",
+      toast.success(initialData ? "Semester updated." : "Semester created.", {
         description: initialData
           ? "Your semester has been updated." 
           : "Your new semester has been created.",
@@ -80,10 +78,8 @@ export function SemesterForm({ initialData, onSuccess }: SemesterFormProps) {
       onSuccess?.()
       router.refresh() // Refresh the current route to re-fetch data
     } catch (error: any) {
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: error.message || "An unexpected error occurred.",
-        variant: "destructive",
       })
     }
   }

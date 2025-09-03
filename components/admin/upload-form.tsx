@@ -13,7 +13,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
-import { useToast } from "@/hooks/use-toast"
+import { toast } from "sonner"
 import { Upload, X, FileText, AlertCircle } from "lucide-react"
 import { formatFileSize } from "@/lib/utils"
 
@@ -70,7 +70,6 @@ export function UploadForm({ fields, userId }: UploadFormProps) {
   const [files, setFiles] = useState<UploadFile[]>([])
   const [isUploading, setIsUploading] = useState(false)
 
-  const { toast } = useToast()
   const router = useRouter()
 
   const selectedFieldData = fields.find((f) => f.id === selectedField)
@@ -97,10 +96,8 @@ export function UploadForm({ fields, userId }: UploadFormProps) {
     e.preventDefault()
 
     if (!selectedSubmodule || !resourceType || !title.trim() || files.length === 0) {
-      toast({
-        title: "Missing Information",
+      toast.error("Missing Information", {
         description: "Please fill in all required fields and select at least one file.",
-        variant: "destructive",
       })
       return
     }
@@ -130,8 +127,7 @@ export function UploadForm({ fields, userId }: UploadFormProps) {
         setFiles((prev) => prev.map((f) => (f.id === uploadFile.id ? { ...f, progress: 100 } : f)))
       }
 
-      toast({
-        title: "Upload Successful",
+      toast.success("Upload Successful", {
         description: `${files.length} file(s) uploaded successfully.`,
       })
 
@@ -142,10 +138,8 @@ export function UploadForm({ fields, userId }: UploadFormProps) {
       setFiles([])
       router.refresh()
     } catch (error) {
-      toast({
-        title: "Upload Failed",
+      toast.error("Upload Failed", {
         description: error instanceof Error ? error.message : "An error occurred during upload.",
-        variant: "destructive",
       })
     } finally {
       setIsUploading(false)

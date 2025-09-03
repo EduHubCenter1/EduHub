@@ -23,59 +23,44 @@ export function PublicHeader() {
   };
 
   return (
-    <header className="border-b bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50">
-      <div className="mx-auto px-10 h-16 flex items-center justify-between">
-        <Link href="/" className="flex items-center justify-center align-baseline space-x-2">
-          <Image src="/newlogo.png" alt="EduHub Logo" width={60} height={60} />
-        </Link>
-
-        <div className="flex items-center space-x-4">
-          {pathname !== '/dashboard' && (
-            <Button asChild variant="ghost" size="sm">
-              <Link href="/contact">
-                <Mail className="w-4 h-4 mr-2" />
-                Contact Us
-              </Link>
-            </Button>
-          )}
-          
-
-          {/* ✅ Utilisation du hook */}
-          {loading ? (
-            <Button variant="outline" size="sm" disabled>
-              ...
-            </Button>
-          ) : user ? (
-            <>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm">
-                  <CircleUser className="w-4 h-4 mr-2" />
-                  {user.user_metadata?.firstName && user.user_metadata?.lastName
-                    ? `${user.user_metadata.firstName} ${user.user_metadata.lastName}`
-                    : user.email}
-                  <ChevronDown className="ml-2 h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem asChild>
-                  <Link href="/dashboard">
-                    <LayoutDashboard className="w-4 h-4 mr-2" />
-                    Dashboard
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout}>
-                  <LogOut className="w-4 h-4 mr-2" />
-                  Déconnexion
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-            
-            </>
-          ) : null}
+    <>
+      <header className="bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/80 shadow-xl shadow-indigo-500/50">
+        <div className="mx-auto px-10 h-16 flex items-center justify-center">
+          <Link href="/" className="flex items-center justify-center align-baseline space-x-2">
+            <Image src="/sidebar.png" alt="EduHub Logo" width={130} height={130} />
+          </Link>
         </div>
+      </header>
+
+      {/* User FAB */}
+      <div className="fixed bottom-24 right-5 z-50">
+        {loading ? (
+          <Button variant="ghost" size="icon" className="h-16 w-16 rounded-full" disabled>
+            ...
+          </Button>
+        ) : user ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="default" size="icon" className="h-16 w-16 rounded-full hover:shadow-xl hover:shadow-primary/60 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-indigo-500/50">
+                <CircleUser className="w-8 h-8" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem asChild>
+                <Link href="/dashboard">
+                  <LayoutDashboard className="w-4 h-4 mr-2" />
+                  Dashboard
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Déconnexion
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : null}
       </div>
-    </header>
+    </>
   );
 }

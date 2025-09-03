@@ -1,11 +1,12 @@
 import { Suspense } from "react"
+import Link from "next/link"
 import { prisma } from "@/lib/prisma"
-import { HeroSection } from "@/components/public/hero-section"
 import { FieldsGrid } from "@/components/public/fields-grid"
-import { SearchBar } from "@/components/public/search-bar"
 import { AboutSection } from "@/components/public/about-section"
-import { GiSpellBook } from "react-icons/gi";
-
+import { ContactSection } from "@/app/contact/Contactsection"
+import { Footer } from "@/components/public/footer"
+import { Button } from "@/components/ui/button"
+import { ModernHero } from "@/components/public/modern-hero"
 
 async function getFields() {
   try {
@@ -30,18 +31,46 @@ export default async function HomePage() {
 
   return (
     <div className="min-h-screen bg-background">
-      
-      <main>
-        <HeroSection />
-        <AboutSection />
-        <div className="container mx-auto px-4 py-8">
-          <div className="mb-8">
-            <Suspense fallback={<div>Loading search...</div>}>
-              <SearchBar />
-            </Suspense>
+      <main className="flex flex-col">
+        
+        <ModernHero />
+
+        {/* 2. Fields Preview Section */}
+        <section className="py-16 md:py-24 bg-background relative overflow-hidden">
+          <div className="absolute top-0 left-0 w-96 h-96 bg-primary/10 rounded-full filter blur-3xl -translate-x-1/2 -translate-y-1/2" />
+          <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary/10 rounded-full filter blur-3xl translate-x-1/2 translate-y-1/2" />
+
+          <div className="container mx-auto px-4 relative z-10">
+            <div className="text-center mb-12">
+                <h2 className="text-3xl md:text-4xl font-bold">Our Fields of Study</h2>
+                <p className="text-muted-foreground mt-2">Discover the different engineering programs we offer.</p>
+            </div>
+            <div className="relative">
+              <div className="max-h-[600px] overflow-hidden">
+                <FieldsGrid fields={fields.slice(0, 6)} />
+              </div>
+              <div className="absolute bottom-0 left-0 w-full h-72 bg-gradient-to-t from-background via-background/80 to-transparent" />
+              <div className="absolute bottom-10 left-1/2 -translate-x-1/2">
+                <Button asChild size="lg" variant="default">
+                  <Link href="/fields">Explore All Fields</Link>
+                </Button>
+              </div>
+            </div>
           </div>
-          <FieldsGrid fields={fields} />
-        </div>
+        </section>
+
+        {/* 3. About Section */}
+        <section className="py-16 md:py-24 bg-secondary/5">
+          <AboutSection />
+        </section>
+
+        {/* 4. Contact Section */}
+        <section className="py-16 md:py-24 bg-background">
+          <ContactSection />
+        </section>
+
+        {/* 5. Footer */}
+        <Footer />
       </main>
     </div>
   )

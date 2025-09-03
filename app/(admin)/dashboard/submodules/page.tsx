@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { SubmoduleForm } from "@/components/admin/submodule-form";
 import { submodule as Submodule, module as Module, semester as Semester, fields as Field } from "@prisma/client";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface SubmoduleWithModuleSemesterAndField extends Submodule {
@@ -23,7 +23,6 @@ import { useAuth } from "@/hooks/useAuth";
 
 export default function SubmodulesPage() {
   const { submodules, refetchSubmodules, modules: allModules, semesters: allSemesters, fields: allFields } = useGlobalData();
-  const { toast } = useToast();
   const { user } = useAuth();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -60,16 +59,13 @@ export default function SubmodulesPage() {
           throw new Error(errorData.message || "Failed to delete submodule.");
         }
 
-        toast({
-          title: "Submodule deleted.",
+        toast.success("Submodule deleted.", {
           description: "The submodule has been successfully deleted.",
         });
         refetchSubmodules(); // Refresh data after deletion
       } catch (error: any) {
-        toast({
-          title: "Error",
+        toast.error("Error", {
           description: error.message || "An unexpected error occurred.",
-          variant: "destructive",
         });
       } finally {
         setIsConfirmDeleteOpen(false);

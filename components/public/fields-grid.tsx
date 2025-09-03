@@ -34,7 +34,7 @@ export function FieldsGrid({ fields }: FieldsGridProps) {
               <CardHeader>
                 <div className="flex items-center justify-between">
 <GiOpenBook />
-                  <Badge variant="secondary">{field._count.semesters} semesters</Badge>
+                  <Badge variant="default">{field._count.semesters} semesters</Badge>
                 </div>
                 <CardTitle className="text-xl font-heading group-hover:text-primary transition-colors">
                   {field.name}

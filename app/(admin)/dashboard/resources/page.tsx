@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { ResourceForm } from "@/components/admin/resource-form";
 import { resource as Resource, submodule as Submodule, module as Module, semester as Semester, fields as Field } from "@prisma/client";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 import { useAuth } from "@/hooks/useAuth";
@@ -31,7 +31,6 @@ interface ResourceWithRelations extends Resource {
 
 export default function ResourcesPage() {
   const { resources, refetchResources, submodules: allSubmodules, modules: allModules, semesters: allSemesters, fields: allFields } = useGlobalData();
-  const { toast } = useToast();
   const { user } = useAuth();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -77,16 +76,13 @@ export default function ResourcesPage() {
           throw new Error(errorData.message || "Failed to delete resource.");
         }
 
-        toast({
-          title: "Resource deleted.",
+        toast.success("Resource deleted.", {
           description: "The resource has been successfully deleted.",
         });
         refetchResources(); // Refresh data after deletion
       } catch (error: any) {
-        toast({
-          title: "Error",
+        toast.error("Error", {
           description: error.message || "An unexpected error occurred.",
-          variant: "destructive",
         });
       } finally {
         setIsConfirmDeleteOpen(false);

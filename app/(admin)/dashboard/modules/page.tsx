@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { ModuleForm } from "@/components/admin/module-form";
 import { module as Module, semester as Semester, fields as Field } from "@prisma/client";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface ModuleWithSemesterAndField extends Module {
@@ -21,7 +21,6 @@ import { useAuth } from "@/hooks/useAuth";
 
 export default function ModulesPage() {
   const { modules, refetchModules, semesters: allSemesters, fields: allFields } = useGlobalData();
-  const { toast } = useToast();
   const { user } = useAuth();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -57,16 +56,13 @@ export default function ModulesPage() {
           throw new Error(errorData.message || "Failed to delete module.");
         }
 
-        toast({
-          title: "Module deleted.",
+        toast.success("Module deleted.", {
           description: "The module has been successfully deleted.",
         });
         refetchModules(); // Refresh data after deletion
       } catch (error: any) {
-        toast({
-          title: "Error",
+        toast.error("Error", {
           description: error.message || "An unexpected error occurred.",
-          variant: "destructive",
         });
       } finally {
         setIsConfirmDeleteOpen(false);

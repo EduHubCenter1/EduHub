@@ -1,7 +1,7 @@
 import { DM_Sans } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/providers/theme-provider"
-import { Toaster } from "@/components/ui/toaster"
+import { Toaster } from "sonner"
 import { PublicHeader } from "@/components/public/public-header"
 import { AuthProvider } from "@/context/AuthContext";
 import { cn } from "@/lib/utils"
@@ -38,7 +38,7 @@ export default function RootLayout({
           <AuthProvider>
               <PublicHeader />
               {children}
-              <Toaster position="top-center" duration={5000} />
+              <Toaster richColors position="top-center" />
               <ThemeToggle className="fixed bottom-4 left-4 z-50" />
           </AuthProvider>
         </ThemeProvider>

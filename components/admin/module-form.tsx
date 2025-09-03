@@ -15,7 +15,7 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { useToast } from "@/components/ui/use-toast"
+import { toast } from "sonner"
 import { moduleFormSchema } from "@/lib/validators"
 import { useGlobalData } from "@/context/GlobalDataContext"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -27,7 +27,6 @@ interface ModuleFormProps {
 }
 
 export function ModuleForm({ initialData, onSuccess }: ModuleFormProps) {
-  const { toast } = useToast()
   const { semesters, refetchSemesters } = useGlobalData()
   const router = useRouter()
 
@@ -70,8 +69,7 @@ export function ModuleForm({ initialData, onSuccess }: ModuleFormProps) {
         throw new Error(errorData.message || "Something went wrong.")
       }
 
-      toast({
-        title: initialData ? "Module updated." : "Module created.",
+      toast.success(initialData ? "Module updated." : "Module created.", {
         description: initialData
           ? "Your module has been updated." 
           : "Your new module has been created.",
@@ -80,10 +78,8 @@ export function ModuleForm({ initialData, onSuccess }: ModuleFormProps) {
       onSuccess?.()
       router.refresh() // Refresh the current route to re-fetch data
     } catch (error: any) {
-      toast({
-        title: "Error",
+      toast.error("Error", {
         description: error.message || "An unexpected error occurred.",
-        variant: "destructive",
       })
     }
   }

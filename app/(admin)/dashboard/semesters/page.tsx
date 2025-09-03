@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { SemesterForm } from "@/components/admin/semester-form";
 import { semester, fields } from "@prisma/client";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 interface SemesterWithField extends semester {
@@ -17,7 +17,6 @@ interface SemesterWithField extends semester {
 
 export default function SemestersPage() {
   const { semesters, refetchSemesters, fields: allFields } = useGlobalData();
-  const { toast } = useToast();
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isConfirmDeleteOpen, setIsConfirmDeleteOpen] = useState(false);
@@ -51,16 +50,13 @@ export default function SemestersPage() {
           throw new Error(errorData.message || "Failed to delete semester.");
         }
 
-        toast({
-          title: "Semester deleted.",
+        toast.success("Semester deleted.", {
           description: "The semester has been successfully deleted.",
         });
         refetchSemesters(); // Refresh data after deletion
       } catch (error: any) {
-        toast({
-          title: "Error",
+        toast.error("Error", {
           description: error.message || "An unexpected error occurred.",
-          variant: "destructive",
         });
       } finally {
         setIsConfirmDeleteOpen(false);
