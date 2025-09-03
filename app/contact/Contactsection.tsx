@@ -37,7 +37,7 @@ export function ContactSection() {
         const toastId = toast.loading("Sending your message...");
 
         try {
-            const response = await fetch("https://formsubmit.co/ajax/your-eduhub-email@example.com", {
+            const response = await fetch("https://formsubmit.co/ajax/eduhubcenter1@gmail.com", {
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json',

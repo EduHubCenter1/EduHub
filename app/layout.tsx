@@ -38,7 +38,7 @@ export default function RootLayout({
           <AuthProvider>
               <PublicHeader />
               {children}
-              <Toaster />
+              <Toaster position="top-center" duration={5000} />
               <ThemeToggle className="fixed bottom-4 left-4 z-50" />
           </AuthProvider>
         </ThemeProvider>
