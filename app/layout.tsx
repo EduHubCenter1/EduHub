@@ -1,6 +1,4 @@
-import type React from "react"
-import type { Metadata } from "next"
-import { Inter, Poppins } from "next/font/google"
+import { Lato, Montserrat } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/providers/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
@@ -9,16 +7,17 @@ import { AuthProvider } from "@/context/AuthContext";
 import { cn } from "@/lib/utils"
 
 
-const inter = Inter({
+const lato = Lato({
   subsets: ["latin"],
-  variable: "--font-inter",
+  weight: ["400", "700"],
+  variable: "--font-lato",
   display: "swap",
 })
 
-const poppins = Poppins({
+const montserrat = Montserrat({
   subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-  variable: "--font-poppins",
+  weight: ["400", "500", "600", "700", "800", "900"],
+  variable: "--font-montserrat",
   display: "swap",
 })
 
@@ -35,7 +34,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn("font-sans antialiased", inter.variable, poppins.variable)}>
+      <body className={cn("font-sans antialiased", lato.variable, montserrat.variable)}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

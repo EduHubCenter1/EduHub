@@ -12,6 +12,10 @@ const config: Config = {
   ],
   theme: {
   	extend: {
+      fontFamily: {
+        sans: ["var(--font-lato)"],
+        heading: ["var(--font-montserrat)"],
+      },
   		colors: {
   			background: 'var(--background)',
   			foreground: 'var(--foreground)',
