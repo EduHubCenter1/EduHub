@@ -1,4 +1,4 @@
-import { Lato, Montserrat } from "next/font/google"
+import { DM_Sans } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/providers/theme-provider"
 import { Toaster } from "@/components/ui/toaster"
@@ -7,17 +7,10 @@ import { AuthProvider } from "@/context/AuthContext";
 import { cn } from "@/lib/utils"
 
 
-const lato = Lato({
+const dm_sans = DM_Sans({
   subsets: ["latin"],
-  weight: ["400", "700"],
-  variable: "--font-lato",
-  display: "swap",
-})
-
-const montserrat = Montserrat({
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800", "900"],
-  variable: "--font-montserrat",
+  weight: ["400", "500", "600", "700"],
+  variable: "--font-dm-sans",
   display: "swap",
 })
 
@@ -34,7 +27,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={cn("font-sans antialiased", lato.variable, montserrat.variable)}>
+      <body className={cn("font-sans antialiased", dm_sans.variable)}>
         <ThemeProvider
           attribute="class"
           defaultTheme="light"

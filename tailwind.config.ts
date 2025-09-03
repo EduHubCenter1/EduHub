@@ -12,10 +12,6 @@ const config: Config = {
   ],
   theme: {
   	extend: {
-      fontFamily: {
-        sans: ["var(--font-lato)"],
-        heading: ["var(--font-montserrat)"],
-      },
   		colors: {
   			background: 'var(--background)',
   			foreground: 'var(--foreground)',
@@ -94,7 +90,10 @@ const config: Config = {
   		animation: {
   			'accordion-down': 'accordion-down 0.2s ease-out',
   			'accordion-up': 'accordion-up 0.2s ease-out'
-  		}
+  		},
+      fontFamily: {
+        sans: ["var(--font-dm-sans)", "sans-serif"],
+      }
   	}
   },
   plugins: [require("tailwindcss-animate")],
