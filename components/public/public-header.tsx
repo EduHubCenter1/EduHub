@@ -3,6 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 import { GraduationCap, Settings, LogOut, LayoutDashboard, ChevronDown, CircleUser, Mail } from "lucide-react";
 import { useAuthContext } from "@/context/AuthContext"; // ✅ utilisation du contexte
 import {
@@ -15,6 +16,7 @@ import {
 
 export function PublicHeader() {
   const { user, loading, logout } = useAuthContext(); // ✅ hook
+  const { pathname } = useRouter();
 
   const handleLogout = async () => {
     await logout();
@@ -28,12 +30,14 @@ export function PublicHeader() {
         </Link>
 
         <div className="flex items-center space-x-4">
-          <Button asChild variant="ghost" size="sm">
-            <Link href="/contact">
-              <Mail className="w-4 h-4 mr-2" />
-              Contact Us
-            </Link>
-          </Button>
+          {pathname !== '/dashboard' && (
+            <Button asChild variant="ghost" size="sm">
+              <Link href="/contact">
+                <Mail className="w-4 h-4 mr-2" />
+                Contact Us
+              </Link>
+            </Button>
+          )}
           
 
           {/* ✅ Utilisation du hook */}
@@ -42,6 +46,7 @@ export function PublicHeader() {
               ...
             </Button>
           ) : user ? (
+            <>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" size="sm">
@@ -66,14 +71,9 @@ export function PublicHeader() {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          ) : (
-            <Button asChild variant="outline" size="sm">
-              <Link href="/login">
-                <Settings className="w-4 h-4 mr-2" />
-                Admin
-              </Link>
-            </Button>
-          )}
+            
+            </>
+          ) : null}
         </div>
       </div>
     </header>
