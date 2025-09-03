@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster"
 import { PublicHeader } from "@/components/public/public-header"
 import { AuthProvider } from "@/context/AuthContext";
 import { cn } from "@/lib/utils"
+import { ThemeToggle } from "@/components/ui/theme-toggle"
 
 
 const dm_sans = DM_Sans({
@@ -38,6 +39,7 @@ export default function RootLayout({
               <PublicHeader />
               {children}
               <Toaster />
+              <ThemeToggle className="fixed bottom-4 left-4 z-50" />
           </AuthProvider>
         </ThemeProvider>
       </body>

@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { ThemeToggle } from "@/components/ui/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { GraduationCap, Settings, LogOut, LayoutDashboard, ChevronDown, CircleUser, Mail } from "lucide-react";
 import { useAuthContext } from "@/context/AuthContext"; // ✅ utilisation du contexte
@@ -35,7 +34,6 @@ export function PublicHeader() {
               Contact Us
             </Link>
           </Button>
-          <ThemeToggle />
           
 
           {/* ✅ Utilisation du hook */}

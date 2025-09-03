@@ -11,7 +11,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert'
-import { Terminal } from 'lucide-react'
+import { Terminal, EyeIcon, EyeOffIcon } from 'lucide-react'
 import Image from "next/image";
 
 export function LoginForm({
@@ -87,7 +87,7 @@ export function LoginForm({
                   disabled={isLoading}
                 />
               </div>
-              <div className="grid gap-2">
+              <div className="grid gap-2 relative">
                 <Label htmlFor="password">Password</Label>
                 <Input
                   id="password"
@@ -96,12 +96,13 @@ export function LoginForm({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   disabled={isLoading}
+                  className="pr-10"
                 />
                 <Button
                   type="button"
                   variant="ghost"
                   size="sm"
-                  className="absolute right-0 top-0 h-full px-3 py-2 text-muted-foreground hover:bg-transparent"
+                  className="absolute right-0 top-1/2 -translate-y-1/2 mt-0.5 px-3 py-2 text-muted-foreground hover:bg-transparent"
                   onClick={() => setShowPassword((prev) => !prev)}
                 >
                   {showPassword ? (
