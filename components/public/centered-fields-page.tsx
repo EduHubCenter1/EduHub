@@ -22,6 +22,15 @@ interface CenteredFieldsPageProps {
   fields: Field[];
 }
 
+const cardColors = [
+  "bg-blue-500",
+  "bg-green-500",
+  "bg-purple-500",
+  "bg-yellow-500",
+  "bg-red-500",
+  "bg-cyan-500",
+];
+
 export function CenteredFieldsPage({ fields }: CenteredFieldsPageProps) {
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -30,7 +39,8 @@ export function CenteredFieldsPage({ fields }: CenteredFieldsPageProps) {
   );
 
   return (
-    <div className="flex flex-col items-center w-full min-h-screen bg-background">
+    <div className="flex flex-col items-center w-full min-h-screen bg-background relative overflow-hidden">
+      <div className="absolute inset-0 -z-10 h-full w-full bg-white bg-[linear-gradient(to_right,#f0f0f0_1px,transparent_1px),linear-gradient(to_bottom,#f0f0f0_1px,transparent_1px)] bg-[size:6rem_4rem]"><div class="absolute bottom-0 left-0 right-0 top-0 bg-[radial-gradient(circle_800px_at_100%_200px,#d5c5ff,transparent)]"></div></div>
       <div className="w-full max-w-4xl px-4 py-16 text-center">
         <h1 className="text-5xl font-bold tracking-tighter">Explore Our Fields</h1>
         <p className="mt-4 text-lg text-muted-foreground">
@@ -52,23 +62,28 @@ export function CenteredFieldsPage({ fields }: CenteredFieldsPageProps) {
 
       <div className="w-full max-w-5xl px-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 justify-center">
-          {filteredFields.map((field) => (
-            <Link key={field.id} href={`/fields/${field.slug}`} className="block">
-              <Card className="h-full overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 group">
-                <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <GiOpenBook className="w-6 h-6 text-primary" />
-                    <Badge variant="default">{field._count.semesters} Semesters</Badge>
-                  </div>
-                  <CardTitle className="text-xl font-bold pt-4 group-hover:text-primary transition-colors">
-                    {field.name}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription>
-                    {field.description || "No description available."}
-                  </CardDescription>
-                </CardContent>
+          {filteredFields.map((field, index) => (
+            <Link key={field.id} href={`/fields/${field.slug}`} className="block group">
+              <Card 
+                className="h-full overflow-hidden rounded-lg shadow-md relative transition-shadow duration-300"
+              >
+                <div className={`absolute inset-0 ${cardColors[index % cardColors.length]} opacity-0 group-hover:opacity-80 transition-opacity duration-300`}></div>
+                <div className="relative z-10">
+                  <CardHeader>
+                    <div className="flex items-center justify-between">
+                      <GiOpenBook className="w-6 h-6 text-primary" />
+                      <Badge variant="secondary">{field._count.semesters} Semesters</Badge>
+                    </div>
+                    <CardTitle className="text-xl font-bold pt-4 text-card-foreground group-hover:text-white transition-colors duration-300">
+                      {field.name}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <CardDescription className="text-card-foreground group-hover:text-white/90 transition-colors duration-300">
+                      {field.description || "No description available."}
+                    </CardDescription>
+                  </CardContent>
+                </div>
               </Card>
             </Link>
           ))}

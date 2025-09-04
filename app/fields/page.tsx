@@ -1,5 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { CenteredFieldsPage } from "@/components/public/centered-fields-page";
+import { InspiredByGi } from "@/components/public/inspired-by-gi";
 
 async function getFieldsData() {
     const fields = await prisma.fields.findMany({
@@ -18,5 +18,5 @@ async function getFieldsData() {
 export default async function FieldsPage() {
     const fields = await getFieldsData();
 
-    return <CenteredFieldsPage fields={fields} />;
+    return <InspiredByGi fields={fields} />;
 }

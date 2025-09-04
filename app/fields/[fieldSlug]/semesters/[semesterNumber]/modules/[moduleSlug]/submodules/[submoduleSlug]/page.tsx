@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/public/breadcrumbs";
-import { ResourcesGrid } from "@/components/public/resources-grid";
+import { ResourcesPageClient } from "@/components/public/resources-page-client";
 
 async function getSubmoduleData(fieldSlug: string, semesterNumber: number, moduleSlug: string, submoduleSlug: string) {
     const submodule = await prisma.submodule.findFirst({
@@ -80,12 +80,11 @@ export default async function SubmodulePage({ params: awaitedParams }: Submodule
                     { label: submodule.name, href: `/fields/${field.slug}/semesters/${semester.number}/modules/${module.slug}/submodules/${submodule.slug}` },
                 ]}
             />
-            <div className="text-center my-8">
-                <h1 className="text-3xl font-bold font-heading">{submodule.name}</h1>
-                {submodule.description && <p className="text-muted-foreground mt-2">{submodule.description}</p>}
-            </div>
-
-            <ResourcesGrid resources={submodule.resources} />
+            <ResourcesPageClient 
+                resources={submodule.resources} 
+                title={submodule.name}
+                description={submodule.description}
+            />
         </div>
     );
 }

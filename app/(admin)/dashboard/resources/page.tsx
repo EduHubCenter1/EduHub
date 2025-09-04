@@ -13,6 +13,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 import { useAuth } from "@/hooks/useAuth";
 
+const resourceTypes = [
+  { value: "all", label: "All Types" },
+  { value: "course", label: "Course" },
+  { value: "exam", label: "Exam" },
+  { value: "tp_exercise", label: "TP/Exercise" },
+  { value: "project", label: "Project" },
+  { value: "presentation", label: "Presentation" },
+  { value: "report", label: "Report" },
+  { value: "other", label: "Other" },
+];
+
 // This interface should reflect the data structure from the API
 interface ResourceWithRelations extends Resource {
   module: Module & {
@@ -40,6 +51,7 @@ export default function ResourcesPage() {
   const [selectedFilterSemesterId, setSelectedFilterSemesterId] = useState<string | "all">("all");
   const [selectedFilterModuleId, setSelectedFilterModuleId] = useState<string | "all">("all");
   const [selectedFilterSubmoduleId, setSelectedFilterSubmoduleId] = useState<string | "all">("all");
+  const [selectedFilterTypeId, setSelectedFilterTypeId] = useState<string | "all">("all");
   const [formSelectedModuleId, setFormSelectedModuleId] = useState<string | null>(null);
 
   const formSubmodules = useMemo(() => {
@@ -118,6 +130,9 @@ export default function ResourcesPage() {
         if (!resource.submodule || resource.submodule.id !== selectedFilterSubmoduleId) {
           return false;
         }
+      }
+      if (selectedFilterTypeId !== "all" && resource.type !== selectedFilterTypeId) {
+        return false;
       }
       return true;
     });
@@ -243,6 +258,20 @@ export default function ResourcesPage() {
                   {submodule.name} (M: {submodule.module.name} | S: {submodule.module.semester.number} | F: {submodule.module.semester.field.name})
                 </SelectItem>
               ))}
+          </SelectContent>
+        </Select>
+
+        {/* Type Filter */}
+        <Select onValueChange={(value) => setSelectedFilterTypeId(value)} value={selectedFilterTypeId}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Filter by Type" />
+          </SelectTrigger>
+          <SelectContent>
+            {resourceTypes.map((type) => (
+              <SelectItem key={type.value} value={type.value}>
+                {type.label}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
