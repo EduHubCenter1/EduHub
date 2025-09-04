@@ -3,7 +3,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import {SiteHeader} from "@/components/site-header";
 import * as React from "react";
 import { GlobalDataProvider } from "../../context/GlobalDataContext";
-import { fields, semester as Semester, module as Module, submodule as Submodule, resource as Resource } from "@prisma/client";
+import { fields} from "@prisma/client";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
