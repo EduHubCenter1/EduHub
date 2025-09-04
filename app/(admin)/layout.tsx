@@ -6,6 +6,7 @@ import { GlobalDataProvider } from "../../context/GlobalDataContext";
 import { fields} from "@prisma/client";
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import { getFieldsForUser } from "@/lib/data/fields";
 
 // Helper to construct absolute URLs
 const getBaseUrl = () => {
@@ -39,19 +40,6 @@ interface ResourceWithSubmoduleModuleSemesterAndField extends Resource {
       }
     }
   }) | null
-}
-
-async function getFields(accessToken?: string): Promise<fields[]> {
-  const res = await fetch(`${getBaseUrl()}/api/fields`, {
-    cache: "no-store",
-    headers: {
-      ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
-    },
-  });
-  if (!res.ok) {
-    throw new Error("Failed to fetch fields");
-  }
-  return res.json();
 }
 
 async function getSemesters(accessToken?: string): Promise<SemesterWithField[]> {
