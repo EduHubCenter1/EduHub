@@ -38,8 +38,12 @@ export default function RootLayout({
           <AuthProvider>
               <PublicHeader />
               {children}
-              <Toaster richColors position="top-center" />
-              <ThemeToggle className="fixed bottom-4 left-4 z-50" />
+              <Toaster richColors position="top-center" toastOptions={{
+                classNames: {
+                  toast: dm_sans.className,
+                },
+              }} />
+              <ThemeToggle  />
           </AuthProvider>
         </ThemeProvider>
       </body>
