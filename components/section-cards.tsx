@@ -1,7 +1,6 @@
 import {
   Card,
-  CardDescription,
-  CardFooter,
+  CardContent,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card"
@@ -9,59 +8,70 @@ import {
   getTotalFields,
   getTotalModules,
   getTotalResources,
-  getTotalUsers,
+  getTotalSuperAdmins,
+  getTotalClassAdmins,
 } from "@/lib/data-stats"
-import { FolderGit, Library, Users } from "lucide-react"
+import { FolderGit, Library, Users, FileText, ShieldCheck } from "lucide-react"
 
 export async function SectionCards() {
-  const totalUsers = await getTotalUsers()
   const totalFields = await getTotalFields()
   const totalModules = await getTotalModules()
   const totalResources = await getTotalResources()
+  const totalSuperAdmins = await getTotalSuperAdmins()
+  const totalClassAdmins = await getTotalClassAdmins()
 
   const data = [
     {
-      icon: <Users className="size-8 text-muted-foreground" />,
-      title: "Total Users",
-      content: totalUsers,
-      description: "The total number of users in the system.",
+      icon: <ShieldCheck className="size-10 text-muted-foreground" />,
+      title: "Super Admins",
+      content: totalSuperAdmins,
+      description: "The total number of super administrators.",
     },
     {
-      icon: <FolderGit className="size-8 text-muted-foreground" />,
+      icon: <Users className="size-10 text-muted-foreground" />,
+      title: "Class Admins",
+      content: totalClassAdmins,
+      description: "The total number of class administrators.",
+    },
+    {
+      icon: <FolderGit className="size-10 text-muted-foreground" />,
       title: "Total Fields",
       content: totalFields,
       description: "The total number of fields available.",
     },
     {
-      icon: <Library className="size-8 text-muted-foreground" />,
+      icon: <Library className="size-10 text-muted-foreground" />,
       title: "Total Modules",
       content: totalModules,
       description: "The total number of modules across all fields.",
     },
     {
-      icon: <Users className="size-8 text-muted-foreground" />,
+      icon: <FileText className="size-10 text-muted-foreground" />,
       title: "Total Resources",
       content: totalResources,
-      description: "The total number of resources available for download.",
+      description: "The total number of resources in the system.",
     },
   ]
 
   return (
-    <div className="grid grid-cols-1 gap-4 px-4 lg:grid-cols-4 lg:px-6">
+    <div className="grid grid-cols-1 gap-6 px-4 sm:grid-cols-2 lg:grid-cols-5 lg:px-6">
       {data.map((item, index) => (
-        <Card key={index} className="shadow-xs">
-          <CardHeader className="relative">
+        <Card
+          key={index}
+          className="transform transition-all duration-300 ease-in-out hover:-translate-y-1 hover:shadow-xl"
+        >
+          <CardHeader>
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-semibold">
+              <CardTitle className="text-lg font-bold">
                 {item.title}
               </CardTitle>
               {item.icon}
             </div>
           </CardHeader>
-          <CardFooter className="flex-col items-start gap-1 text-sm">
-            <div className="text-3xl font-bold">{item.content}</div>
-            <p className="text-muted-foreground">{item.description}</p>
-          </CardFooter>
+          <CardContent>
+            <div className="text-4xl font-bold">{item.content}</div>
+            <p className="text-xs text-muted-foreground">{item.description}</p>
+          </CardContent>
         </Card>
       ))}
     </div>
