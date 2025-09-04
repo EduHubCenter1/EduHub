@@ -90,6 +90,8 @@ export async function POST(req: NextRequest) {
     })
 
     revalidatePath("/(admin)/dashboard/fields")
+    revalidatePath("/")
+    revalidatePath("/fields")
 
     return NextResponse.json(
       {

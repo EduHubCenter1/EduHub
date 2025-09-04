@@ -84,6 +84,8 @@ export async function PUT(
     })
 
     revalidatePath("/(admin)/dashboard/fields")
+    revalidatePath("/")
+    revalidatePath("/fields")
 
     return NextResponse.json({
       data: result,
