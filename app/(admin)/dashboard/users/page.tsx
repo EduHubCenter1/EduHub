@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/dialog";
 import { CreateUserForm } from "@/components/admin/create-user-form";
 
+export const dynamic = 'force-dynamic';
+
 // Define a type for AdminScope with included field name
 type AdminScopeWithField = {
   userId: string;

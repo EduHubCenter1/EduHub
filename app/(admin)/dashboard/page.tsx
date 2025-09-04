@@ -2,6 +2,8 @@ import { ChartAreaInteractive } from "@/components/chart-area-interactive"
 import { SectionCards } from "@/components/section-cards"
 import { getResourceUploadsOverTime } from "@/lib/data-stats"
 
+export const dynamic = 'force-dynamic';
+
 export default async function Page() {
   const chartData = await getResourceUploadsOverTime()
 
