@@ -19,7 +19,7 @@ const nextConfig = {
             value: 'dashboard.eduhubcenter.online',
           },
         ],
-        destination: '/dashboard/:path*',
+        destination: '/dashboard', // juste la page principale du dashboard
       },
     ]
   },
