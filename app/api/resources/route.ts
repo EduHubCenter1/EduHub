@@ -4,169 +4,32 @@ import { z } from "zod";
 import { createClient } from "@supabase/supabase-js";
 import { getAdminScopes } from "@/lib/data/admin-scopes";
 
+import { createServerClient } from "@supabase/ssr"
+import { cookies } from "next/headers"
+import { getResourcesForUser } from "@/lib/data/resources"
+
 export async function GET(request: NextRequest) {
-  try {
-    const authHeader = request.headers.get('Authorization');
-    const token = authHeader?.split(' ')[1]; // Extract JWT from "Bearer <token>"
-
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-      {
-        auth: {
-          persistSession: false, // Do not persist session in API routes
+  const cookieStore = cookies()
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value
         },
-        global: {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
-      }
-    );
-
-    const { data: { user } } = await supabase.auth.getUser();
-    const userRole: string = user?.user_metadata?.role || '';
-
-    let resources;
-
-    if (userRole === 'classAdmin') {
-      if (!user) return NextResponse.json({ message: "User not found" }, { status: 401 });
-      const adminScopes = await getAdminScopes(user.id);
-      if (!adminScopes || adminScopes.length === 0) {
-        // Return empty array if classAdmin has no scopes, as they can't see any resources.
-        return NextResponse.json([], { status: 200 });
-      }
-
-      const allowedFieldSemesterPairs = adminScopes.map((scope: any) => ({
-        fieldId: scope.fieldId,
-        semesterId: scope.semesterId,
-      }));
-
-      // Find all modules that belong to the allowed field/semester pairs
-      const allowedModules = await prisma.module.findMany({
-        where: {
-          OR: allowedFieldSemesterPairs.map((pair: any) => ({
-            semester: {
-              fieldId: pair.fieldId,
-              id: pair.semesterId,
-            },
-          })),
-        },
-        select: { id: true },
-      });
-
-      const allowedModuleIds = allowedModules.map(module => module.id);
-
-      resources = await prisma.resource.findMany({
-        where: {
-          moduleId: { in: allowedModuleIds },
-        },
-        orderBy: { title: "asc" },
-        include: {
-          module: {
-            select: {
-              id: true,
-              name: true,
-              semester: {
-                select: {
-                  id: true,
-                  number: true,
-                  fieldId: true,
-                  field: {
-                    select: {
-                      id: true,
-                      name: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
-          submodule: {
-            select: {
-              id: true,
-              name: true,
-              moduleId: true,
-              module: {
-                select: {
-                  id: true,
-                  name: true,
-                  semesterId: true,
-                  semester: {
-                    select: {
-                      id: true,
-                      number: true,
-                      fieldId: true,
-                      field: {
-                        select: {
-                          id: true,
-                          name: true,
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      });
-    } else if (userRole === 'superAdmin') {
-      resources = await prisma.resource.findMany({
-        orderBy: { title: "asc" },
-        include: {
-          module: {
-            select: {
-              id: true,
-              name: true,
-              semester: {
-                select: {
-                  id: true,
-                  number: true,
-                  fieldId: true,
-                  field: {
-                    select: {
-                      id: true,
-                      name: true,
-                    },
-                  },
-                },
-              },
-            },
-          },
-          submodule: {
-            select: {
-              id: true,
-              name: true,
-              moduleId: true,
-              module: {
-                select: {
-                  id: true,
-                  name: true,
-                  semesterId: true,
-                  semester: {
-                    select: {
-                      id: true,
-                      number: true,
-                      fieldId: true,
-                      field: {
-                        select: {
-                          id: true,
-                          name: true,
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      });
-    } else {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      },
     }
+  )
 
+  const { data: { user } } = await supabase.auth.getUser();
+
+  if (!user) {
+    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const resources = await getResourcesForUser(user);
     return NextResponse.json(resources);
   } catch (error) {
     console.error("Failed to fetch resources:", error);
