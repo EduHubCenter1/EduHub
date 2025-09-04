@@ -49,7 +49,7 @@ export default async function FieldLayout({ children, params: awaitedParams }: F
         <div className="min-h-screen bg-background">
             {/*<PublicHeader />*/}
             <div className="flex flex-col lg:flex-row">
-                <FieldResponsiveSidebar field={field} />
+                
                 <main className="p-6 flex-1">
                     <div className="max-w-6xl mx-auto">
                         

@@ -18,30 +18,23 @@ interface SemestersGridProps {
 
 export function SemestersGrid({ fieldSlug, semesters }: SemestersGridProps) {
   return (
-    <div className="space-y-6">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold font-heading mb-2">Semesters</h2>
-        <p className="text-muted-foreground">Select a semester to explore modules and resources</p>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {semesters.map((semester) => (
-          <Link key={semester.id} href={`/fields/${fieldSlug}/semesters/${semester.number}`}>
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
-              <CardHeader>
-                <div className="flex items-center justify-between">
-                  <Calendar className="h-6 w-6 text-primary group-hover:text-secondary transition-colors" />
-                  <Badge variant="secondary">{semester._count.modules} modules</Badge>
-                </div>
-                <CardTitle className="text-lg font-heading group-hover:text-primary transition-colors">
-                  Semester {semester.number}
-                </CardTitle>
-                <CardDescription>Explore modules and resources for this semester</CardDescription>
-              </CardHeader>
-            </Card>
-          </Link>
-        ))}
-      </div>
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+      {semesters.map((semester) => (
+        <Link key={semester.id} href={`/fields/${fieldSlug}/semesters/${semester.number}`}>
+          <Card className="hover:shadow-lg transition-shadow cursor-pointer group">
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <Calendar className="h-6 w-6 text-primary group-hover:text-secondary transition-colors" />
+                <Badge variant="secondary">{semester._count.modules} modules</Badge>
+              </div>
+              <CardTitle className="text-lg font-heading group-hover:text-primary transition-colors">
+                Semester {semester.number}
+              </CardTitle>
+              <CardDescription>Explore modules and resources for this semester</CardDescription>
+            </CardHeader>
+          </Card>
+        </Link>
+      ))}
     </div>
   )
 }
