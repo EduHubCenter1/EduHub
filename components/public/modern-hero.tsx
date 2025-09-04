@@ -34,9 +34,9 @@ export function ModernHero() {
 
   return (
     <section className="w-full h-screen flex items-center bg-background">
-      <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
+      <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-4 items-center">
         {/* Left Side: Text Content */}
-        <div className="flex flex-col items-start text-left animate-[fade-in-up_1s_ease-out]">
+        <div className="flex flex-col items-start text-left animate-[fade-in-up_1s_ease-out] pl-8">
           <h1 className="text-5xl md:text-7xl font-bold tracking-tighter leading-tight">
             Welcome 
           </h1>
@@ -47,7 +47,7 @@ export function ModernHero() {
         </div>
 
         {/* Right Side: Image */}
-        <div className="relative w-full h-[70vh] rounded-2xl overflow-hidden shadow-2xl animate-[fade-in-up_1s_ease-out_0.2s_backwards]">
+        <div className="relative w-full h-[60vh] rounded-xl shadow-2xl animate-[fade-in-up_1s_ease-out_0.2s_backwards]">
           <video
             src="/eduhubanimation.mp4"
             muted

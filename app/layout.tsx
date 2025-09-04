@@ -1,11 +1,9 @@
 import { DM_Sans } from "next/font/google"
 import "./globals.css"
 import { ThemeProvider } from "@/components/providers/theme-provider"
-import { Toaster } from "sonner"
-import { PublicHeader } from "@/components/public/public-header"
 import { AuthProvider } from "@/context/AuthContext";
 import { cn } from "@/lib/utils"
-import { ThemeToggle } from "@/components/ui/theme-toggle"
+import LayoutClient from "@/components/layout-client";
 
 
 const dm_sans = DM_Sans({
@@ -36,14 +34,9 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
-              <PublicHeader />
-              {children}
-              <Toaster richColors position="top-center" toastOptions={{
-                classNames: {
-                  toast: dm_sans.className,
-                },
-              }} />
-              <ThemeToggle  />
+              <LayoutClient>
+                {children}
+              </LayoutClient>
           </AuthProvider>
         </ThemeProvider>
       </body>
