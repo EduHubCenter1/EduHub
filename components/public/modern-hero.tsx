@@ -34,15 +34,13 @@ export function ModernHero() {
 
   return (
     <section className="w-full h-screen flex items-center bg-background">
-      <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+      <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-6 items-center">
         {/* Left Side: Text Content */}
         <div className="flex flex-col items-start text-left animate-[fade-in-up_1s_ease-out]">
           <h1 className="text-5xl md:text-7xl font-bold tracking-tighter leading-tight">
             Welcome 
           </h1>
-          <p className="mt-6 max-w-xl text-lg md:text-xl text-muted-foreground">
-            Your centralized platform for all academic resources and materials at ENSIAS.
-          </p>
+          <p className="mt-6 max-w-xl text-lg md:text-xl text-muted-foreground"> The hub where students discover, share, connect, collaborate, and access all the resources they need to succeed and achieve. </p>
           <Button asChild size="lg" className="mt-8">
             <Link href="/fields">Start Exploring</Link>
           </Button>
