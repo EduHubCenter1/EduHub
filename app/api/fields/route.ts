@@ -2,13 +2,12 @@ import { revalidatePath } from "next/cache"
 import { NextRequest, NextResponse } from "next/server"
 import { Prisma } from "@prisma/client"
 import slugify from "slugify"
+import { cookies } from "next/headers"
+import { createServerClient } from "@supabase/ssr"
 
+import { getFieldsForUser } from "@/lib/data/fields"
 import { prisma } from "@/lib/prisma"
 import { fieldFormSchema } from "@/lib/validators"
-
-import { createClient } from "@supabase/supabase-js"
-
-import { getAdminScopes } from "@/lib/data/admin-scopes"
 
 // Function to generate a unique slug
 async function generateUniqueSlug(name: string): Promise<string> {
@@ -30,50 +29,29 @@ async function generateUniqueSlug(name: string): Promise<string> {
 }
 
 export async function GET(request: NextRequest) {
-  const authHeader = request.headers.get('Authorization');
-  const token = authHeader?.split(' ')[1];
-
-  const supabase = createClient(
+  const cookieStore = cookies()
+  const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
-      global: {
-        headers: {
-          Authorization: `Bearer ${token}`,
+      cookies: {
+        get(name: string) {
+          return cookieStore.get(name)?.value
         },
       },
     }
-  );
+  )
 
-  const { data: { user } } = await supabase.auth.getUser();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
   if (!user) {
     return NextResponse.json({ message: "Unauthorized" }, { status: 401 })
   }
 
-  const userRole: string = user?.user_metadata?.role || ''
-
   try {
-    let fields;
-    if (userRole === 'superAdmin') {
-      fields = await prisma.fields.findMany({
-        orderBy: { name: "asc" },
-      })
-    } else if (userRole === 'classAdmin') {
-      const adminScopes = await getAdminScopes(user.id);
-      if (!adminScopes || adminScopes.length === 0) {
-        return NextResponse.json([], { status: 200 });
-      }
-      const fieldIds = [...new Set(adminScopes.map(scope => scope.fieldId))];
-      fields = await prisma.fields.findMany({
-        where: {
-          id: { in: fieldIds },
-        },
-        orderBy: { name: "asc" },
-      });
-    } else {
-      return NextResponse.json({ message: "Forbidden" }, { status: 403 });
-    }
+    const fields = await getFieldsForUser(user)
     return NextResponse.json(fields)
   } catch (error) {
     console.error("Failed to fetch fields:", error)

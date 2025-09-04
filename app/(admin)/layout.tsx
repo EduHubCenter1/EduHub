@@ -120,9 +120,10 @@ export default async function Layout({ children }: { children: React.ReactNode }
   );
 
   const { data: { session } } = await supabase.auth.getSession();
+  const { data: { user } } = await supabase.auth.getUser();
   const accessToken = session?.access_token;
 
-  const initialFields = await getFields(accessToken);
+  const initialFields = await getFieldsForUser(user);
   const initialSemesters = await getSemesters(accessToken);
   const initialModules = await getModules(accessToken);
   const initialSubmodules = await getSubmodules(accessToken);
