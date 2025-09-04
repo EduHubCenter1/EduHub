@@ -22,12 +22,9 @@ interface FieldsGridProps {
 export function FieldsGrid({ fields }: FieldsGridProps) {
   return (
     <div className="space-y-6">
-      <div className="text-center">
-        <h2 className="text-3xl font-bold font-heading mb-2">Academic Fields</h2>
-        <p className="text-muted-foreground">Choose your field of study to explore resources</p>
-      </div>
+      
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 justify-center">
         {fields.map((field) => (
           <Link key={field.id} href={`/fields/${field.slug}`}>
             <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer group">
