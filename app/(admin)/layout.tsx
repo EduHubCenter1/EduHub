@@ -3,11 +3,17 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import {SiteHeader} from "@/components/site-header";
 import * as React from "react";
 import { GlobalDataProvider } from "../../context/GlobalDataContext";
-import { fields} from "@prisma/client";
-import { createServerClient } from "@supabase/ssr"; // New import
-import { cookies } from "next/headers"; // New import
+import { fields, semester as Semester, module as Module, submodule as Submodule, resource as Resource } from "@prisma/client";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
-interface SemesterWithField extends semester {
+// Helper to construct absolute URLs
+const getBaseUrl = () => {
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return 'http://localhost:3000';
+};
+
+interface SemesterWithField extends Semester {
   field: Pick<fields, "name">
 }
 
@@ -36,7 +42,7 @@ interface ResourceWithSubmoduleModuleSemesterAndField extends Resource {
 }
 
 async function getFields(accessToken?: string): Promise<fields[]> {
-  const res = await fetch("http://localhost:3000/api/fields", { 
+  const res = await fetch(`${getBaseUrl()}/api/fields`, {
     cache: "no-store",
     headers: {
       ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
@@ -49,7 +55,7 @@ async function getFields(accessToken?: string): Promise<fields[]> {
 }
 
 async function getSemesters(accessToken?: string): Promise<SemesterWithField[]> {
-  const res = await fetch("http://localhost:3000/api/semesters", { 
+  const res = await fetch(`${getBaseUrl()}/api/semesters`, {
     cache: "no-store",
     headers: {
       ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
@@ -62,7 +68,7 @@ async function getSemesters(accessToken?: string): Promise<SemesterWithField[]> 
 }
 
 async function getModules(accessToken?: string): Promise<ModuleWithSemesterAndField[]> {
-  const res = await fetch("http://localhost:3000/api/modules", { 
+  const res = await fetch(`${getBaseUrl()}/api/modules`, {
     cache: "no-store",
     headers: {
       ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
@@ -75,7 +81,7 @@ async function getModules(accessToken?: string): Promise<ModuleWithSemesterAndFi
 }
 
 async function getSubmodules(accessToken?: string): Promise<SubmoduleWithModuleSemesterAndField[]> {
-  const res = await fetch("http://localhost:3000/api/submodules", { 
+  const res = await fetch(`${getBaseUrl()}/api/submodules`, {
     cache: "no-store",
     headers: {
       ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
@@ -88,7 +94,7 @@ async function getSubmodules(accessToken?: string): Promise<SubmoduleWithModuleS
 }
 
 async function getResources(accessToken?: string): Promise<ResourceWithSubmoduleModuleSemesterAndField[]> {
-  const res = await fetch("http://localhost:3000/api/resources", {
+  const res = await fetch(`${getBaseUrl()}/api/resources`, {
     cache: "no-store",
     headers: {
       ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
@@ -101,7 +107,6 @@ async function getResources(accessToken?: string): Promise<ResourceWithSubmodule
 }
 
 export default async function Layout({ children }: { children: React.ReactNode }) {
-  // Create Supabase client and get session
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
