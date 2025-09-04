@@ -4,6 +4,8 @@ import { ThemeProvider } from "@/components/providers/theme-provider"
 import { AuthProvider } from "@/context/AuthContext";
 import { cn } from "@/lib/utils"
 import LayoutClient from "@/components/layout-client";
+import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 
 const dm_sans = DM_Sans({
@@ -39,6 +41,8 @@ export default function RootLayout({
               </LayoutClient>
           </AuthProvider>
         </ThemeProvider>
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   )
