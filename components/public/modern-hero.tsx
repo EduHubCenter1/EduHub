@@ -3,15 +3,42 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { Button } from '@/components/ui/button';
+import { useRef, useEffect } from 'react';
 
 export function ModernHero() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            video.play();
+          } else {
+            video.pause();
+          }
+        });
+      },
+      { threshold: 0.5 } // Play when 50% of the video is visible
+    );
+
+    observer.observe(video);
+
+    return () => {
+      observer.unobserve(video);
+    };
+  }, []);
+
   return (
     <section className="w-full h-screen flex items-center bg-background">
       <div className="container mx-auto grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
         {/* Left Side: Text Content */}
         <div className="flex flex-col items-start text-left animate-[fade-in-up_1s_ease-out]">
           <h1 className="text-5xl md:text-7xl font-bold tracking-tighter leading-tight">
-            Welcome to ENSIAS Hub
+            Welcome 
           </h1>
           <p className="mt-6 max-w-xl text-lg md:text-xl text-muted-foreground">
             Your centralized platform for all academic resources and materials at ENSIAS.
@@ -23,12 +50,12 @@ export function ModernHero() {
 
         {/* Right Side: Image */}
         <div className="relative w-full h-[70vh] rounded-2xl overflow-hidden shadow-2xl animate-[fade-in-up_1s_ease-out_0.2s_backwards]">
-          <Image
-            src="/placeholder.jpg"
-            alt="Students collaborating in a modern study space"
-            layout="fill"
-            objectFit="cover"
-            className="transition-transform duration-500 ease-in-out hover:scale-105"
+          <video
+            src="/eduhubanimation.mp4"
+            muted
+            playsInline
+            className="w-full h-full object-cover"
+            ref={videoRef}
           />
            <div className="absolute -top-8 -left-8 w-32 h-32 bg-primary/10 rounded-full filter blur-2xl" />
            <div className="absolute -bottom-8 -right-8 w-32 h-32 bg-secondary/10 rounded-full filter blur-2xl" />
