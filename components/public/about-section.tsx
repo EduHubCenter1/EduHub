@@ -1,4 +1,5 @@
 import { Library, Users, Lightbulb } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export function AboutSection() {
   const features = [
@@ -27,12 +28,12 @@ export function AboutSection() {
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
           <div className="text-center lg:text-left">
-            <h2 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl font-heading">
-              What is <span className="text-primary">EduHub</span>?
-            </h2>
-            <p className="mt-6 text-lg leading-8 text-muted-foreground">
-              EduHub is a student-driven academic platform that aims to make learning resources more accessible and collaborative. By bringing materials into one place, we help students save time, stay organized, and focus on what truly matters—learning.
-            </p>
+            <Badge className="mb-4" variant="default">About Us</Badge>
+          <h2 className="text-4xl md:text-5xl font-bold tracking-tight text-foreground sm:text-4xl font-heading">
+              What is <span className="text-primary">EduHub</span>?</h2>
+          <p className="text-xl text-muted-foreground mb-4">
+EduHub is a student-driven platform designed to open the doors of knowledge. By uniting students, educators, and a rich collection of academic resources, we create more than just a study space . <br />We build a culture of shared learning. Accessible, collaborative, and ever-growing, EduHub is where education meets community, and every learner finds the support to thrive.            </p>
+            
           </div>
           <div className="flex flex-col gap-8">
             {features.map((feature, index) => (
