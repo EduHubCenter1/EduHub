@@ -41,7 +41,7 @@ export function PublicHeader() {
         ) : user ? (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="default" size="icon" className="h-12 w-12 rounded-full hover:shadow-xl hover:shadow-primary/60 transition-all duration-300 transform hover:scale-105 shadow-lg bg-background z-40 shadow-indigo-500/50">
+              <Button variant="default" size="icon" className="h-12 w-12 rounded-full hover:shadow-xl hover:shadow-primary/60 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-indigo-500/50">
                 <CircleUser className="w-8 h-8" />
               </Button>
             </DropdownMenuTrigger>
