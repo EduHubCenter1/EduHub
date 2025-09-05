@@ -1,12 +1,13 @@
 'use client'
 import * as React from "react"
 import Image from "next/image"
+import { useRouter } from 'next/navigation'
 import Link from "next/link"
 import {
     DatabaseIcon,
     FileCodeIcon,
     FileIcon,
-    FolderIcon, GraduationCap,
+    FolderIcon,
     LayoutDashboardIcon,
     ListIcon,
     UsersIcon,
@@ -21,6 +22,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import {Button} from "@/components/ui/button"
 
 import { LogoutButton } from "@/components/auth/logout-button"
 
@@ -89,9 +91,18 @@ const classAdminNavItems = [
     },
 ]
 
+
 export default function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, loading } = useAuth()
-  const userRole = user?.user_metadata?.role
+    const router = useRouter()
+    const userRole = user?.user_metadata?.role
+    const handleLogout = async () => {
+        const res = await fetch('/api/auth/logout', { method: 'POST' })
+        if (res.ok) {
+            router.push('/login')
+            router.refresh()
+        }
+    }
 
   const getNavItems = () => {
     if (loading) {
@@ -152,7 +163,7 @@ export default function AdminSidebar({ ...props }: React.ComponentProps<typeof S
                               <span className="text-sm font-medium truncate">
                                   {user.user_metadata.firstName || user.email}
                               </span>
-                              <LogOutIcon className="h-4 w-4 ml-auto" />
+                              {/*<LogOutIcon className="h-4 w-4 ml-auto" />*/}
                           </div>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent side="right" align="start" className="w-56">
@@ -163,8 +174,15 @@ export default function AdminSidebar({ ...props }: React.ComponentProps<typeof S
                               </Link>
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem>
-                              <LogoutButton />
+                          <DropdownMenuItem asChild>
+                             <Button
+                                type="button"
+                                className="flex items-center justify-start gap-2 w-full px-2 py-1.5 rounded-md hover:bg-gray-100 text-left"
+                                onClick={handleLogout}
+                              >
+                                <LogOutIcon className="h-4 w-4" />
+                                Déconnexion
+                              </Button>
                           </DropdownMenuItem>
                       </DropdownMenuContent>
                   </DropdownMenu>
