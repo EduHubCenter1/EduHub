@@ -41,7 +41,12 @@ export default async function HomePage() {
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary/10 rounded-full filter blur-3xl translate-x-1/2 translate-y-1/2" />
 
           <div className="container mx-auto px-4 relative z-10">
-            <div className="text-center mb-12"></div>
+            <div className="text-center mb-12">
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight text-foreground">Explore Our Fields</h2>
+              <p className="mt-4 text-lg text-muted-foreground max-w-2xl mx-auto">
+                Browse through the different fields of study available on EduHub.
+              </p>
+            </div>
             <div className="relative">
               <div className="max-h-[600px] overflow-hidden">
                 <FieldsGrid fields={fields.slice(0, 6)} />
