@@ -20,7 +20,6 @@ export async function getFieldPopularityOverTime(startDate: Date, endDate: Date)
       },
     });
 
-    // Optionally, fetch field names
     const fieldIds = fieldPopularity.map(item => item.fieldId);
     const fields = await prisma.fields.findMany({
       where: {
@@ -36,9 +35,30 @@ export async function getFieldPopularityOverTime(startDate: Date, endDate: Date)
 
     const fieldMap = new Map(fields.map(field => [field.id, field.name]));
 
+    // Apply abbreviations
+    const abbreviatedFieldMap = new Map<string, string>();
+    fieldMap.forEach((name, id) => {
+      let abbreviatedName = name;
+      switch (name) {
+        case "Ingénierie Logicielle":
+          abbreviatedName = "IL";
+          break;
+        case "Sécurité IT et Confiance Numérique":
+          abbreviatedName = "SICN";
+          break;
+        case "Management et Gouvernance des Systèmes d'Information":
+          abbreviatedName = "MGSI";
+          break;
+        case "Sciences des Données, Big Data & IA":
+          abbreviatedName = "SDBIA";
+          break;
+      }
+      abbreviatedFieldMap.set(id, abbreviatedName);
+    });
+
     return fieldPopularity.map(item => ({
       fieldId: item.fieldId,
-      fieldName: fieldMap.get(item.fieldId) || 'Unknown Field',
+      fieldName: abbreviatedFieldMap.get(item.fieldId) || 'Unknown Field',
       views: item._count.fieldId,
     }));
 

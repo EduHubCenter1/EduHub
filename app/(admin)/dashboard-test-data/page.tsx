@@ -1,5 +1,6 @@
 import { getFieldPopularityOverTime, getTopActiveModules, getResourceTypeUsage, getSearchTrends, getInactiveModulesOrFields, getUserEngagementHeatmap } from "@/lib/data/analytics";
 import { AnalyticsCharts } from "@/components/analytics-charts";
+import { prisma } from "@/lib/prisma"; // Import prisma to fetch total counts
 
 export default async function DashboardTestDataPage() {
   const today = new Date();
@@ -14,6 +15,10 @@ export default async function DashboardTestDataPage() {
   const inactiveFields = await getInactiveModulesOrFields(90, 'field');
   const engagementHeatmap = await getUserEngagementHeatmap(last90Days, today);
 
+  // Fetch total counts for modules and fields
+  const totalModules = await prisma.module.count();
+  const totalFields = await prisma.fields.count();
+
   return (
     <div className="container mx-auto p-4">
       <h1 className="text-3xl font-bold mb-6">Analytics Dashboard (Test Data)</h1>
@@ -25,6 +30,8 @@ export default async function DashboardTestDataPage() {
         inactiveModules={inactiveModules}
         inactiveFields={inactiveFields}
         engagementHeatmap={engagementHeatmap}
+        totalModules={totalModules}
+        totalFields={totalFields}
       />
     </div>
   );
