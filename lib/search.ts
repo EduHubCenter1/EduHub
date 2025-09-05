@@ -4,6 +4,7 @@ export interface SearchFilters {
   fieldId?: string
   semesterNumber?: number
   type?: string
+  uploadedByUserId?: string
 }
 
 export interface SearchResult {

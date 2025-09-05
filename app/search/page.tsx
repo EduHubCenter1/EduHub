@@ -14,6 +14,7 @@ interface SearchPageProps {
     fieldId?: string
     semesterNumber?: string
     type?: string
+    uploadedByUserId?: string
   }
 }
 
@@ -32,15 +33,28 @@ export async function generateMetadata({ searchParams }: SearchPageProps): Promi
 }
 
 async function getSearchData(query: string, filters: any) {
-  const [results, fields] = await Promise.all([
+  const [results, fields, users] = await Promise.all([
     searchService.search(query, filters),
     prisma.fields.findMany({
       orderBy: { name: "asc" },
       select: { id: true, name: true, slug: true },
     }),
+    prisma.user.findMany({
+      where: {
+        uploadedResources: {
+          some: {},
+        },
+      },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+      },
+      orderBy: [{ firstName: "asc" }, { lastName: "asc" }],
+    }),
   ])
 
-  return { results, fields }
+  return { results, fields, users }
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
@@ -54,9 +68,10 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
     fieldId: searchParams.fieldId || undefined,
     semesterNumber: searchParams.semesterNumber ? Number.parseInt(searchParams.semesterNumber, 10) : undefined,
     type: searchParams.type || undefined,
+    uploadedByUserId: searchParams.uploadedByUserId || undefined,
   }
 
-  const { results, fields } = await getSearchData(query, filters)
+  const { results, fields, users } = await getSearchData(query, filters)
 
   const breadcrumbs = [
     { label: "Home", href: "/" },
@@ -78,7 +93,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         <div className="grid gap-6 lg:grid-cols-4">
           <div className="lg:col-span-1">
             <Suspense fallback={<div>Loading filters...</div>}>
-              <SearchFilters fields={fields} currentFilters={filters} query={query} />
+              <SearchFilters fields={fields} users={users} currentFilters={filters} query={query} />
             </Suspense>
           </div>
 

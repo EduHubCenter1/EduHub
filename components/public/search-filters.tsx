@@ -13,12 +13,20 @@ interface Field {
   slug: string
 }
 
+interface User {
+  id: string;
+  firstName: string | null;
+  lastName: string | null;
+}
+
 interface SearchFiltersProps {
   fields: Field[]
+  users: User[]
   currentFilters: {
     fieldId?: string
     semesterNumber?: number
     type?: string
+    uploadedByUserId?: string
   }
   query: string
 }
@@ -56,7 +64,7 @@ export function SearchFilters({ fields, currentFilters, query }: SearchFiltersPr
     router.push(`/search?q=${encodeURIComponent(query)}`)
   }
 
-  const hasActiveFilters = currentFilters.fieldId || currentFilters.semesterNumber || currentFilters.type
+  const hasActiveFilters = currentFilters.fieldId || currentFilters.semesterNumber || currentFilters.type || currentFilters.uploadedByUserId
 
   return (
     <Card>
@@ -135,6 +143,27 @@ export function SearchFilters({ fields, currentFilters, query }: SearchFiltersPr
           </Select>
         </div>
 
+        {/* New "Uploaded By" filter */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium">Uploaded By</label>
+          <Select
+            value={currentFilters.uploadedByUserId || "allUsers"}
+            onValueChange={(value) => updateFilter("uploadedByUserId", value || null)}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="All users" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="allUsers">All users</SelectItem>
+              {users.map((user) => (
+                <SelectItem key={user.id} value={user.id}>
+                  {user.firstName} {user.lastName}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         {hasActiveFilters && (
           <div className="space-y-2">
             <label className="text-sm font-medium">Active Filters</label>
@@ -158,6 +187,13 @@ export function SearchFilters({ fields, currentFilters, query }: SearchFiltersPr
               {currentFilters.type && (
                 <Badge variant="secondary" className="cursor-pointer" onClick={() => updateFilter("type", null)}>
                   {resourceTypes.find((t) => t.value === currentFilters.type)?.label}
+                  <X className="w-3 h-3 ml-1" />
+                </Badge>
+              )}
+              {currentFilters.uploadedByUserId && (
+                <Badge variant="secondary" className="cursor-pointer" onClick={() => updateFilter("uploadedByUserId", null)}>
+                  {users.find((u) => u.id === currentFilters.uploadedByUserId)?.firstName}{" "}
+                  {users.find((u) => u.id === currentFilters.uploadedByUserId)?.lastName}
                   <X className="w-3 h-3 ml-1" />
                 </Badge>
               )}

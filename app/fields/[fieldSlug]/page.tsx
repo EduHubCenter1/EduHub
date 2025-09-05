@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { SemestersGrid } from "@/components/public/semesters-grid";
 import { Breadcrumbs } from "@/components/public/breadcrumbs";
 import { Metadata } from "next";
+import { headers } from 'next/headers';
 
 type Props = {
   params: { fieldSlug: string }
@@ -59,6 +60,25 @@ export default async function FieldPage({ params }: FieldPageProps) {
     // @ts-ignore
     const { fieldSlug } = await params;
     const field = await getFieldData(fieldSlug);
+
+    // --- Start of Analytics Logging ---
+    try {
+        const headersList = headers();
+        const visitorId = headersList.get('x-visitor-id');
+
+        if (visitorId && field) {
+            await prisma.fieldViewLog.create({
+                data: {
+                    visitorId: visitorId,
+                    fieldId: field.id,
+                },
+            });
+        }
+    } catch (error) {
+        // Non-critical error, log it for debugging but don't block the page
+        console.error('[ANALYTICS_ERROR] Failed to log field view:', error);
+    }
+    // --- End of Analytics Logging ---
 
     const breadcrumbItems = [
         { label: "Fields", href: "/fields" },

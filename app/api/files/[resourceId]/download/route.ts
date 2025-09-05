@@ -19,6 +19,23 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Resource not found" }, { status: 404 })
     }
 
+    // --- Start of Analytics Logging ---
+    try {
+        const visitorId = request.headers.get('x-visitor-id');
+        if (visitorId) {
+            await prisma.downloadLog.create({
+                data: {
+                    visitorId: visitorId,
+                    resourceId: resourceId,
+                },
+            });
+        }
+    } catch (error) {
+        // Non-critical error, log for debugging
+        console.error('[ANALYTICS_ERROR] Failed to log download event:', error);
+    }
+    // --- End of Analytics Logging ---
+
     // Redirect to the Azure Blob Storage URL
     return NextResponse.redirect(resource.fileUrl)
   } catch (error) {

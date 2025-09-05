@@ -64,6 +64,7 @@ model Module {
   semester    Semester    @relation(fields: [semesterId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   submodules  Submodule[]
   resources   Resource[] // <- corrigé
+  ModuleViewLog ModuleViewLog[]
 
   @@unique([semesterId, slug])
   @@map("modules")
@@ -105,6 +106,7 @@ model Resource {
   module     Module     @relation(fields: [moduleId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   submodule  Submodule? @relation(fields: [submoduleId], references: [id], onDelete: Cascade, onUpdate: NoAction)
   uploadedBy User       @relation("UserResources", fields: [uploadedByUserId], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  DownloadLog DownloadLog[]
 
   @@index([title, type, createdAt], map: "idx_resources_title_type_created_at")
   @@map("resources")
@@ -441,9 +443,65 @@ model fields {
   updated_at  DateTime     @default(now()) @db.Timestamptz(6)
   adminScopes AdminScope[]
   semesters   Semester[]
+  FieldViewLog FieldViewLog[]
 
   @@schema("public")
 }
+
+model SearchLog {
+  id           String   @id @default(cuid())
+  visitorId    String
+  query        String
+  resultsCount Int
+  timestamp    DateTime @default(now())
+
+  @@index([visitorId])
+  @@map("search_logs")
+  @@schema("public")
+}
+
+model DownloadLog {
+  id         String   @id @default(cuid())
+  visitorId  String
+  resourceId String
+  timestamp  DateTime @default(now())
+
+  resource Resource @relation(fields: [resourceId], references: [id], onDelete: Cascade)
+
+  @@index([visitorId])
+  @@index([resourceId])
+  @@map("download_logs")
+  @@schema("public")
+}
+
+model FieldViewLog {
+  id        String   @id @default(cuid())
+  visitorId String
+  fieldId   String
+  timestamp DateTime @default(now())
+
+  field fields @relation(fields: [fieldId], references: [id], onDelete: Cascade)
+
+  @@index([visitorId])
+  @@index([fieldId])
+  @@map("field_view_logs")
+  @@schema("public")
+}
+
+model ModuleViewLog {
+  id        String   @id @default(cuid())
+  visitorId String
+  moduleId  String
+  timestamp DateTime @default(now())
+
+  module Module @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+
+  @@index([visitorId])
+  @@index([moduleId])
+  @@map("module_view_logs")
+  @@schema("public")
+}
+
 
 enum aal_level {
   aal1

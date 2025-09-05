@@ -1,7 +1,10 @@
+'use client';
+
 import Link from "next/link";
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BookOpen } from "lucide-react";
+import { logModuleView } from "@/lib/actions/analytics";
 
 interface Module {
     id: string;
@@ -30,7 +33,11 @@ export function ModulesGrid({ fieldSlug, semesterNumber, modules }: ModulesGridP
 
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {modules.map((module) => (
-                    <Link key={module.id} href={`/fields/${fieldSlug}/semesters/${semesterNumber}/modules/${module.slug}`}>
+                    <Link 
+                        key={module.id} 
+                        href={`/fields/${fieldSlug}/semesters/${semesterNumber}/modules/${module.slug}`}
+                        onClick={() => logModuleView(module.id)}
+                    >
                         <Card className="hover:shadow-lg transition-shadow cursor-pointer group h-full">
                             <CardHeader>
                                 <div className="flex items-center justify-between">

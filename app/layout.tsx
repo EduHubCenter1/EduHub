@@ -22,6 +22,10 @@ export const metadata: Metadata = {
     template: "%s | EduHub",
   },
   description: "Student-run academic hub for organizing and sharing educational resources",
+  icons: {
+    icon: '/bookslogo.png',
+    apple: '/bookslogo.png',
+  },
   
   icons: {
     icon: '/bookslogo.png',

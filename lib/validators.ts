@@ -48,6 +48,7 @@ export const searchSchema = z.object({
   fieldId: z.string().cuid().optional(),
   semesterNumber: semesterNumberSchema.optional(),
   type: resourceTypeSchema.optional(),
+  uploadedByUserId: z.string().uuid().optional(),
 })
 
 export const semesterFormSchema = z.object({
