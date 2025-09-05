@@ -7,7 +7,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const fields = await prisma.fields.findMany({
     select: {
       slug: true,
-      updatedAt: true,
+      updated_at: true,
     },
   });
 
@@ -42,7 +42,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const fieldUrls = fields.map((field) => ({
     url: `${URL}/fields/${field.slug}`,
-    lastModified: field.updatedAt,
+    lastModified: field.updated_at,
   }));
 
   const semesterUrls = semesters.map((semester) => ({
