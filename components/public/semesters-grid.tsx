@@ -1,7 +1,7 @@
 import Link from "next/link"
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Calendar } from "lucide-react"
+import { Calendar } from "lucide-react";
 
 interface Semester {
   id: string

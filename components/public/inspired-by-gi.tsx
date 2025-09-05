@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { GiOpenBook } from "react-icons/gi";
+import { Library } from "lucide-react";
 
 interface Field {
   id: string;
@@ -44,7 +44,7 @@ export function InspiredByGi({ fields }: InspiredByGiProps) {
                   <div className={`absolute h-32 w-32 ${colors[index % colors.length]} rounded-full -top-20 -right-20 z-0 transition-transform duration-500 ease-in-out transform group-hover:scale-[10]`}></div>
                   <div className="relative z-10">
                     <div className="flex items-center justify-between mb-4">
-                      <GiOpenBook className="w-8 h-8 text-foreground group-hover:text-white transition-colors duration-300" />
+                      <Library className="w-8 h-8 text-foreground group-hover:text-white transition-colors duration-300" />
                       <div className="text-lg text-foreground group-hover:text-white transition-colors duration-300">
                         Semesters:
                         <span className="font-bold text-primary group-hover:text-white transition-colors duration-300 ml-2">
