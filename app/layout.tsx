@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils"
 import LayoutClient from "@/components/layout-client";
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
+import type { Metadata } from 'next'
 
 
 const dm_sans = DM_Sans({
@@ -22,6 +23,27 @@ export const metadata: Metadata = {
   },
   description: "Student-run academic hub for organizing and sharing educational resources",
   generator: "v0.app",
+  openGraph: {
+    title: "EduHub - Academic Resource Hub",
+    description: "A student-run academic hub for organizing and sharing educational resources.",
+    url: "https://eduhubcenter.online",
+    siteName: "EduHub",
+    images: [
+      {
+        url: "https://eduhubcenter.online/EduhubCenter.jpg",
+        width: 1200,
+        height: 1200,
+      },
+    ],
+    locale: "fr_FR",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "EduHub - Academic Resource Hub",
+    description: "A student-run academic hub for organizing and sharing educational resources.",
+    images: ["https://eduhubcenter.online/EduhubCenter.jpg"],
+  },
 }
 
 export default function RootLayout({
