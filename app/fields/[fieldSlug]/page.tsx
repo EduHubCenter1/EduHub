@@ -9,8 +9,10 @@ type Props = {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  // @ts-ignore
+  const { fieldSlug } = await params;
   const field = await prisma.fields.findUnique({
-    where: { slug: params.fieldSlug },
+    where: { slug: fieldSlug },
   });
 
   if (!field) {
@@ -54,7 +56,9 @@ interface FieldPageProps {
 }
 
 export default async function FieldPage({ params }: FieldPageProps) {
-    const field = await getFieldData(params.fieldSlug);
+    // @ts-ignore
+    const { fieldSlug } = await params;
+    const field = await getFieldData(fieldSlug);
 
     const breadcrumbItems = [
         { label: "Fields", href: "/fields" },

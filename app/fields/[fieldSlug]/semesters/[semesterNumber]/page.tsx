@@ -9,12 +9,14 @@ type Props = {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const semesterNumber = parseInt(params.semesterNumber, 10);
+  // @ts-ignore
+  const { fieldSlug, semesterNumber: semesterNumberStr } = await params;
+  const semesterNumber = parseInt(semesterNumberStr, 10);
   const semester = await prisma.semester.findFirst({
     where: {
       number: semesterNumber,
       field: {
-        slug: params.fieldSlug,
+        slug: fieldSlug,
       },
     },
     include: {
@@ -70,8 +72,10 @@ interface SemesterPageProps {
 }
 
 export default async function SemesterPage({ params }: SemesterPageProps) {
-    const semesterNumber = parseInt(params.semesterNumber, 10);
-    const semester = await getSemesterData(params.fieldSlug, semesterNumber);
+    // @ts-ignore
+    const { fieldSlug, semesterNumber: semesterNumberStr } = await params;
+    const semesterNumber = parseInt(semesterNumberStr, 10);
+    const semester = await getSemesterData(fieldSlug, semesterNumber);
 
     return (
         <div>
@@ -86,7 +90,7 @@ export default async function SemesterPage({ params }: SemesterPageProps) {
                 <h1 className="text-3xl font-bold font-heading">Semester {semester.number}</h1>
                 <p className="text-muted-foreground mt-2">Explore modules for this semester.</p>
             </div>
-            <ModulesGrid fieldSlug={params.fieldSlug} semesterNumber={semesterNumber} modules={semester.modules} />
+            <ModulesGrid fieldSlug={fieldSlug} semesterNumber={semesterNumber} modules={semester.modules} />
         </div>
     );
 }

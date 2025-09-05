@@ -3,6 +3,42 @@ import { notFound } from "next/navigation";
 import { Breadcrumbs } from "@/components/public/breadcrumbs";
 import { SubmodulesGrid } from "@/components/public/submodules-grid";
 import { ResourcesGrid } from "@/components/public/resources-grid";
+import { Metadata } from "next";
+
+export async function generateMetadata({ params }: { params: { fieldSlug: string; semesterNumber: string; moduleSlug: string } }): Promise<Metadata> {
+  // @ts-ignore
+  const { fieldSlug, semesterNumber: semesterNumberStr, moduleSlug } = await params;
+  const semesterNumber = parseInt(semesterNumberStr, 10);
+  const module = await prisma.module.findFirst({
+    where: {
+      slug: moduleSlug,
+      semester: {
+        number: semesterNumber,
+        field: {
+          slug: fieldSlug,
+        },
+      },
+    },
+    include: {
+      semester: {
+        include: {
+          field: true,
+        },
+      },
+    },
+  });
+
+  if (!module) {
+    return {
+      title: "Module Not Found",
+    };
+  }
+
+  return {
+    title: `${module.name} - ${module.semester.field.name}`,
+    description: `Browse resources for the ${module.name} module in Semester ${module.semester.number} of the ${module.semester.field.name} field.`,
+  };
+}
 
 async function getModuleData(fieldSlug: string, semesterNumber: number, moduleSlug: string) {
     const module = await prisma.module.findFirst({
@@ -66,8 +102,10 @@ interface ModulePageProps {
 }
 
 export default async function ModulePage({ params }: ModulePageProps) {
-    const semesterNumber = parseInt(params.semesterNumber, 10);
-    const module = await getModuleData(params.fieldSlug, semesterNumber, params.moduleSlug);
+    // @ts-ignore
+    const { fieldSlug, semesterNumber: semesterNumberStr, moduleSlug } = await params;
+    const semesterNumber = parseInt(semesterNumberStr, 10);
+    const module = await getModuleData(fieldSlug, semesterNumber, moduleSlug);
     const { field } = module.semester;
 
     const hasSubmodules = module.submodules.length > 0;
