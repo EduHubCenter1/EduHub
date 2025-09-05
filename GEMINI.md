@@ -1,7 +1,7 @@
-## 🌟 ENSIASDHUB: An Academic Hub for Students
+## 🌟 EduHub: An Academic Hub for Students
 
 ### 📌 Product Summary
-ENSIASDHUB is a production-ready, student-run web application designed to be a central academic resource hub. It organizes and provides read-only access to a hierarchical structure of academic materials. The hierarchy is strictly defined as **Field → Semester (1-6) → Module → Submodule → Resource**.
+EduHub is a production-ready, student-run web application designed to be a central academic resource hub. It organizes and provides read-only access to a hierarchical structure of academic materials. The hierarchy is strictly defined as **Field → Semester (1-6) → Module → Submodule → Resource**.
 
 * **Public Users (Students)**: Unauthenticated, read-only access to browse and download resources.
 * **Admins**: Authenticated users who can manage resources within a specific scope.

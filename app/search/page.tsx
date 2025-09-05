@@ -6,6 +6,7 @@ import { PublicLayout } from "@/components/public/public-layout"
 import { SearchResults } from "@/components/public/search-results"
 import { SearchFilters } from "@/components/public/search-filters"
 import { Breadcrumbs } from "@/components/public/breadcrumbs"
+import { Metadata } from "next";
 
 interface SearchPageProps {
   searchParams: {
@@ -14,6 +15,20 @@ interface SearchPageProps {
     semesterNumber?: string
     type?: string
   }
+}
+
+export async function generateMetadata({ searchParams }: SearchPageProps): Promise<Metadata> {
+  const query = searchParams.q?.trim()
+
+  if (!query) {
+    return {
+      title: "Search",
+    };
+  }
+
+  return {
+    title: `Search results for "${query}"`,
+  };
 }
 
 async function getSearchData(query: string, filters: any) {

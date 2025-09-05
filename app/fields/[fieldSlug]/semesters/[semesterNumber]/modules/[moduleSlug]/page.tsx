@@ -76,7 +76,7 @@ export default async function ModulePage({ params }: ModulePageProps) {
         <div>
             <Breadcrumbs
                 items={[
-                    { label: "Fields", href: "/" },
+                    { label: "Fields", href: "/fields" },
                     { label: field.name, href: `/fields/${field.slug}` },
                     { label: `Semester ${semesterNumber}`, href: `/fields/${field.slug}/semesters/${semesterNumber}` },
                     { label: module.name, href: `/fields/${field.slug}/semesters/${semesterNumber}/modules/${module.slug}` },

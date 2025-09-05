@@ -2,6 +2,28 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { SemestersGrid } from "@/components/public/semesters-grid";
 import { Breadcrumbs } from "@/components/public/breadcrumbs";
+import { Metadata } from "next";
+
+type Props = {
+  params: { fieldSlug: string }
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const field = await prisma.fields.findUnique({
+    where: { slug: params.fieldSlug },
+  });
+
+  if (!field) {
+    return {
+      title: "Field Not Found",
+    };
+  }
+
+  return {
+    title: field.name,
+    description: `Browse semesters and modules for the ${field.name} field.`,
+  };
+}
 
 async function getFieldData(fieldSlug: string) {
     const field = await prisma.fields.findUnique({

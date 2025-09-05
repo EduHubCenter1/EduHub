@@ -1,9 +1,7 @@
 import Link from "next/link"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { BookOpen } from "lucide-react"
-import { GiOpenBook } from "react-icons/gi";
-
+import { Library } from "lucide-react"
 
 interface Field {
   id: string
@@ -30,7 +28,7 @@ export function FieldsGrid({ fields }: FieldsGridProps) {
             <Card className="h-full hover:shadow-lg transition-shadow cursor-pointer group">
               <CardHeader>
                 <div className="flex items-center justify-between">
-<GiOpenBook />
+                  <Library className="w-8 h-8 text-muted-foreground group-hover:text-primary transition-colors" />
                   <Badge variant="default">{field._count.semesters} semesters</Badge>
                 </div>
                 <CardTitle className="text-xl font-heading group-hover:text-primary transition-colors">

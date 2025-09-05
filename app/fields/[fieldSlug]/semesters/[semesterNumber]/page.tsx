@@ -2,6 +2,37 @@ import { prisma } from "@/lib/prisma";
 import { notFound } from "next/navigation";
 import { ModulesGrid } from "@/components/public/modules-grid";
 import { Breadcrumbs } from "@/components/public/breadcrumbs";
+import { Metadata } from "next";
+
+type Props = {
+  params: { fieldSlug: string; semesterNumber: string }
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const semesterNumber = parseInt(params.semesterNumber, 10);
+  const semester = await prisma.semester.findFirst({
+    where: {
+      number: semesterNumber,
+      field: {
+        slug: params.fieldSlug,
+      },
+    },
+    include: {
+      field: true,
+    },
+  });
+
+  if (!semester) {
+    return {
+      title: "Semester Not Found",
+    };
+  }
+
+  return {
+    title: `Semester ${semester.number} - ${semester.field.name}`,
+    description: `Browse modules for Semester ${semester.number} in the ${semester.field.name} field.`,
+  };
+}
 
 async function getSemesterData(fieldSlug: string, semesterNumber: number) {
     const semester = await prisma.semester.findFirst({
@@ -46,7 +77,7 @@ export default async function SemesterPage({ params }: SemesterPageProps) {
         <div>
              <Breadcrumbs
                 items={[
-                    { label: "Fields", href: "/" },
+                    { label: "Fields", href: "/fields" },
                     { label: semester.field.name, href: `/fields/${semester.field.slug}` },
                     { label: `Semester ${semester.number}`, href: `/fields/${semester.field.slug}/semesters/${semester.number}` },
                 ]}

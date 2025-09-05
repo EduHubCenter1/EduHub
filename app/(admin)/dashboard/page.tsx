@@ -1,6 +1,11 @@
+import { Metadata } from "next";
 import { ChartAreaInteractive } from "@/components/chart-area-interactive"
 import { SectionCards } from "@/components/section-cards"
 import { getResourceUploadsOverTime } from "@/lib/data-stats"
+
+export const metadata: Metadata = {
+  title: "Admin Dashboard",
+};
 
 export const dynamic = 'force-dynamic';
 

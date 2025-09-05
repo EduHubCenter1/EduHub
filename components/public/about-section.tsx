@@ -26,8 +26,14 @@ export function AboutSection() {
   return (
     <section className="bg-background py-16 sm:py-24">
       <div className="container mx-auto px-4">
-                  <div className="max-w-xl mx-auto text-center mb-16" ><Badge className="mb-4 text-center" variant="default">Discover Us</Badge></div>  
-
+<div
+                    className="max-w-xl mx-auto text-center mb-16"
+                >
+                    <Badge className="mb-4" variant="default">Who We Are</Badge>
+                    <h2 className="text-4xl md:text-5xl font-bold tracking-tight mb-4">About US</h2>
+                    <p className="text-xl text-muted-foreground">
+Learn more about our mission to connect learners, educators, and resources in one place.                    </p>
+                </div>
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
           <div className="text-center mx-auto lg:text-left">
           <h2 className="text-4xl py-4 md:text-5xl text-center font-bold tracking-tight text-foreground sm:text-4xl font-heading">

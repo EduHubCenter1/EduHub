@@ -17,8 +17,8 @@ const dm_sans = DM_Sans({
 
 export const metadata: Metadata = {
   title: {
-    default: "ENSIASDHUB - Academic Resource Hub",
-    template: "%s | ENSIASDHUB",
+    default: "EduHub - Academic Resource Hub",
+    template: "%s | EduHub",
   },
   description: "Student-run academic hub for organizing and sharing educational resources",
   generator: "v0.app",

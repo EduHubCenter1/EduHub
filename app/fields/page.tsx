@@ -1,5 +1,10 @@
+import { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { InspiredByGi } from "@/components/public/inspired-by-gi";
+
+export const metadata: Metadata = {
+    title: "All Fields",
+};
 
 async function getFieldsData() {
     const fields = await prisma.fields.findMany({

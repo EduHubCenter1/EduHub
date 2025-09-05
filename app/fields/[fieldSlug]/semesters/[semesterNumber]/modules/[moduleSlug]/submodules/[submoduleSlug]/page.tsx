@@ -73,7 +73,7 @@ export default async function SubmodulePage({ params: awaitedParams }: Submodule
         <div>
             <Breadcrumbs
                 items={[
-                    { label: "Fields", href: "/" },
+                    { label: "Fields", href: "/fields" },
                     { label: field.name, href: `/fields/${field.slug}` },
                     { label: `Semester ${semester.number}`, href: `/fields/${field.slug}/semesters/${semester.number}` },
                     { label: module.name, href: `/fields/${field.slug}/semesters/${semester.number}/modules/${module.slug}` },
