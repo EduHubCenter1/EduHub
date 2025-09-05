@@ -36,7 +36,7 @@ export default async function HomePage() {
         <ModernHero />
 
         {/* 2. Fields Preview Section */}
-        <section className="py-16 md:py-24 bg-background relative overflow-hidden">
+        <section className="py-10 md:py-20 bg-background relative overflow-hidden">
           <div className="absolute top-0 left-0 w-96 h-96 bg-primary/10 rounded-full filter blur-3xl -translate-x-1/2 -translate-y-1/2" />
           <div className="absolute bottom-0 right-0 w-96 h-96 bg-secondary/10 rounded-full filter blur-3xl translate-x-1/2 translate-y-1/2" />
 
@@ -62,12 +62,12 @@ export default async function HomePage() {
         </section>
 
         {/* 3. About Section */}
-        <section className="py-16 md:py-24 bg-secondary/5">
+        <section className="py-10 md:py-20 bg-secondary/5">
           <AboutSection />
         </section>
 
         {/* 4. Contact Section */}
-        <section className="py-16 md:py-24 bg-background">
+        <section className="py-10 md:py-20 bg-background">
           <ContactSection />
         </section>
 
