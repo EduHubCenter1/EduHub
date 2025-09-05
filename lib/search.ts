@@ -42,15 +42,29 @@ export interface SearchService {
 export class DatabaseSearchService implements SearchService {
   async search(query: string, filters: SearchFilters = {}): Promise<SearchResult[]> {
     const whereClause: any = {
-      title: {
-        contains: query,
-        mode: "insensitive",
-      },
+      OR: [
+        {
+          title: {
+            contains: query,
+            mode: "insensitive",
+          },
+        },
+        {
+          description: {
+            contains: query,
+            mode: "insensitive",
+          },
+        },
+      ],
     }
 
     // Apply filters
     if (filters.type) {
       whereClause.type = filters.type
+    }
+
+    if (filters.uploadedByUserId) {
+      whereClause.uploadedByUserId = filters.uploadedByUserId
     }
 
     if (filters.fieldId || filters.semesterNumber) {

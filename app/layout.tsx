@@ -22,7 +22,11 @@ export const metadata: Metadata = {
     template: "%s | EduHub",
   },
   description: "Student-run academic hub for organizing and sharing educational resources",
-  generator: "v0.app",
+  
+  icons: {
+    icon: '/bookslogo.png',
+    apple: '/bookslogo.png',
+  },
   openGraph: {
     title: "EduHub - Academic Resource Hub",
     description: "A student-run academic hub for organizing and sharing educational resources.",
