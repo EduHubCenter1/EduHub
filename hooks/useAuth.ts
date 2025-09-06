@@ -271,11 +271,8 @@ export function useAuth() {
    * Cette fonction gère l'inscription de nouveaux utilisateurs
    * avec possibilité d'ajouter des métadonnées personnalisées
    */
-  const register = useCallback(async (
-    email: string, 
-    password: string, 
-    metadata?: AuthMetadata
-  ): Promise<AuthResponse> => {
+  const register = useCallback(async (registrationData: any): Promise<AuthResponse> => {
+    const { email, password } = registrationData;
     console.log("📝 Tentative d'inscription via l'API pour:", email);
 
     // Validation côté client
@@ -291,7 +288,7 @@ export function useAuth() {
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, metadata }),
+        body: JSON.stringify(registrationData),
       });
 
       const result = await response.json();

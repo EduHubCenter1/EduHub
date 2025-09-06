@@ -12,8 +12,13 @@ model User {
   id                String       @id @db.Uuid
   firstName         String?      @map("first_name")
   lastName          String?      @map("last_name")
+  username          String?      @unique
   email             String       @unique
   role              String?
+  institution       String?
+  fieldOfStudy      String?      @map("field_of_study")
+  academicLevel     String?      @map("academic_level")
+  profilePictureUrl String?      @map("profile_picture_url")
   createdAt         DateTime     @default(now()) @map("created_at") @db.Timestamptz(6)
   updatedAt         DateTime     @default(now()) @map("updated_at") @db.Timestamptz(6)
   adminScopes       AdminScope[]
