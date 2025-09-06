@@ -13,10 +13,16 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
+import { useState, useEffect } from "react";
 
 export function PublicHeader() {
   const { user, loading, logout } = useAuthContext();
   const router = useRouter();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const handleLogout = async () => {
     await logout();
@@ -33,7 +39,7 @@ export function PublicHeader() {
         </Link>
 
         <div className="flex items-center space-x-2">
-          {loading ? (
+          {(!isMounted || loading) ? (
             <div className="h-9 w-36 rounded-md bg-muted animate-pulse" />
           ) : user ? (
             <DropdownMenu>
