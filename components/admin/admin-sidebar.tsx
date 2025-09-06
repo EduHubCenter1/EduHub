@@ -95,7 +95,7 @@ const classAdminNavItems = [
 export default function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, loading } = useAuth()
     const router = useRouter()
-    const userRole = user?.user_metadata?.role
+    const userRole = user?.role
     const handleLogout = async () => {
         const res = await fetch('/api/auth/logout', { method: 'POST' })
         if (res.ok) {
@@ -122,9 +122,9 @@ export default function AdminSidebar({ ...props }: React.ComponentProps<typeof S
   const navItems = getNavItems()
 
   const userProfile = user ? {
-      name: `${user.user_metadata.firstName || ''} ${user.user_metadata.lastName || ''}`.trim() || user.email,
+      name: user.username || user.email,
       email: user.email || "",
-      avatar: user.user_metadata.avatar || "/placeholder-user.jpg",
+      avatar: user.profilePictureUrl || "/placeholder-user.jpg",
   } : null
 
   return (

@@ -10,21 +10,33 @@ export async function handleadminAuth(request: NextRequest) {
 
   const supabase = createSupabaseMiddlewareClient(request, response)
 
-  const { data: { user } } = await supabase.auth.getUser()
   const { data: { session } } = await supabase.auth.getSession()
   const { pathname } = request.nextUrl
 
-  const userRole: string = user?.user_metadata?.role || ''
+  let userRole: string = '';
+  if (session) {
+    const roleApiUrl = new URL('/api/auth/role', request.url);
+    const roleResponse = await fetch(roleApiUrl, {
+      headers: {
+        'Cookie': request.headers.get('Cookie') || '',
+      },
+    });
+
+    if (roleResponse.ok) {
+      const { role } = await roleResponse.json();
+      userRole = role || '';
+    }
+  }
+
   const allowedAdminRoles = ['superAdmin', 'classAdmin']
 
-  if (pathname.startsWith('/dashboard') || pathname.startsWith('/api/')) { // Also apply to API routes
+  if (pathname.startsWith('/dashboard') || pathname.startsWith('/api/admin')) { // More specific API path
     if (!session || !allowedAdminRoles.includes(userRole)) {
-      const redirectUrl = new URL('/login', request.url)
+      const redirectUrl = new URL('/auth/login', request.url)
       redirectUrl.searchParams.set('error', 'unauthorized')
+      redirectUrl.searchParams.set('from', pathname)
       return NextResponse.redirect(redirectUrl)
     }
-
-    // The logic for fetching admin scopes has been moved to an API route.
   }
 
   return response
