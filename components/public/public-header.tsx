@@ -67,10 +67,10 @@ export function PublicHeader() {
           ) : (
             <div className="flex items-center space-x-2">
               <Button asChild variant="ghost">
-                <Link href="/login">Login</Link>
+                <Link href="/auth/login">Login</Link>
               </Button>
               <Button asChild>
-                <Link href="/register">Register</Link>
+                <Link href="/auth/register">Register</Link>
               </Button>
             </div>
           )}
