@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function PublicHeader() {
-  const { user, profile, loading, logout } = useAuthContext();
+  const { user, loading, logout } = useAuthContext();
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -39,8 +39,18 @@ export function PublicHeader() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="flex items-center space-x-2">
-                  <CircleUser className="h-5 w-5" />
-                  <span className="hidden sm:inline font-medium">{user.email}</span>
+                  {user.profilePictureUrl ? (
+                    <img
+                      src={user.profilePictureUrl}
+                      alt={user.username ?? 'User avatar'}
+                      width={30}
+                      height={30}
+                      className="rounded-full"
+                    />
+                  ) : (
+                    <CircleUser className="h-5 w-5" />
+                  )}
+                  <span className="hidden sm:inline font-bold">{user.username || user.email}</span>
                   <ChevronDown className="h-4 w-4" />
                 </Button>
               </DropdownMenuTrigger>
@@ -50,7 +60,7 @@ export function PublicHeader() {
                   <span>Profile</span>
                 </DropdownMenuItem>
                 
-                {profile && allowedAdminRoles.includes(profile.role ?? '') && (
+                {user && allowedAdminRoles.includes(user.role ?? '') && (
                   <DropdownMenuItem onClick={() => router.push('/dashboard')}>
                     <LayoutDashboard className="mr-2 h-4 w-4" />
                     <span>Dashboard</span>
