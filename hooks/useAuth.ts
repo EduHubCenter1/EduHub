@@ -2,16 +2,17 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { User } from "@supabase/supabase-js";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
+import { getProfile } from "@/lib/actions/user.actions";
+import type { User as PrismaUser } from "@prisma/client";
 
 // 📝 Types pour une meilleure expérience développeur
 interface AuthResponse {
   success: boolean;
   error?: string;
   data?: any;
-  message?:string;
+  message?: string;
 }
 
 interface AuthMetadata {
@@ -22,34 +23,42 @@ interface AuthMetadata {
   [key: string]: any;
 }
 
+type UserProfile = PrismaUser;
+
 export function useAuth() {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   const [supabase] = useState(() => createSupabaseBrowserClient());
   const router = useRouter();
 
+  const fetchProfile = useCallback(async () => {
+    try {
+      const profile = await getProfile();
+      setUser(profile);
+      console.log("User Profile:", profile);
+    } catch (e: any) {
+      console.error("❌ Erreur lors de la récupération du profil:", e.message);
+      setError(e.message);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     const initializeAuth = async () => {
-      try {
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
-        if (error) {
-          console.error("❌ Erreur lors de la récupération de session:", error.message);
-          setError(error.message);
-          setUser(null);
-        } else if (session?.user) {
-          setUser(session.user);
-          setError(null);
-        } else {
-          setUser(null);
-        }
-      } catch (unexpectedError: any) {
-        console.error("💥 Erreur inattendue durant l'initialisation:", unexpectedError);
-        setError("Erreur de connexion");
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error("❌ Erreur lors de la récupération de session:", error.message);
+        setError(error.message);
         setUser(null);
-      } finally {
+        setLoading(false);
+      } else if (session?.user) {
+        await fetchProfile();
+      } else {
+        setUser(null);
         setLoading(false);
       }
     };
@@ -58,40 +67,35 @@ export function useAuth() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        setLoading(true);
         switch (event) {
           case 'SIGNED_IN':
-            setUser(session?.user || null);
-            setError(null);
+          case 'USER_UPDATED':
+          case 'TOKEN_REFRESHED':
+            if (session?.user) {
+              await fetchProfile();
+            }
             break;
-            
           case 'SIGNED_OUT':
             setUser(null);
             setError(null);
             router.push('/');
+            setLoading(false);
             break;
-            
-          case 'TOKEN_REFRESHED':
-            setUser(session?.user || null);
-            break;
-            
-          case 'USER_UPDATED':
-            setUser(session?.user || null);
-            break;
-            
           case 'PASSWORD_RECOVERY':
+            setLoading(false);
             break;
-            
           default:
+            setLoading(false);
             break;
         }
-        setLoading(false);
       }
     );
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [supabase, router]);
+  }, [supabase, router, fetchProfile]);
 
   const login = useCallback(async (email: string, password: string): Promise<AuthResponse> => {
     if (!email || !password) {
@@ -114,13 +118,8 @@ export function useAuth() {
         return { success: false, error: userFriendlyError };
       }
       
-      const user = result.data?.user;
-      if (user) {
-        setUser(user);
-        return { success: true, data: result.data };
-      } else {
-        return { success: false, error: "N'a pas pu récupérer les données utilisateur." };
-      }
+      // onAuthStateChange will handle setting the user profile
+      return { success: true, data: result.data };
 
     } catch (networkError: any) {
       console.error("💥 Erreur réseau lors de la connexion:", networkError);
@@ -260,7 +259,14 @@ export function useAuth() {
   const isLoading = loading;
   const userEmail = user?.email || null;
   const userId = user?.id || null;
-  const userMetadata = user?.user_metadata || {};
+  
+  // Construct userMetadata for compatibility
+  const userMetadata: AuthMetadata = user ? {
+    role: user.role ?? undefined,
+    firstName: user.firstName ?? undefined,
+    lastName: user.lastName ?? undefined,
+    avatar: user.profilePictureUrl ?? undefined,
+  } : {};
 
   return {
     user,

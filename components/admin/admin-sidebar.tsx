@@ -12,7 +12,7 @@ import {
     ListIcon,
     UsersIcon,
     UserCircleIcon,
-    LogOutIcon,
+    LogOutIcon,ChevronDown, CircleUser
 } from "lucide-react"
 
 import {
@@ -155,38 +155,7 @@ export default function AdminSidebar({ ...props }: React.ComponentProps<typeof S
               <AdminNav items={navItems} />
           </SidebarContent>
           <SidebarFooter>
-              {user && (
-                  <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                          <div className="flex items-center gap-2 p-2 cursor-pointer hover:bg-gray-100 rounded-md w-full">
-                              <UserCircleIcon className="h-5 w-5" />
-                              <span className="text-sm font-medium truncate">
-                                  {user.user_metadata.firstName || user.email}
-                              </span>
-                              {/*<LogOutIcon className="h-4 w-4 ml-auto" />*/}
-                          </div>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent side="right" align="start" className="w-56">
-                          <DropdownMenuItem asChild>
-                              <Link href="/dashboard">
-                                  <LayoutDashboardIcon className="mr-2 h-4 w-4" />
-                                  Dashboard
-                              </Link>
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator />
-                          <DropdownMenuItem asChild>
-                             <Button
-                                type="button"
-                                className="flex items-center justify-start gap-2 w-full px-2 py-1.5 rounded-md hover:bg-gray-100 text-left"
-                                onClick={handleLogout}
-                              >
-                                <LogOutIcon className="h-4 w-4" />
-                                Déconnexion
-                              </Button>
-                          </DropdownMenuItem>
-                      </DropdownMenuContent>
-                  </DropdownMenu>
-              )}
+              {userProfile && <NavUser user={userProfile} />}
           </SidebarFooter>
       </Sidebar>
 
