@@ -309,6 +309,29 @@ export function useAuth() {
     }
   }, []);
 
+  const signInWithGoogle = useCallback(async (): Promise<AuthResponse> => {
+    console.log("Attempting to sign in with Google...");
+    try {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (error) {
+        console.error("Google sign-in error:", error);
+        return { success: false, error: error.message };
+      }
+
+      console.log("Google sign-in initiated. Data:", data);
+      return { success: true, data };
+    } catch (error: any) {
+      console.error("Unexpected error during Google sign-in:", error);
+      return { success: false, error: error.message };
+    }
+  }, [supabase]);
+
   /**
    * 🔄 Action de réinitialisation de mot de passe
    */
@@ -403,6 +426,7 @@ export function useAuth() {
     login,                  // (email, password) => Promise<AuthResponse>
     logout,                 // () => Promise<AuthResponse>
     register,               // (email, password, metadata?) => Promise<AuthResponse>
+    signInWithGoogle,       // () => Promise<AuthResponse>
     resetPassword,          // (email) => Promise<AuthResponse>
     updateProfile,          // (updates) => Promise<AuthResponse>
     

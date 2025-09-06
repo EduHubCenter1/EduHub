@@ -30,7 +30,14 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   images: {
-    unoptimized: true,
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'xkvxyqjloqoqoiylqkfd.supabase.co',
+        port: '',
+        pathname: '/storage/v1/object/public/avatars/**',
+      },
+    ],
   },
 }
 
