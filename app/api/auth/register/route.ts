@@ -46,6 +46,9 @@ export async function POST(request: Request) {
 
   if (signUpError) {
     console.error('Supabase registration error:', signUpError)
+    if (signUpError.code === 'email_address_invalid') {
+        return NextResponse.json({ error: 'The provided email address is invalid.' }, { status: 400 });
+    }
     return NextResponse.json({ error: signUpError.message }, { status: 400 })
   }
 
