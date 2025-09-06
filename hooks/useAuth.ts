@@ -255,7 +255,7 @@ export function useAuth() {
     }
   }, [supabase]);
 
-  const isAuthenticated = !!user && !loading;
+  const isAuthenticated = !!user;
   const isLoading = loading;
   const userEmail = user?.email || null;
   const userId = user?.id || null;
