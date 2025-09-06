@@ -7,6 +7,7 @@ import LayoutClient from "@/components/layout-client";
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import type { Metadata } from 'next'
+import { CompleteProfileBanner } from "@/components/complete-profile-banner";
 
 
 const dm_sans = DM_Sans({
@@ -70,6 +71,7 @@ export default function RootLayout({
         >
           <AuthProvider>
               <LayoutClient>
+                <CompleteProfileBanner />
                 {children}
               </LayoutClient>
           </AuthProvider>

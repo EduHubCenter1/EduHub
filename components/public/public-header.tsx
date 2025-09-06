@@ -4,8 +4,8 @@ import Link from "next/link";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
-import { GraduationCap, Settings, LogOut, LayoutDashboard, ChevronDown, CircleUser, Mail } from "lucide-react";
-import { useAuthContext } from "@/context/AuthContext"; // ✅ utilisation du contexte
+import { LogOut, LayoutDashboard, ChevronDown, CircleUser } from "lucide-react";
+import { useAuthContext } from "@/context/AuthContext";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -15,52 +15,67 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 export function PublicHeader() {
-  const { user, loading, logout } = useAuthContext(); // ✅ hook
-  const { pathname } = useRouter();
+  const { user, profile, loading, logout } = useAuthContext();
+  const router = useRouter();
 
   const handleLogout = async () => {
     await logout();
+    router.push('/');
   };
 
-  return (
-    <>
-      <header className="bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/80 shadow-xl shadow-indigo-500/50">
-        <div className="mx-auto px-10 h-16 flex items-center justify-center">
-          <Link href="/" className="flex items-center justify-center align-baseline space-x-2">
-            <Image src="/sidebar.png" alt="EduHub Logo" width={130} height={130} />
-          </Link>
-        </div>
-      </header>
+  const allowedAdminRoles = ['superAdmin', 'classAdmin'];
 
-      {/* User FAB */}
-      <div className="fixed bottom-24 right-5 z-50">
-        {loading ? (
-          <Button variant="ghost" size="icon" className="h-16 w-16 rounded-full" disabled>
-            ...
-          </Button>
-        ) : user ? (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="default" size="icon" className="h-12 w-12 rounded-full hover:shadow-xl hover:shadow-primary/60 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-indigo-500/50">
-                <CircleUser className="w-8 h-8" />
+  return (
+    <header className="bg-background/80 backdrop-blur-sm sticky top-0 z-50 border-b">
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <Link href="/" className="flex items-center space-x-2">
+          <Image src="/sidebar.png" alt="EduHub Logo" width={120} height={120} />
+        </Link>
+
+        <div className="flex items-center space-x-2">
+          {loading ? (
+            <div className="h-9 w-36 rounded-md bg-muted animate-pulse" />
+          ) : user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="flex items-center space-x-2">
+                  <CircleUser className="h-5 w-5" />
+                  <span className="hidden sm:inline font-medium">{user.email}</span>
+                  <ChevronDown className="h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem onClick={() => router.push('/profile')}>
+                  <CircleUser className="mr-2 h-4 w-4" />
+                  <span>Profile</span>
+                </DropdownMenuItem>
+                
+                {profile && allowedAdminRoles.includes(profile.role ?? '') && (
+                  <DropdownMenuItem onClick={() => router.push('/dashboard')}>
+                    <LayoutDashboard className="mr-2 h-4 w-4" />
+                    <span>Dashboard</span>
+                  </DropdownMenuItem>
+                )}
+
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  <span>Logout</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <div className="flex items-center space-x-2">
+              <Button asChild variant="ghost">
+                <Link href="/login">Login</Link>
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem asChild>
-                <Link href="/dashboard">
-                  <LayoutDashboard className="w-4 h-4 mr-2" />
-                  Dashboard
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout}>
-                <LogOut className="w-4 h-4 mr-2" />
-                Déconnexion
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        ) : null}
+              <Button asChild>
+                <Link href="/register">Register</Link>
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
-    </>
+    </header>
   );
 }
