@@ -14,6 +14,15 @@ export function generateResourcePath(
   return `${fieldSlug}/S${semesterNumber}/${moduleSlug}/${submoduleSlug}`
 }
 
+export function generatePendingResourcePath(
+  fieldSlug: string,
+  semesterNumber: number,
+  moduleSlug: string,
+  submoduleSlug: string,
+): string {
+  return `pending/${fieldSlug}/S${semesterNumber}/${moduleSlug}/${submoduleSlug}`
+}
+
 export function getFileIcon(mimeType: string): string {
   if (mimeType.startsWith("image/")) return "image"
   if (mimeType.startsWith("video/")) return "video"

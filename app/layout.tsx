@@ -55,6 +55,10 @@ export const metadata: Metadata = {
   },
 }
 
+import { GlobalDataProvider } from "@/context/GlobalDataContext";
+
+// ... rest of imports ...
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -70,10 +74,12 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <AuthProvider>
+            <GlobalDataProvider>
               <LayoutClient>
                 <CompleteProfileBanner />
                 {children}
               </LayoutClient>
+            </GlobalDataProvider>
           </AuthProvider>
         </ThemeProvider>
         <Analytics />
