@@ -155,7 +155,7 @@ export default function ResourcesPage() {
       </div>
       <p>Manage your resources here.</p>
       <div className="flex items-center space-x-2 mt-4">
-        {user?.user_metadata?.role === 'superAdmin' && (
+        {user?.role=== 'superAdmin' && (
           <>
             {/* Field Filter */}
             <Select onValueChange={(value) => {

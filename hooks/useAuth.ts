@@ -407,6 +407,25 @@ export function useAuth() {
     [supabase]
   );
 
+  const signInWithGoogle = useCallback(async (): Promise<AuthResponse> => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+        },
+      });
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      return { success: true };
+    } catch (error: any) {
+      return { success: false, error: "Erreur lors de la connexion avec Google" };
+    }
+  }, [supabase]);
+
   /**
    * 🔍 Propriétés calculées (computed properties)
    *
@@ -450,6 +469,7 @@ export function useAuth() {
     register, // (email, password, metadata?) => Promise<AuthResponse>
     resetPassword, // (email) => Promise<AuthResponse>
     updateProfile, // (updates) => Promise<AuthResponse>
+    signInWithGoogle, // () => Promise<AuthResponse>
 
     // 🔧 Accès avancé (pour des cas d'usage spécifiques)
     supabase, // Instance Supabase pour des opérations custom

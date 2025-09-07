@@ -111,7 +111,7 @@ export default function ModulesPage() {
         <Button onClick={handleCreate}>Add Module</Button>
       </div>
       <p>Manage your modules here.</p>
-      {user?.user_metadata?.role === 'superAdmin' && (
+      {user?.role === 'superAdmin' && (
         <div className="flex items-center space-x-2 mt-4">
           <Select onValueChange={(value) => {
             setSelectedFilterFieldId(value);

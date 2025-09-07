@@ -14,7 +14,7 @@ export function LogoutButton() {
  const handleLogout = async () => {
   const res = await fetch('/api/auth/logout', { method: 'POST' })
   if (res.ok) {
-    router.push('/login')
+    router.push('/')
     router.refresh()
   }
 }
