@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from "react"
-import { User } from "@supabase/supabase-js"
+import type { User } from "@prisma/client"
 import { MoreHorizontal } from "lucide-react"
 import { toast } from "sonner"
 
@@ -101,20 +101,18 @@ export function UsersTableShell({ data, adminScopes }: UsersTableShellProps) {
       header: "Email",
     },
     {
-      accessorKey: "full_name",
+      accessorKey: "fullName",
       header: "Full Name",
       cell: ({ row }) => {
-        const firstName = row.original.user_metadata?.firstName || "";
-        const lastName = row.original.user_metadata?.lastName || "";
-        const fullName = `${firstName} ${lastName}`.trim();
+        const fullName = `${row.original.firstName || ""} ${row.original.lastName || ""}`.trim();
         return <span>{fullName || "-"}</span>;
       }
     },
     {
-        accessorKey: "user_metadata.role",
+        accessorKey: "role",
         header: "Role",
         cell: ({ row }) => {
-            const role = row.original.user_metadata?.role || "user";
+            const role = row.original.role || "user";
             let variant: "default" | "secondary" | "destructive" | "outline" = "default";
             let className = "";
 
@@ -131,7 +129,7 @@ export function UsersTableShell({ data, adminScopes }: UsersTableShellProps) {
       accessorKey: "admin_scopes", // New column for admin scopes
       header: "Admin Scopes",
       cell: ({ row }) => {
-        const userRole = row.original.user_metadata?.role;
+        const userRole = row.original.role;
         if (userRole !== 'classAdmin') {
           return <span>-</span>; // Only show for classAdmin
         }
@@ -152,10 +150,10 @@ export function UsersTableShell({ data, adminScopes }: UsersTableShellProps) {
       },
     },
     {
-      accessorKey: "created_at",
+      accessorKey: "createdAt",
       header: "Created At",
       cell: ({ row }) => {
-        return new Date(row.getValue("created_at")).toLocaleDateString()
+        return new Date(row.getValue("createdAt")).toLocaleDateString()
       },
     },
     {

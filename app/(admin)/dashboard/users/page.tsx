@@ -4,7 +4,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { prisma } from "@/lib/prisma";
 import { getUsers } from "@/lib/data/users"; // Import the new function
-import { User } from "@supabase/supabase-js";
+import { User } from "@prisma/client";
 import {
   Dialog,
   DialogContent, DialogDescription,

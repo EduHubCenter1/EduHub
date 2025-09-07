@@ -1,7 +1,7 @@
 'use client'
 
 import * as React from "react"
-import { User } from "@supabase/supabase-js"
+import type { User } from "@prisma/client"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
@@ -52,9 +52,9 @@ export function EditUserForm({ user, onSubmitSuccess }: EditUserFormProps) {
   const router = useRouter()
   const { fields: allFields, semesters: allSemesters } = useGlobalData()
   const [email, setEmail] = React.useState(user.email || "")
-  const [firstName, setFirstName] = React.useState(user.user_metadata?.firstName || "")
-  const [lastName, setLastName] = React.useState(user.user_metadata?.lastName || "")
-  const [role, setRole] = React.useState(user.user_metadata?.role || "user")
+  const [firstName, setFirstName] = React.useState(user.firstName || "")
+  const [lastName, setLastName] = React.useState(user.lastName || "")
+  const [role, setRole] = React.useState(user.role || "user")
   const [error, setError] = React.useState<string | null>(null)
   const [isLoading, setIsLoading] = React.useState(true)
 

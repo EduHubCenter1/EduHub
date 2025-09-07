@@ -1,7 +1,7 @@
 'use server';
 
 import { prisma } from '@/lib/prisma';
-import { supabaseAdmin } from '@/lib/data/users'; // Import the shared client
+import { supabaseAdmin } from '@/lib/supabase/admin';
 
 // Type for a single admin scope
 type AdminScope = {
