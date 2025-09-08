@@ -70,6 +70,8 @@ export const submoduleFormSchema = z.object({
   moduleId: z.string().min(1).max(100),
 })
 
+export const resourceStatusSchema = z.enum(["pending", "approved", "rejected"]); // New enum for resource status
+
 export const resourceFormSchema = z.object({
   title: z.string().min(2, {
     message: "Title must be at least 2 characters.",
@@ -79,4 +81,5 @@ export const resourceFormSchema = z.object({
   moduleId: z.string().min(1, { message: "Module is required." }),
   submoduleId: z.string().optional(),
   file: z.any().optional(), // For file upload, handled separately
+  status: resourceStatusSchema.optional(), // Added status field
 })

@@ -10,8 +10,15 @@ import { ResourceForm } from "@/components/admin/resource-form";
 import { resource as Resource, submodule as Submodule, module as Module, semester as Semester, fields as Field } from "@prisma/client";
 import { toast } from "sonner";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge"; // Added import for Badge
 
 import { useAuth } from "@/hooks/useAuth";
+
+enum ResourceStatus {
+  pending = "pending",
+  approved = "approved",
+  rejected = "rejected",
+}
 
 const resourceTypes = [
   { value: "all", label: "All Types" },
@@ -52,6 +59,7 @@ export default function ResourcesPage() {
   const [selectedFilterModuleId, setSelectedFilterModuleId] = useState<string | "all">("all");
   const [selectedFilterSubmoduleId, setSelectedFilterSubmoduleId] = useState<string | "all">("all");
   const [selectedFilterTypeId, setSelectedFilterTypeId] = useState<string | "all">("all");
+  const [selectedFilterStatusId, setSelectedFilterStatusId] = useState<ResourceStatus | "all">("all"); // Added status filter state
   const [formSelectedModuleId, setFormSelectedModuleId] = useState<string | null>(null);
 
   const formSubmodules = useMemo(() => {
@@ -108,6 +116,33 @@ export default function ResourcesPage() {
     refetchResources(); // Refresh data after create/update
   };
 
+  const handleApprove = async (resourceId: string) => {
+    try {
+      const response = await fetch(`/api/resources/${resourceId}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ status: "approved" }),
+        });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || "Failed to approve resource.");
+      }
+
+      toast.success("Resource approved.", {
+        description: "The resource has been successfully approved.",
+      });
+      refetchResources(); // Refresh data after approval
+    } catch (error: any) {
+      toast.error("Error", {
+        description: error.message || "An unexpected error occurred.",
+      });
+    }
+  };
+
   const filteredResources = useMemo(() => {
     if (!resources) return [];
     return resources.filter(resource => {
@@ -134,9 +169,12 @@ export default function ResourcesPage() {
       if (selectedFilterTypeId !== "all" && resource.type !== selectedFilterTypeId) {
         return false;
       }
+      if (selectedFilterStatusId !== "all" && resource.status !== selectedFilterStatusId) { // Added status filter
+        return false;
+      }
       return true;
     });
-  }, [resources, selectedFilterFieldId, selectedFilterSemesterId, selectedFilterModuleId, selectedFilterSubmoduleId]);
+  }, [resources, selectedFilterFieldId, selectedFilterSemesterId, selectedFilterModuleId, selectedFilterSubmoduleId, selectedFilterTypeId, selectedFilterStatusId]); // Added selectedFilterStatusId to dependencies
 
   if (!resources) {
     return (
@@ -274,10 +312,24 @@ export default function ResourcesPage() {
             ))}
           </SelectContent>
         </Select>
+
+        {/* Status Filter */}
+        <Select onValueChange={(value: ResourceStatus | "all") => setSelectedFilterStatusId(value)} value={selectedFilterStatusId}>
+          <SelectTrigger className="w-[180px]">
+            <SelectValue placeholder="Filter by Status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Statuses</SelectItem>
+            <SelectItem value={ResourceStatus.pending}>Pending</SelectItem>
+            <SelectItem value={ResourceStatus.approved}>Approved</SelectItem>
+            <SelectItem value={ResourceStatus.rejected}>Rejected</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
       <div className="">
-        <ResourcesDataTable data={filteredResources} onEdit={handleEdit} onDelete={handleDelete} />
+        <ResourcesDataTable data={filteredResources} onEdit={handleEdit} onDelete={handleDelete} onApprove={handleApprove} />
       </div>
+
 
       {/* Resource Form Dialog */}
       <Dialog open={isFormOpen} onOpenChange={setIsFormOpen}>

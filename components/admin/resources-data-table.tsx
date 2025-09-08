@@ -1,5 +1,7 @@
 "use client"
 
+"use client"
+
 import { ColumnDef } from "@tanstack/react-table"
 import { resource as Resource, submodule as Submodule, module as Module, semester as Semester, fields as Field } from "@prisma/client"
 import { FieldsDataTable } from "./fields-data-table"
@@ -13,6 +15,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { MoreHorizontal } from "lucide-react"
+import { Badge } from "@/components/ui/badge" // Added import for Badge
+
+enum ResourceStatus {
+  pending = "pending",
+  approved = "approved",
+  rejected = "rejected",
+}
 
 interface ResourceWithRelations extends Resource {
   module: Module & {
@@ -33,9 +42,10 @@ interface ResourcesDataTableProps {
   data: ResourceWithRelations[]
   onEdit: (resource: ResourceWithRelations) => void
   onDelete: (resourceId: string) => void
+  onApprove: (resourceId: string) => void
 }
 
-export function ResourcesDataTable({ data, onEdit, onDelete }: ResourcesDataTableProps) {
+export function ResourcesDataTable({ data, onEdit, onDelete, onApprove }: ResourcesDataTableProps) {
   const columns: ColumnDef<ResourceWithRelations>[] = [
     // {
     //   accessorKey: "id",
@@ -44,30 +54,50 @@ export function ResourcesDataTable({ data, onEdit, onDelete }: ResourcesDataTabl
     {
       accessorKey: "title",
       header: "Title",
+      cell: ({ row }) => (
+        <a
+          href={`/api/files/${row.original.id}/download`}
+          className="underline hover:text-blue-600"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {row.original.title}
+        </a>
+      ),
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => {
+        const status: ResourceStatus = row.original.status as ResourceStatus; // Cast to ResourceStatus
+        return (
+          <Badge
+            variant={
+              status === ResourceStatus.approved
+                ? "default"
+                : status === ResourceStatus.pending
+                ? "secondary"
+                : "destructive"
+            }
+          >
+            {status}
+          </Badge>
+        );
+      },
     },
     {
       accessorKey: "type",
       header: "Type",
     },
     {
-      accessorKey: "submodule.name",
-      header: "Submodule Name",
-      cell: ({ row }) => row.original.submodule?.name || "--",
+      id: "moduleSubmodule",
+      header: "Module:Submodule",
+      cell: ({ row }) => row.original.submodule ? `${row.original.module.name} : ${row.original.submodule.name}` : row.original.module.name,
     },
     {
-      accessorKey: "module.name",
-      header: "Module Name",
-      cell: ({ row }) => row.original.module.name,
-    },
-    {
-      accessorKey: "module.semester.number",
-      header: "Semester Number",
-      cell: ({ row }) => row.original.module.semester.number,
-    },
-    {
-      accessorKey: "module.semester.field.name",
-      header: "Field Name",
-      cell: ({ row }) => row.original.module.semester.field.name,
+      id: "filiereSemestre",
+      header: "Filiere-Semestre",
+      cell: ({ row }) => `${row.original.module.semester.field.name}-S${row.original.module.semester.number}`,
     },
     {
       id: "actions",
@@ -96,6 +126,11 @@ export function ResourcesDataTable({ data, onEdit, onDelete }: ResourcesDataTabl
               <DropdownMenuItem onClick={() => onDelete(resource.id)}>
                 Delete
               </DropdownMenuItem>
+              {resource.status === "pending" && (
+                <DropdownMenuItem onClick={() => onApprove(resource.id)}>
+                  Approve
+                </DropdownMenuItem>
+              )}
             </DropdownMenuContent>
           </DropdownMenu>
         )

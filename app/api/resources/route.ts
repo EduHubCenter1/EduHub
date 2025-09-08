@@ -11,6 +11,30 @@ export async function GET(request: Request) {
     if (status) {
       resources = await prisma.resource.findMany({
         where: { status: status as any }, // Cast to any for enum type
+        include: {
+          module: {
+            include: {
+              semester: {
+                include: {
+                  field: true,
+                },
+              },
+            },
+          },
+          submodule: {
+            include: {
+              module: {
+                include: {
+                  semester: {
+                    include: {
+                      field: true,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
       });
     } else {
       resources = await prisma.resource.findMany();
