@@ -35,7 +35,16 @@ export function PublicHeader() {
     <header className="bg-background/80 backdrop-blur-sm sticky top-0 z-50 border-b">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
         <Link href="/" className="flex items-center space-x-2">
-          <Image src="/sidebar.png" alt="EduHub Logo" width={48} height={48} />
+          <div className="relative w-32 h-12">
+            <Image
+              src="/sidebar.png"
+              alt="EduHub Logo"
+              fill
+              priority
+              sizes="128px"
+              style={{ objectFit: 'contain' }}
+            />
+          </div>
         </Link>
 
         <div className="flex items-center space-x-2">

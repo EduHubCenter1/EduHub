@@ -99,14 +99,14 @@ export function useAuth() {
         user: session?.user?.email || "Aucun",
         timestamp: new Date().toISOString(),
       });
-      setLoading(true);
-
       switch (event) {
+        case "INITIAL_SESSION":
         case "SIGNED_IN":
+          setLoading(true);
           if (session?.user && !profileFetched.current) {
-            console.log(`✅ Event: ${event}. Fetching profile for the first time.`);
+            console.log(`✅ Event: ${event}. Fetching profile.`);
             await fetchProfile();
-            profileFetched.current = true; // Set the flag
+            profileFetched.current = true;
           } else {
             console.log(`✅ Event: ${event}. Profile already loaded or no session.`);
             setLoading(false);
@@ -114,6 +114,7 @@ export function useAuth() {
           break;
 
         case "USER_UPDATED":
+          setLoading(true);
           // Always fetch on USER_UPDATED as data has changed
           if (session?.user) {
             console.log(`✅ Event: ${event}. Re-fetching profile due to update.`);
@@ -126,7 +127,7 @@ export function useAuth() {
 
         case "TOKEN_REFRESHED":
           console.log("✅ Token a été rafraîchi");
-          setLoading(false); // Just update loading state, no need to fetch profile
+          // No need to do anything here, session is updated automatically.
           break;
 
         case "SIGNED_OUT":
