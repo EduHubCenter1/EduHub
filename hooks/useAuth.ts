@@ -1,7 +1,7 @@
 // hooks/useAuth.ts
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback,useRef } from "react";
 import { createSupabaseBrowserClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 import { getProfile } from "@/lib/actions/user.actions";
@@ -45,6 +45,7 @@ export function useAuth() {
   const [user, setUser] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const profileFetched = useRef(false);
 
   // 🔧 Instances stables : les "outils" du hook
   // Ces instances sont créées une seule fois et réutilisées
@@ -102,10 +103,20 @@ export function useAuth() {
 
       switch (event) {
         case "SIGNED_IN":
+          if (session?.user && !profileFetched.current) {
+            console.log(`✅ Event: ${event}. Fetching profile for the first time.`);
+            await fetchProfile();
+            profileFetched.current = true; // Set the flag
+          } else {
+            console.log(`✅ Event: ${event}. Profile already loaded or no session.`);
+            setLoading(false);
+          }
+          break;
+
         case "USER_UPDATED":
-        case "TOKEN_REFRESHED":
+          // Always fetch on USER_UPDATED as data has changed
           if (session?.user) {
-            console.log(`✅ Event: ${event}. Fetching profile.`);
+            console.log(`✅ Event: ${event}. Re-fetching profile due to update.`);
             await fetchProfile();
           } else {
             setUser(null);
@@ -113,10 +124,16 @@ export function useAuth() {
           }
           break;
 
+        case "TOKEN_REFRESHED":
+          console.log("✅ Token a été rafraîchi");
+          setLoading(false); // Just update loading state, no need to fetch profile
+          break;
+
         case "SIGNED_OUT":
           console.log("👋 Utilisateur déconnecté");
           setUser(null);
           setError(null);
+          profileFetched.current = false; // Reset the flag
           router.push("/");
           setLoading(false);
           break;
