@@ -1,19 +1,18 @@
-import { createSupabaseServerClient } from "@/lib/supabase/server";
-import { getSemestersForUser } from "@/lib/data/semesters";
-import { getModulesForUser } from "@/lib/data/modules";
-import { getSubmodulesForUser } from "@/lib/data/submodules"; // Assuming this function exists
+import { getAllFields } from "@/lib/data/all-fields";
+import { getAllSemesters } from "@/lib/data/all-semesters";
+import { getAllModules } from "@/lib/data/all-modules";
+import { getAllSubmodules } from "@/lib/data/all-submodules";
 import { UploadForm } from "@/components/admin/upload-form";
 
 export default async function UploadPage() {
-  const supabase = await createSupabaseServerClient();
-  const { data: { user } } = await supabase.auth.getUser();
-
-  const semesters = await getSemestersForUser(user);
-  const modules = await getModulesForUser(user);
-  const submodules = await getSubmodulesForUser(user); // Fetch submodules
+  const fields = await getAllFields();
+  const semesters = await getAllSemesters();
+  const modules = await getAllModules();
+  const submodules = await getAllSubmodules();
 
   return (
     <UploadForm
+      fields={fields}
       semesters={semesters}
       modules={modules}
       submodules={submodules}

@@ -136,7 +136,7 @@ export function UploadForm({ semesters, modules, submodules }: UploadFormProps) 
             <SelectContent>
               {filteredSemesters.map((s) => (
                 <SelectItem key={s.id} value={s.id}>
-                  Semester {s.number}
+                                    Semester {s.number}
                 </SelectItem>
               ))}
             </SelectContent>

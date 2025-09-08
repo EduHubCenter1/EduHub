@@ -27,12 +27,10 @@ export async function getFieldsForUser(user: User | null) {
         orderBy: { name: "asc" },
       });
     } else {
-      // Not a superAdmin or classAdmin, so they can't see any fields.
       return [];
     }
   } catch (error) {
     console.error("Failed to fetch fields for user:", error);
-    // In case of a database error, return an empty array to avoid crashing the page.
     return [];
   }
 }

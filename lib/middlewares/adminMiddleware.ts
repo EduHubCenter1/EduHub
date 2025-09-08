@@ -10,29 +10,18 @@ export async function handleadminAuth(request: NextRequest) {
 
   const supabase = createSupabaseMiddlewareClient(request, response)
 
-  const { data: { session } } = await supabase.auth.getSession()
+  const { data: { user } } = await supabase.auth.getUser()
   const { pathname } = request.nextUrl
 
-  let userRole: string = '';
-  if (session) {
-    const roleApiUrl = new URL('/api/auth/role', request.url);
-    const roleResponse = await fetch(roleApiUrl, {
-      headers: {
-        'Cookie': request.headers.get('Cookie') || '',
-      },
-    });
-
-    if (roleResponse.ok) {
-      const { role } = await roleResponse.json();
-      userRole = role || '';
-    }
-  }
-
+  const userRole: string = user?.user_metadata?.role || '';
   const allowedAdminRoles = ['superAdmin', 'classAdmin']
 
-  if (pathname.startsWith('/dashboard') || pathname.startsWith('/api/admin')) { // More specific API path
-    if (!session || !allowedAdminRoles.includes(userRole)) {
-      const redirectUrl = new URL('/auth/login', request.url)
+  // Check if user is trying to access a protected admin route
+  if (pathname.startsWith('/dashboard') || pathname.startsWith('/api/admin')) {
+    // If there is no user or the user's role is not in the allowed list
+    if (!user || !allowedAdminRoles.includes(userRole)) {
+      // Redirect to the homepage with an error
+      const redirectUrl = new URL('/', request.url)
       redirectUrl.searchParams.set('error', 'unauthorized')
       redirectUrl.searchParams.set('from', pathname)
       return NextResponse.redirect(redirectUrl)

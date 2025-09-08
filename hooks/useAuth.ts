@@ -77,58 +77,7 @@ export function useAuth() {
   useEffect(() => {
     console.log("🔧 Initialisation du hook useAuth");
 
-    /**
-     * 📡 Fonction d'initialisation
-     *
-     * Cette fonction vérifie si un utilisateur est déjà connecté
-     * Elle interroge Supabase qui va examiner :
-     * - Les cookies HTTP-only (sécurisés)
-     * - Le localStorage pour le refresh token
-     * - La validité des tokens existants
-     */
-    const initializeAuth = async () => {
-      try {
-        console.log("📡 Récupération de la session existante...");
-        const {
-          data: { session },
-          error,
-        } = await supabase.auth.getSession();
-
-        if (error) {
-          console.error(
-            "❌ Erreur lors de la récupération de session:",
-            error.message
-          );
-          setError(error.message);
-          setUser(null);
-          setLoading(false);
-        } else if (session?.user) {
-          console.log(
-            "✅ Session trouvée pour:",
-            session.user.email,
-            "Fetching profile..."
-          );
-          await fetchProfile();
-        } else {
-          console.log("ℹ️ Aucune session active trouvée");
-          setUser(null);
-          setLoading(false);
-        }
-      } catch (unexpectedError: any) {
-        console.error(
-          "💥 Erreur inattendue durant l'initialisation:",
-          unexpectedError
-        );
-        setError("Erreur de connexion");
-        setUser(null);
-        setLoading(false);
-      } finally {
-        console.log("🏁 Initialisation terminée");
-      }
-    };
-
-    // Lancement de l'initialisation
-    initializeAuth();
+    
 
     /**
      * 👂 Écoute des événements d'authentification
