@@ -1,18 +1,20 @@
 "use client"
 
 import Link from "next/link"
-import { useAuth } from "@/hooks/useAuth"
+import { useAuthContext } from "@/context/AuthContext"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { AlertTriangle, X } from "lucide-react"
-import { useState } from "react"
+import { useState, useMemo } from "react"
 
 export function CompleteProfileBanner() {
-  const { user } = useAuth()
-  const [isVisible, setIsVisible] = useState(true)
+  const { user } = useAuthContext();
+  const [isVisible, setIsVisible] = useState(true);
 
-  // TODO: Replace with actual logic to check if profile is complete
-  const isProfileIncomplete = user && !user.profileComplete;
+  const isProfileIncomplete = useMemo(() => {
+    if (!user) return false;
+    return !user.firstName || !user.lastName || !user.username || !user.institution || !user.fieldOfStudy || !user.academicLevel;
+  }, [user]);
 
   if (!isProfileIncomplete || !isVisible) {
     return null

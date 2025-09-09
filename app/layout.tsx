@@ -76,7 +76,6 @@ export default function RootLayout({
           <AuthProvider>
             <GlobalDataProvider>
               <LayoutClient>
-                <CompleteProfileBanner />
                 {children}
               </LayoutClient>
             </GlobalDataProvider>
