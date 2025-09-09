@@ -120,7 +120,7 @@ export default function ResourcesPage() {
     try {
       const response = await fetch(`/api/resources/${resourceId}`,
         {
-          method: "PATCH",
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },

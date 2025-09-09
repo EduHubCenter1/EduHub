@@ -15,6 +15,14 @@ export function Footer() {
           </Link>
           .
         </p>
+        <div className="flex gap-4">
+          <Link href="/privacy-policy" className="text-sm text-muted-foreground hover:text-primary">
+            Privacy Policy
+          </Link>
+          <Link href="/terms-of-service" className="text-sm text-muted-foreground hover:text-primary">
+            Terms of Service
+          </Link>
+        </div>
       </div>
     </footer>
   );

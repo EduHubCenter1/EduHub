@@ -14,7 +14,10 @@ const resourceUpdateSchema = z.object({
   sha256: z.string().optional(),
   fileExt: z.string().optional(),
   mimeType: z.string().optional(),
+  status: z.enum(['pending', 'approved', 'rejected']).optional(),
 });
+
+
 
 export async function PUT(request: NextRequest, { params }: { params: { id: string } }) {
   const resourceId = params.id;
@@ -24,7 +27,7 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
 
   try {
     const body = await request.json();
-    const validatedData = resourceUpdateSchema.parse(body);
+    const validatedData = resourceUpdateSchema.partial().parse(body);
 
     const updatedResource = await prisma.resource.update({
       where: { id: resourceId },
@@ -40,6 +43,28 @@ export async function PUT(request: NextRequest, { params }: { params: { id: stri
     const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
     return NextResponse.json(
       { message: "An error occurred while updating the resource.", error: errorMessage },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+  const resourceId = params.id;
+  if (!resourceId) {
+    return NextResponse.json({ message: "Resource ID is required." }, { status: 400 });
+  }
+
+  try {
+    await prisma.resource.delete({
+      where: { id: resourceId },
+    });
+
+    return NextResponse.json({ message: "Resource deleted successfully." }, { status: 200 });
+  } catch (error) {
+    console.error(`Failed to delete resource ${resourceId}:`, error);
+    const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
+    return NextResponse.json(
+      { message: "An error occurred while deleting the resource.", error: errorMessage },
       { status: 500 }
     );
   }
