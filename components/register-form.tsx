@@ -417,11 +417,11 @@ export function RegisterForm({
               </a>
             </div>
           </div>
-          <div className="relative hidden bg-muted md:block">
+          <div className="relative hidden my-auto bg-white md:block">
             <img
               src="/EduhubCenter.jpg"
               alt="EduHub"
-              className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+              className=" h-90 w-90 center-item object-cover  "
             />
           </div>
         </CardContent>

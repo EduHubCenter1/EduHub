@@ -1,26 +1,46 @@
-import { getProfile } from "@/lib/actions/user.actions";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Terminal } from "lucide-react";
-import Link from "next/link";
+"use client"
 
-export async function CompleteProfileBanner() {
-  const profile = await getProfile();
+import Link from "next/link"
+import { useAuth } from "@/hooks/useAuth"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { AlertTriangle, X } from "lucide-react"
+import { useState } from "react"
 
-  // If the user is not logged in, or if their profile is complete, don't show the banner.
-  // We'll consider the profile incomplete if they don't have a username.
-  if (!profile || profile.username) {
-    return null;
+export function CompleteProfileBanner() {
+  const { user } = useAuth()
+  const [isVisible, setIsVisible] = useState(true)
+
+  // TODO: Replace with actual logic to check if profile is complete
+  const isProfileIncomplete = user && !user.profileComplete;
+
+  if (!isProfileIncomplete || !isVisible) {
+    return null
   }
 
   return (
-    <div className="container my-4">
-        <Alert>
-            <Terminal className="h-4 w-4" />
-            <AlertTitle>Welcome to EduHub!</AlertTitle>
-            <AlertDescription>
-                Your profile is incomplete. Please <Link href="/profile" className="font-bold underline">complete your profile</Link> to get the most out of the platform.
-            </AlertDescription>
-        </Alert>
+    <div className="container mx-auto px-4 py-4">
+      <Card className="bg-secondary/20 border-primary/20 shadow-lg hover:shadow-xl transition-shadow duration-300">
+        <CardContent className="p-4 flex items-center justify-between">
+          <div className="flex items-center">
+            <AlertTriangle className="h-6 w-6 text-primary mr-4" />
+            <div>
+              <h3 className="font-semibold text-foreground">Welcome to EduHub!</h3>
+              <p className="text-sm text-muted-foreground">
+                Your profile is incomplete. Please complete your profile to get the most out of the platform.
+              </p>
+            </div>
+          </div>
+          <div className="flex items-center">
+            <Button asChild variant="default" size="sm">
+              <Link href="/profile">Complete Profile</Link>
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setIsVisible(false)} className="ml-2">
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
-  );
+  )
 }

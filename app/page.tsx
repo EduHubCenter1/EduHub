@@ -1,3 +1,4 @@
+import { CompleteProfileBanner } from "@/components/complete-profile-banner";
 import { Suspense } from "react"
 import Link from "next/link"
 import { prisma } from "@/lib/prisma"
@@ -32,7 +33,7 @@ export default async function HomePage() {
   return (
     <div className="min-h-screen bg-background">
       <main className="flex flex-col">
-        
+        <CompleteProfileBanner />
         <ModernHero />
 
         {/* 2. Fields Preview Section */}
