@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma";
 
 export async function getAllFields() {
   try {
-    return await prisma.field.findMany({
+    return await prisma.fields.findMany({
       orderBy: { name: "asc" },
     });
   } catch (error) {

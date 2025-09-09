@@ -1,132 +1,114 @@
 import { PublicLayoutWithoutSidebar } from "@/components/public/public-layout-without-sidebar";
+import { FileText, Users, Shield, Mail, Handshake, FileCheck, FileX, UserCheck, BookOpen, UserPlus, ThumbsDown, Copyright, Book, Settings, AlertTriangle, Scale, MessageCircle } from 'lucide-react';
 
 export default function TermsOfServicePage() {
   return (
     <PublicLayoutWithoutSidebar>
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold mb-4">Terms of Service</h1>
-        <p className="mb-4">Last updated: September 09, 2025</p>
-        <p className="mb-4">
-          Please read these terms and conditions carefully before using Our Service.
-        </p>
+      <div className="bg-gray-50 min-h-screen">
+        <header className="bg-gradient-to-r from-blue-800 to-indigo-900 text-white py-16">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <h1 className="text-5xl font-extrabold tracking-tight"> Terms of Service </h1>
+          </div>
+        </header>
 
-        <h2 className="text-2xl font-bold mt-6 mb-2">Interpretation and Definitions</h2>
-        <h3 className="text-xl font-bold mt-4 mb-2">Interpretation</h3>
-        <p className="mb-4">
-          The words of which the initial letter is capitalized have meanings defined
-          under the following conditions. The following definitions shall have the
-          same meaning regardless of whether they appear in singular or in plural.
-        </p>
-        <h3 className="text-xl font-bold mt-4 mb-2">Definitions</h3>
-        <p className="mb-4">For the purposes of these Terms and Conditions:</p>
-        <ul className="list-disc list-inside mb-4">
-          <li>
-            <p>
-              <strong>Affiliate</strong> means an entity that controls, is
-              controlled by or is under common control with a party, where
-              "control" means ownership of 50% or more of the shares, equity
-              interest or other securities entitled to vote for election of
-              directors or other managing authority.
-            </p>
-          </li>
-          <li>
-            <p>
-              <strong>Country</strong> refers to: Morocco
-            </p>
-          </li>
-          <li>
-            <p>
-              <strong>Company</strong> (referred to as either "the Company", "We",
-              "Us" or "Our" in this Agreement) refers to EduHub.
-            </p>
-          </li>
-          <li>
-            <p>
-              <strong>Device</strong> means any device that can access the Service
-              such as a computer, a cellphone or a digital tablet.
-            </p>
-          </li>
-          <li>
-            <p>
-              <strong>Service</strong> refers to the Website.
-            </p>
-          </li>
-          <li>
-            <p>
-              <strong>Terms and Conditions</strong> (also referred as "Terms")
-              mean these Terms and Conditions that form the entire agreement
-              between You and the Company regarding the use of the Service.
-            </p>
-          </li>
-          <li>
-            <p>
-              <strong>Third-party Social Media Service</strong> means any services
-              or content (including data, information, products or services)
-              provided by a third-party that may be displayed, included or made
-              available by the Service.
-            </p>
-          </li>
-          <li>
-            <p>
-              <strong>Website</strong> refers to EduHub, accessible from
-              [Your Website URL]
-            </p>
-          </li>
-          <li>
-            <p>
-              <strong>You</strong> means the individual accessing or using the
-              Service, or the company, or other legal entity on behalf of which
-              such individual is accessing or using the Service, as applicable.
-            </p>
-          </li>
-        </ul>
+        <main className="py-12">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="max-w-4xl mx-auto bg-white p-8 sm:p-12 rounded-2xl shadow-lg -mt-24">
+              <p className="text-right text-sm text-gray-500 mb-10">Last updated: September 2025</p>
 
-        <h2 className="text-2xl font-bold mt-6 mb-2">Acknowledgment</h2>
-        <p className="mb-4">
-          These are the Terms and Conditions governing the use of this Service and
-          the agreement that operates between You and the Company. These Terms and
-          Conditions set out the rights and obligations of all users regarding the
-          use of the Service.
-        </p>
-        <p className="mb-4">
-          Your access to and use of the Service is conditioned on Your acceptance of
-          and compliance with these Terms and Conditions. These Terms and
-          Conditions apply to all visitors, users and others who access or use the
-          Service.
-        </p>
-        <p className="mb-4">
-          By accessing or using the Service You agree to be bound by these Terms and
-          Conditions. If You disagree with any part of these Terms and Conditions
-          then You may not access the Service.
-        </p>
-        <p className="mb-4">
-          You represent that you are over the age of 18. The Company does not
-          permit those under 18 to use the Service.
-        </p>
-        <p className="mb-4">
-          Your access to and use of the Service is also conditioned on Your
-          acceptance of and compliance with the Privacy Policy of the Company. Our
-          Privacy Policy describes Our policies and procedures on the collection,
-          use and disclosure of Your personal information when You use the
-          Application or the Website and tells You about Your privacy rights and how
-          the law protects You. Please read Our Privacy Policy carefully before
-          using Our Service.
-        </p>
+              <div className="space-y-12">
+                <Section icon={<Handshake size={24} className="text-black" />} title="1. Acceptance of Terms">
+                  <p className="text-gray-600">
+                    By accessing or using EduHub, you confirm that you agree to these Terms. If you do not agree, please do not use the platform.
+                  </p>
+                </Section>
 
-        <h2 className="text-2xl font-bold mt-6 mb-2">Contact Us</h2>
-        <p className="mb-4">
-          If you have any questions about these Terms and Conditions, You can
-          contact us:
-        </p>
-        <ul className="list-disc list-inside mb-4">
-          <li>
-            <p>By email: [Your Email]</p>
-          </li>
-          <li>
-            <p>By visiting this page on our website: [Your Contact Page URL]</p>
-          </li>
-        </ul>
+                <Section icon={<UserPlus size={24} className="text-black" />} title="2. Accounts and Registration">
+                  <ul className="list-disc list-inside space-y-2 text-gray-600">
+                    <li>To use certain features, you must create an account with accurate and up-to-date information.</li>
+                    <li>You are responsible for maintaining the confidentiality of your login credentials.</li>
+                    <li>EduHub is not responsible for unauthorized access caused by your failure to protect your account.</li>
+                  </ul>
+                </Section>
+
+                <Section icon={<ThumbsDown size={24} className="text-black" />} title="3. User Responsibilities">
+                  <p className="text-gray-600 mb-4">By using EduHub, you agree that you will not:</p>
+                  <ul className="list-disc list-inside space-y-2 text-gray-600">
+                    <li>Upload or share illegal, offensive, or harmful content.</li>
+                    <li>Upload resources that infringe copyrights or intellectual property rights.</li>
+                    <li>Misuse the platform (e.g., spam, hacking, or attempts to bypass security).</li>
+                  </ul>
+                </Section>
+
+                <Section icon={<Copyright size={24} className="text-black" />} title="4. Content Ownership and License">
+                  <ul className="list-disc list-inside space-y-2 text-gray-600">
+                    <li>You remain the owner of the content you upload.</li>
+                    <li>By uploading, you grant EduHub a non-exclusive, worldwide, royalty-free license to display, share, and distribute your content within the platform.</li>
+                    <li>EduHub reserves the right to remove any content that violates these Terms.</li>
+                  </ul>
+                </Section>
+
+                <Section icon={<Book size={24} className="text-black" />} title="5. Use of Platform">
+                  <ul className="list-disc list-inside space-y-2 text-gray-600">
+                    <li>EduHub is provided for educational purposes only.</li>
+                    <li>Content is shared “as is”, and EduHub does not guarantee its accuracy or completeness.</li>
+                    <li>Users must use the platform responsibly and respect other members.</li>
+                  </ul>
+                </Section>
+
+                <Section icon={<Settings size={24} className="text-black" />} title="6. Moderation and Suspension">
+                  <ul className="list-disc list-inside space-y-2 text-gray-600">
+                    <li>EduHub administrators may remove or edit content at any time.</li>
+                    <li>Accounts may be suspended or terminated for violations of these Terms.</li>
+                  </ul>
+                </Section>
+
+                <Section icon={<AlertTriangle size={24} className="text-black" />} title="7. Disclaimer of Liability">
+                  <ul className="list-disc list-inside space-y-2 text-gray-600">
+                    <li>EduHub is not responsible for damages resulting from the use or inability to use the platform.</li>
+                    <li>We are not liable for inaccuracies, errors, or illegal use of resources uploaded by users.</li>
+                  </ul>
+                </Section>
+
+                <Section icon={<FileCheck size={24} className="text-black" />} title="8. Service Changes">
+                  <p className="text-gray-600">
+                    EduHub may modify, suspend, or discontinue parts of the service at any time without prior notice.
+                  </p>
+                </Section>
+
+                <Section icon={<Scale size={24} className="text-black" />} title="9. Governing Law">
+                  <p className="text-gray-600">
+                    These Terms are governed by applicable laws in Morocco. Any disputes shall be resolved under Moroccan jurisdiction.
+                  </p>
+                </Section>
+
+                <Section icon={<MessageCircle size={24} className="text-black" />} title="10. Contact">
+                  <p className="text-gray-600 mb-4">For questions regarding these Terms, please contact us:</p>
+                  <p className="text-gray-800 font-medium">
+                    <a href="mailto:contact@eduhubcenter.online" className="flex items-center gap-2 text-black hover:underline">
+                      <Mail size={20} /> contact@eduhubcenter.online
+                    </a>
+                  </p>
+                </Section>
+              </div>
+            </div>
+          </div>
+        </main>
       </div>
     </PublicLayoutWithoutSidebar>
   );
 }
+
+const Section = ({ icon, title, children }: { icon: React.ReactNode, title: string, children: React.ReactNode }) => (
+  <section>
+    <div className="flex items-center gap-4 mb-4">
+      <div className="bg-gray-100 p-3 rounded-full">
+        {icon}
+      </div>
+      <h2 className="text-3xl font-bold text-gray-800">{title}</h2>
+    </div>
+    <div className="pl-16">
+      {children}
+    </div>
+  </section>
+);

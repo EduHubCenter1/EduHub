@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { handleAuth } from './lib/middlewares/authMiddleware'
 import { handleadminAuth } from './lib/middlewares/adminMiddleware'
+import { handleUpload } from './lib/middlewares/uploadMiddleware'
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -17,6 +18,9 @@ export async function middleware(request: NextRequest) {
   }
   if (pathname.startsWith('/dashboard')) {
     return handleadminAuth(request);
+  }
+  if (pathname.startsWith('/upload')) {
+    return handleUpload(request);
   }
 
   // --- New Visitor ID Logic (runs if auth passes) ---

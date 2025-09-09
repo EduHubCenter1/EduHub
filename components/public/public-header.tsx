@@ -47,6 +47,21 @@ export function PublicHeader() {
           </div>
         </Link>
 
+        <nav className="hidden md:flex items-center space-x-6">
+          <Link href="/fields" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+            Fields
+          </Link>
+          <Link href="/upload" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+            Upload
+          </Link>
+          <Link href="/about" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+            About Us
+          </Link>
+          <Link href="/contact" className="text-sm font-medium text-muted-foreground hover:text-primary transition-colors">
+            Contact Us
+          </Link>
+        </nav>
+
         <div className="flex items-center space-x-2">
           {(!isMounted || loading) ? (
             <div className="h-9 w-36 rounded-md bg-muted animate-pulse" />

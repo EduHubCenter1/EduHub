@@ -364,7 +364,9 @@ export function RegisterForm({
                   <div className="flex items-center space-x-2">
                     <Checkbox id="terms" checked={termsAccepted} onCheckedChange={(checked) => setTermsAccepted(checked === true)} />
                     <label htmlFor="terms" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
-                      I accept the <a href="#" className="underline">Terms and Conditions</a>
+                      I agree to the{" "}
+                      <a href="/terms-of-service" className="underline" target="_blank">Terms of Service</a> and{" "}
+                      <a href="/privacy-policy" className="underline" target="_blank">Privacy Policy</a>.
                     </label>
                   </div>
                 </>
@@ -424,10 +426,7 @@ export function RegisterForm({
           </div>
         </CardContent>
       </Card>
-      <div className="text-balance text-center text-xs text-muted-foreground [&_a]:underline [&_a]:underline-offset-4 hover:[&_a]:text-primary">
-        By clicking continue, you agree to our <a href="#">Terms of Service</a>{" "}
-        and <a href="#">Privacy Policy</a>.
-      </div>
+      
     </div>
   );
 }
