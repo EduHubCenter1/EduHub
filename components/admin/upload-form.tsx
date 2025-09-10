@@ -107,126 +107,135 @@ export function UploadForm({ semesters, modules, submodules }: UploadFormProps) 
   };
 
   return (
-    <div className="container mx-auto py-10">
-      <h1 className="text-3xl font-bold mb-6">Upload New Resource</h1>
-      <form onSubmit={handleFileUpload} className="space-y-6">
-        <div>
-          <Label htmlFor="field">Field</Label>
-          <Select onValueChange={setSelectedField} value={selectedField}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a field" />
-            </SelectTrigger>
-            <SelectContent>
-              {/* Assuming fields are available from semesters or a separate prop */}
-              {Array.from(new Set(semesters.map((s) => s.fieldId))).map((fieldId) => (
-                <SelectItem key={fieldId} value={fieldId}>
-                  {semesters.find(s => s.fieldId === fieldId)?.field?.name || fieldId}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+    <div className="bg-gray-50 dark:bg-gray-900 py-12">
+      <div className="max-w-2xl mx-auto p-6 border rounded-lg shadow-md bg-white dark:bg-gray-800">
+        <h1 className="text-3xl font-bold mb-6 text-center">Upload New Resource</h1>
+        <p className="text-gray-500 dark:text-gray-400 mb-8 text-center">
+          Fill in the details below to upload a new resource to the platform.
+        </p>
+        <form onSubmit={handleFileUpload} className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <Label htmlFor="field">Field</Label>
+              <Select onValueChange={setSelectedField} value={selectedField}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a field" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from(new Set(semesters.map((s) => s.fieldId))).map((fieldId) => (
+                    <SelectItem key={fieldId} value={fieldId}>
+                      {semesters.find(s => s.fieldId === fieldId)?.field?.name || fieldId}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-        <div>
-          <Label htmlFor="semester">Semester</Label>
-          <Select onValueChange={setSelectedSemester} value={selectedSemester}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a semester" />
-            </SelectTrigger>
-            <SelectContent>
-              {filteredSemesters.map((s) => (
-                <SelectItem key={s.id} value={s.id}>
-                                    Semester {s.number}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+            <div>
+              <Label htmlFor="semester">Semester</Label>
+              <Select onValueChange={setSelectedSemester} value={selectedSemester} disabled={!selectedField}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a semester" />
+                </SelectTrigger>
+                <SelectContent>
+                  {filteredSemesters.map((s) => (
+                    <SelectItem key={s.id} value={s.id}>
+                      Semester {s.number}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
-        <div>
-          <Label htmlFor="module">Module</Label>
-          <Select onValueChange={setSelectedModule} value={selectedModule}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a module" />
-            </SelectTrigger>
-            <SelectContent>
-              {filteredModules.map((m) => (
-                <SelectItem key={m.id} value={m.id}>
-                  {m.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <Label htmlFor="module">Module</Label>
+              <Select onValueChange={setSelectedModule} value={selectedModule} disabled={!selectedSemester}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a module" />
+                </SelectTrigger>
+                <SelectContent>
+                  {filteredModules.map((m) => (
+                    <SelectItem key={m.id} value={m.id}>
+                      {m.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
 
-        <div>
-          <Label htmlFor="submodule">Submodule</Label>
-          <Select onValueChange={setSelectedSubmodule} value={selectedSubmodule}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a submodule" />
-            </SelectTrigger>
-            <SelectContent>
-              {filteredSubmodules.map((sub) => (
-                <SelectItem key={sub.id} value={sub.id}>
-                  {sub.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+            <div>
+              <Label htmlFor="submodule">Submodule (Optional)</Label>
+              <Select onValueChange={setSelectedSubmodule} value={selectedSubmodule} disabled={!selectedModule}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a submodule" />
+                </SelectTrigger>
+                <SelectContent>
+                  {filteredSubmodules.map((sub) => (
+                    <SelectItem key={sub.id} value={sub.id}>
+                      {sub.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
 
-        <div>
-          <Label htmlFor="type">Resource Type</Label>
-          <Select onValueChange={setSelectedType} value={selectedType}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a type" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="course">Course</SelectItem>
-              <SelectItem value="exam">Exam</SelectItem>
-              <SelectItem value="tp_exercise">TP Exercise</SelectItem>
-              <SelectItem value="project">Project</SelectItem>
-              <SelectItem value="presentation">Presentation</SelectItem>
-              <SelectItem value="report">Report</SelectItem>
-              <SelectItem value="other">Other</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+          <div>
+            <Label htmlFor="type">Resource Type</Label>
+            <Select onValueChange={setSelectedType} value={selectedType}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="course">Course</SelectItem>
+                <SelectItem value="exam">Exam</SelectItem>
+                <SelectItem value="tp_exercise">TP Exercise</SelectItem>
+                <SelectItem value="project">Project</SelectItem>
+                <SelectItem value="presentation">Presentation</SelectItem>
+                <SelectItem value="report">Report</SelectItem>
+                <SelectItem value="other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-        <div>
-          <Label htmlFor="title">Resource Title</Label>
-          <Input
-            id="title"
-            type="text"
-            value={resourceTitle}
-            onChange={(e) => setResourceTitle(e.target.value)}
-            placeholder="Enter resource title"
-          />
-        </div>
+          <div>
+            <Label htmlFor="title">Resource Title</Label>
+            <Input
+              id="title"
+              type="text"
+              value={resourceTitle}
+              onChange={(e) => setResourceTitle(e.target.value)}
+              placeholder="e.g., Introduction to Algorithms"
+            />
+          </div>
 
-        <div>
-          <Label htmlFor="description">Resource Description (Optional)</Label>
-          <Textarea
-            id="description"
-            value={resourceDescription}
-            onChange={(e) => setResourceDescription(e.target.value)}
-            placeholder="Enter resource description"
-          />
-        </div>
+          <div>
+            <Label htmlFor="description">Resource Description (Optional)</Label>
+            <Textarea
+              id="description"
+              value={resourceDescription}
+              onChange={(e) => setResourceDescription(e.target.value)}
+              placeholder="A brief summary of the resource content."
+            />
+          </div>
 
-        <div>
-          <Label htmlFor="file">Upload File</Label>
-          <Input
-            id="file"
-            type="file"
-            onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)}
-          />
-        </div>
+          <div>
+            <Label htmlFor="file">Upload File</Label>
+            <Input
+              id="file"
+              type="file"
+              onChange={(e) => setFile(e.target.files ? e.target.files[0] : null)}
+              className="file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/90"
+            />
+          </div>
 
-        <Button type="submit" disabled={isLoading}>
-          {isLoading ? "Uploading..." : "Upload Resource"}
-        </Button>
-      </form>
+          <Button type="submit" disabled={isLoading} className="w-full">
+            {isLoading ? "Uploading..." : "Upload Resource"}
+          </Button>
+        </form>
+      </div>
     </div>
   );
 }
