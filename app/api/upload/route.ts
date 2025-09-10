@@ -217,6 +217,8 @@ export async function POST(request: NextRequest) {
     const fileExt = file.name.split(".").pop()?.toLowerCase() || ""
     console.log("API: File extension:", fileExt);
 
+    const status = (userRole === 'superAdmin' || userRole === 'classAdmin') ? 'approved' : 'pending';
+
     // Save resource metadata to database
     console.log("API: Attempting to save resource metadata to database...");
     let resource;
@@ -234,7 +236,7 @@ export async function POST(request: NextRequest) {
           submoduleId: submoduleId || null,
           uploadedByUserId: user.id,
           moduleId: moduleId,
-          status: 'pending', // Added status
+          status: status, // Added status
         },
       })
       console.log("API: Resource metadata saved to database. Resource ID:", resource.id);

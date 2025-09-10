@@ -82,4 +82,9 @@ export const resourceFormSchema = z.object({
   submoduleId: z.string().optional(),
   file: z.any().optional(), // For file upload, handled separately
   status: resourceStatusSchema.optional(), // Added status field
+  fileUrl: z.string().url().optional(),
+  sizeBytes: z.number().int().optional(),
+  sha256: z.string().optional(),
+  fileExt: z.string().optional(),
+  mimeType: z.string().optional(),
 })

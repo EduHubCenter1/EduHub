@@ -161,37 +161,10 @@ export function ResourceForm({ initialData, onSuccess, onModuleChange, submodule
         }
         formData.append("file", values.file)
 
-        // First, upload the file
-        const uploadResponse = await fetch("/api/upload", {
+        response = await fetch("/api/upload", {
           method: "POST",
           body: formData,
           headers: authHeader,
-        })
-
-        if (!uploadResponse.ok) {
-          const errorData = await uploadResponse.json()
-          throw new Error(errorData.error || "File upload failed.")
-        }
-        const uploadResult = await uploadResponse.json()
-
-        // Then, create the resource entry in the database with file metadata
-        const createPayload = {
-          title: submissionValues.title,
-          type: submissionValues.type,
-          description: submissionValues.description,
-          moduleId: submissionValues.moduleId,
-          submoduleId: submissionValues.submoduleId,
-          fileUrl: uploadResult.resource.fileUrl,
-          sizeBytes: uploadResult.resource.sizeBytes,
-          sha256: uploadResult.resource.sha256,
-          fileExt: uploadResult.resource.fileExt,
-          mimeType: uploadResult.resource.mimeType,
-        }
-
-        response = await fetch("/api/resources", { // POST to create new resource
-          method: "POST",
-          headers: { "Content-Type": "application/json", ...authHeader },
-          body: JSON.stringify(createPayload),
         })
       }
 
