@@ -57,7 +57,6 @@ export function useAuth() {
     try {
       const profile = await getProfile();
       setUser(profile);
-      console.log("User Profile:", profile);
     } catch (e: any) {
       console.error("❌ Erreur lors de la récupération du profil:", e.message);
       setError(e.message);
@@ -76,10 +75,6 @@ export function useAuth() {
    * 3. Le nettoyage des ressources quand le hook se démonte
    */
   useEffect(() => {
-    console.log("🔧 Initialisation du hook useAuth");
-
-    
-
     /**
      * 👂 Écoute des événements d'authentification
      *
@@ -90,25 +85,17 @@ export function useAuth() {
      * - Une expiration automatique de token
      * - Un refresh automatique de token
      */
-    console.log("👂 Configuration de l'écoute des événements auth...");
-
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (event, session) => {
-      console.log(`🔄 Événement d'authentification: ${event}`, {
-        user: session?.user?.email || "Aucun",
-        timestamp: new Date().toISOString(),
-      });
       switch (event) {
         case "INITIAL_SESSION":
         case "SIGNED_IN":
           setLoading(true);
           if (session?.user && !profileFetched.current) {
-            console.log(`✅ Event: ${event}. Fetching profile.`);
             await fetchProfile();
             profileFetched.current = true;
           } else {
-            console.log(`✅ Event: ${event}. Profile already loaded or no session.`);
             setLoading(false);
           }
           break;
@@ -117,7 +104,6 @@ export function useAuth() {
           setLoading(true);
           // Always fetch on USER_UPDATED as data has changed
           if (session?.user) {
-            console.log(`✅ Event: ${event}. Re-fetching profile due to update.`);
             await fetchProfile();
           } else {
             setUser(null);
@@ -126,12 +112,10 @@ export function useAuth() {
           break;
 
         case "TOKEN_REFRESHED":
-          console.log("✅ Token a été rafraîchi");
           // No need to do anything here, session is updated automatically.
           break;
 
         case "SIGNED_OUT":
-          console.log("👋 Utilisateur déconnecté");
           setUser(null);
           setError(null);
           profileFetched.current = false; // Reset the flag
@@ -140,12 +124,10 @@ export function useAuth() {
           break;
 
         case "PASSWORD_RECOVERY":
-          console.log("🔑 Processus de récupération de mot de passe initié");
           setLoading(false);
           break;
 
         default:
-          console.log(`ℹ️ Événement non géré: ${event}`);
           setLoading(false);
       }
     });
@@ -161,7 +143,6 @@ export function useAuth() {
      * Elle évite les fuites mémoire en supprimant les écouteurs d'événements
      */
     return () => {
-      console.log("🧹 Nettoyage du hook useAuth");
       subscription.unsubscribe();
     };
   }, [supabase, router, fetchProfile]); // Dépendances stables qui ne changent jamais
@@ -180,8 +161,6 @@ export function useAuth() {
    */
   const login = useCallback(
     async (email: string, password: string): Promise<AuthResponse> => {
-      console.log("🔑 Tentative de connexion via l'API pour:", email);
-
       if (!email || !password) {
         return { success: false, error: "Email et mot de passe requis" };
       }
@@ -203,9 +182,6 @@ export function useAuth() {
           return { success: false, error: userFriendlyError };
         }
 
-        console.log(
-          "✅ Connexion réussie, l'événement va déclencher la mise à jour du profil."
-        );
         return { success: true, data: result.data };
       } catch (networkError: any) {
         console.error("💥 Erreur réseau lors de la connexion:", networkError);
@@ -224,8 +200,6 @@ export function useAuth() {
    * Cette fonction gère proprement la déconnexion en appelant l'API.
    */
   const logout = useCallback(async (): Promise<AuthResponse> => {
-    console.log("👋 Tentative de déconnexion via l'API...");
-
     try {
       const response = await fetch("/api/auth/logout", { method: "POST" });
 
@@ -236,7 +210,6 @@ export function useAuth() {
       }
 
       setUser(null); // Mise à jour manuelle de l'état
-      console.log("✅ Déconnexion réussie");
       router.push("/"); // Redirection explicite
       return { success: true };
     } catch (error: any) {
@@ -260,8 +233,6 @@ export function useAuth() {
       password: string,
       metadata?: AuthMetadata
     ): Promise<AuthResponse> => {
-      console.log("📝 Tentative d'inscription via l'API pour:", email);
-
       // Validation côté client
       if (!email || !password) {
         return { success: false, error: "Email et mot de passe requis" };
@@ -291,7 +262,6 @@ export function useAuth() {
           };
         }
 
-        console.log("✅ Inscription réussie pour:", email);
         return { success: true, data: result.data, message: result.message };
       } catch (networkError: any) {
         console.error("💥 Erreur réseau lors de l'inscription:", networkError);
@@ -309,8 +279,6 @@ export function useAuth() {
    */
   const resetPassword = useCallback(
     async (email: string): Promise<AuthResponse> => {
-      console.log("🔄 Demande de réinitialisation pour:", email);
-
       if (!email) {
         return { success: false, error: "Email requis" };
       }
@@ -327,8 +295,6 @@ export function useAuth() {
           console.error("❌ Erreur de réinitialisation:", error.message);
           return { success: false, error: error.message };
         }
-
-        console.log("✅ Email de réinitialisation envoyé à:", email);
 
         return {
           success: true,
@@ -354,8 +320,6 @@ export function useAuth() {
       password?: string;
       data?: AuthMetadata;
     }): Promise<AuthResponse> => {
-      console.log("👤 Mise à jour du profil utilisateur");
-
       try {
         const { data, error } = await supabase.auth.updateUser(updates);
 
@@ -364,7 +328,6 @@ export function useAuth() {
           return { success: false, error: error.message };
         }
 
-        console.log("✅ Profil mis à jour avec succès");
         return { success: true, data };
       } catch (error: any) {
         console.error("💥 Erreur inattendue lors de la mise à jour:", error);
